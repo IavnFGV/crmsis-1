@@ -1,0 +1,4 @@
+/config/environment.env
+/.idea/
+/build/venv/
+/build/build.iml

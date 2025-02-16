@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  crmsis-clients-back-app:
+    image: ivandrozda/dti-crmsis-clients-back-v1:latest
+    container_name: crmsis_clients_back_app
+    ports:
+      - "7854:8080"
+    environment:
+      - QUARKUS_DATASOURCE_WEBHOOKS_DB_KIND=mysql
+      - QUARKUS_DATASOURCE_WEBHOOKS_USERNAME=${CRMSIS_WEBHOOKS_MYSQL_USER}
+      - QUARKUS_DATASOURCE_WEBHOOKS_PASSWORD=${CRMSIS_WEBHOOKS_MYSQL_PASSWORD}
+      - QUARKUS_DATASOURCE_WEBHOOKS_JDBC_URL=JDBC:MYSQL://crmsis_webhooks_mysql:3306/CRMSIS
+
+      - QUARKUS_DATASOURCE_CLIENTS_BACK_DB_KIND=mysql
+      - QUARKUS_DATASOURCE_CLIENTS_BACK_USERNAME=${CRMSIS_CLIENTS_BACK_MYSQL_USER}
+      - QUARKUS_DATASOURCE_CLIENTS_BACK_PASSWORD=${CRMSIS_CLIENTS_BACK_MYSQL_PASSWORD}
+      - QUARKUS_DATASOURCE_CLIENTS_BACK_JDBC_URL=JDBC:MYSQL://crmsis_clients_back_mysql:3306/CLIENTS_BACK
+
+      - QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=none
+      - QUARKUS_HTTP_PORT=8080
+      - QUARKUS_LOG_CONSOLE_DARKEN=10
+      - QUARKUS_INFO_ENABLED=TRUE
+      - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_ENABLED=true
+      - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_PATH=/metrics
+      - MP_METRICS_ENABLED=true
+    networks:
+      - common_network
+
+  crmsis-clients-back-mysql:
+    image: mysql:8.0
+    container_name: crmsis_clients_back_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CRMSIS_CLIENTS_BACK_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: CLIENTS_BACK
+      MYSQL_USER: ${CRMSIS_CLIENTS_BACK_MYSQL_USER}
+      MYSQL_PASSWORD: ${CRMSIS_CLIENTS_BACK_MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    networks:
+      - common_network
+    volumes:
+      - D:\projects\crmsis-1\config\crmsis-clients-back-mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+    #      - /mnt/volume_5g/mysql:/var/lib/mysql
+    ports:
+      - "${CRMSIS_CLIENTS_BACK_MYSQL_PORT}:3306"
+
+
+
+networks:
+  common_network:
+    driver: bridge

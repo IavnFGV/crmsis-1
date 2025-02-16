@@ -1,0 +1,9 @@
+### POST request to example server
+POST http://localhost:8081/clients/register
+Content-Type: application/json
+
+{
+  "name": "mufiksoft",
+  "url": "https://mufiksoft-sandbox.pipedrive.com",
+  "token": "d1d90d3c323958c6db6033be9ee8164ae092c809"
+}
