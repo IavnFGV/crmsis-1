@@ -1,16 +1,16 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.LoggingFilter;
 import dti.crmsis.back.clients.Constants;
+import dti.crmsis.back.clients.PipedriveRestClientV1;
 import dti.crmsis.back.clients.PipedriveRestClientV2;
 import dti.crmsis.back.clients.WebhooksRestClientV1;
 import dti.crmsis.back.clients.dto.*;
+import dti.crmsis.back.dao.clientsback.EventEntity;
 import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hibernate.query.sqm.TemporalUnit;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
@@ -29,20 +29,70 @@ public class ClientRegistrationService {
 
     @Inject
     @RestClient
+    PipedriveRestClientV1 pipedriveRestClientV1;
+
+    @Inject
+    @RestClient
     WebhooksRestClientV1 webhooksRestClientV1;
 
     @Inject
     PipedriveSyncService pipedriveSyncService;
 
+    @Inject
+    PipedriveInitialEventsServiceV1 pipedriveInitialEventsServiceV1;
+
     public void registerClient(String clientName, String apiToken, String pipedriveUrl) {
         CustomerEntity client = getCustomerEntity(clientName, apiToken, pipedriveUrl);
 
         String updatedUntil = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
-//         if(!registerWebhook(apiToken,client)){
-//             return;
-//         }
-        logger.info("Start syncing data for client " + client.customerName);
-        syncClientData(client, updatedUntil);
+         if(!registerWebhook(apiToken,client)){
+             return;
+         }
+        long rootEventId = startSyncingData(client, updatedUntil);
+//        syncClientData(client, updatedUntil, rootEventId);
+        generateInitialEvents(client, updatedUntil, rootEventId);
+        stopSyncData(client, updatedUntil, rootEventId);
+    }
+
+    @Transactional
+    protected void stopSyncData(CustomerEntity client, String updatedUntil, long rootEventId) {
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.customerName = client.customerName;
+        eventEntity.comments = "{ \"type\": \"STOP_SYNC\", \"client\": \"$CUSTOMER_NAME\", \"updatedUntil\": \"$UPDATED_UNTIL\" }"
+                .replace("$CUSTOMER_NAME", eventEntity.customerName)
+                .replace("$UPDATED_UNTIL", updatedUntil);
+        eventEntity.processedData = "{}";
+        eventEntity.parentId = rootEventId;
+        eventEntity.persist();
+    }
+
+    @Transactional
+    protected void generateInitialEvents(CustomerEntity client, String updatedUntil, long rootEventId) {
+        pipedriveInitialEventsServiceV1.extractPipelines(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractStages(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractDealFields(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractDeals(client.apiToken, updatedUntil, rootEventId);
+        pipedriveInitialEventsServiceV1.extractUsers(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractPersonFields(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractPersons(client.apiToken,updatedUntil, rootEventId);
+        pipedriveInitialEventsServiceV1.extractOrganizationFields(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractOrganizations(client.apiToken, updatedUntil, rootEventId);
+        pipedriveInitialEventsServiceV1.extractLeadLabels(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractLeads(client.apiToken, rootEventId);
+    }
+
+    @Transactional
+    protected long startSyncingData(CustomerEntity client, String updatedUntil) {
+        logger.info("Start syncing data for client" + client.customerName);
+
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.customerName = client.customerName;
+        eventEntity.comments = "{ \"type\": \"START_SYNC\", \"client\": \"$CUSTOMER_NAME\", \"updatedUntil\": \"$UPDATED_UNTIL\" }"
+                .replace("$CUSTOMER_NAME", eventEntity.customerName)
+                .replace("$UPDATED_UNTIL", updatedUntil);
+        eventEntity.processedData="{}";
+        eventEntity.persist();
+        return eventEntity.id;
     }
 
     @Transactional
@@ -63,7 +113,7 @@ public class ClientRegistrationService {
         boolean alreadyRegistered = response.getData().stream().anyMatch(webhookData -> webhookData.getSubscriptionUrl().equals(expectedUrl));
         if (alreadyRegistered) {
             logger.info("Webhook has been already registered!");
-            return false;
+            return true;
         }
 
         NewWebhookRequest request = new NewWebhookRequest(expectedUrl);
@@ -79,7 +129,8 @@ public class ClientRegistrationService {
     }
 
     @Transactional
-    protected void syncClientData(CustomerEntity client, String updatedUntil) {
+    protected void syncClientData(CustomerEntity client, String updatedUntil, long rootEventId) {
+
         List<PipelineResponse.Pipeline> pipelines = pipedriveSyncService.syncAndSavePipelines(client.apiToken);
         logger.info("Pipelines synced: " + pipelines.size());
 

@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PROCESSED_EVENTS")
-public class ProcessedEventsEntity extends PanacheEntityBase {
+@Table(name = "EVENTS")
+public class EventEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +16,7 @@ public class ProcessedEventsEntity extends PanacheEntityBase {
     @Column(name = "CUSTOMER_NAME", length = 50)
     public String customerName;
 
-    @Column(name ="REQUEST_ID")
+    @Column(name = "REQUEST_ID")
     public Long requestId;
 
     @Column(name = "PROCESSED_DATA", columnDefinition = "MEDIUMTEXT", nullable = false)
@@ -28,6 +28,9 @@ public class ProcessedEventsEntity extends PanacheEntityBase {
     @Column(name = "PARENT_ID")
     public Long parentId;
 
-    @Column(name = "PROCESSED_AT", nullable = false)
+    @Column(name = "PROCESSED_AT")
     public LocalDateTime processedAt;
+
+    @Column(insertable = false, updatable = false, name = "CREATED_AT",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    public LocalDateTime createdAt;
 }

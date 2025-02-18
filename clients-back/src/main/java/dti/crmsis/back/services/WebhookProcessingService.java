@@ -1,7 +1,7 @@
 package dti.crmsis.back.services;
 
 import dti.crmsis.back.dao.crmsis.RawRequestEntity;
-import dti.crmsis.back.dao.clientsback.ProcessedEventsEntity;
+import dti.crmsis.back.dao.clientsback.EventEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ public class WebhookProcessingService {
             String processedData = processWebhookData(rawRequest.getRequestData());
 
             // Сохраняем обработанные данные в CLIENTS_BACK
-            ProcessedEventsEntity processed = new ProcessedEventsEntity();
+            EventEntity processed = new EventEntity();
             processed.customerName = rawRequest.getCustomerName();
             processed.processedData = processedData;
             processed.processedAt = LocalDateTime.now();

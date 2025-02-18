@@ -1,5 +1,7 @@
 package dti.crmsis.back.services;
 
+import dti.crmsis.back.clients.Constants;
+import dti.crmsis.back.utils.TriFunction;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
@@ -35,4 +37,41 @@ public class PagingServiceV1 {
 
         return allItems;
     }
+
+
+
+    public void fetchAllData(String apiToken,Long rootEvent,
+                             TriFunction<Integer, Integer, String, String> apiCallFunction,
+                             BiFunction<String, Long, Long> function
+    ) {
+        int start = 0;
+        Long eventId = rootEvent;
+
+        try {
+            String jsonResponse;
+            do {
+                jsonResponse = apiCallFunction.apply(start, PAGE_LIMIT, apiToken);
+                eventId = function.apply(jsonResponse, eventId);
+                start += PAGE_LIMIT;
+            } while (hasMoreItems(jsonResponse));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch data", e);
+        }
+    }
+
+    private boolean hasMoreItems(String jsonResponse) {
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper()
+                    .readTree(jsonResponse)
+                    .path("additional_data")
+                    .path("pagination")
+                    .path("more_items_in_collection")
+                    .asBoolean(false);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract pagination info", e);
+        }
+    }
+
+
+
 }

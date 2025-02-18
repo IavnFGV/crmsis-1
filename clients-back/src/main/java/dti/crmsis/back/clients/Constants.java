@@ -8,4 +8,5 @@ public class Constants {
     public static final String V_2 = "/api/v2";
     public static final String V_1 = "/v1";
     public static final int PAGE_LIMIT = 200;
+    public static final int MAX_REQUESTS_PER_SECOND = 10;
 }
