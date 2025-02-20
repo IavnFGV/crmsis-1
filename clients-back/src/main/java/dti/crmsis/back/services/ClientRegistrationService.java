@@ -1,5 +1,6 @@
 package dti.crmsis.back.services;
 
+import dti.crmsis.back.ApiTokenRequestFilter;
 import dti.crmsis.back.clients.Constants;
 import dti.crmsis.back.clients.PipedriveRestClientV1;
 import dti.crmsis.back.clients.PipedriveRestClientV2;
@@ -41,7 +42,12 @@ public class ClientRegistrationService {
     @Inject
     PipedriveInitialEventsServiceV1 pipedriveInitialEventsServiceV1;
 
+    @Inject
+    ApiTokenRequestFilter apiTokenRequestFilter;
+
     public void registerClient(String clientName, String apiToken, String pipedriveUrl) {
+        apiTokenRequestFilter.setApiToken(apiToken);
+        try{
         CustomerEntity client = getCustomerEntity(clientName, apiToken, pipedriveUrl);
 
         String updatedUntil = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
@@ -49,9 +55,13 @@ public class ClientRegistrationService {
              return;
          }
         long rootEventId = startSyncingData(client, updatedUntil);
+
 //        syncClientData(client, updatedUntil, rootEventId);
-        generateInitialEvents(client, updatedUntil, rootEventId);
-        stopSyncData(client, updatedUntil, rootEventId);
+            generateInitialEvents(client, updatedUntil, rootEventId);
+            stopSyncData(client, updatedUntil, rootEventId);
+        }finally {
+            apiTokenRequestFilter.setApiToken(null);
+        }
     }
 
     @Transactional
@@ -68,17 +78,17 @@ public class ClientRegistrationService {
 
     @Transactional
     protected void generateInitialEvents(CustomerEntity client, String updatedUntil, long rootEventId) {
-        pipedriveInitialEventsServiceV1.extractPipelines(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractStages(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractDealFields(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractDeals(client.apiToken, updatedUntil, rootEventId);
-        pipedriveInitialEventsServiceV1.extractUsers(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractPersonFields(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractPersons(client.apiToken,updatedUntil, rootEventId);
-        pipedriveInitialEventsServiceV1.extractOrganizationFields(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractOrganizations(client.apiToken, updatedUntil, rootEventId);
-        pipedriveInitialEventsServiceV1.extractLeadLabels(client.apiToken, rootEventId);
-        pipedriveInitialEventsServiceV1.extractLeads(client.apiToken, rootEventId);
+        pipedriveInitialEventsServiceV1.extractPipelines(rootEventId);
+        pipedriveInitialEventsServiceV1.extractStages(rootEventId);
+        pipedriveInitialEventsServiceV1.extractDealFields(rootEventId);
+        pipedriveInitialEventsServiceV1.extractDeals(updatedUntil, rootEventId);
+        pipedriveInitialEventsServiceV1.extractUsers(rootEventId);
+        pipedriveInitialEventsServiceV1.extractPersonFields(rootEventId);
+        pipedriveInitialEventsServiceV1.extractPersons(updatedUntil, rootEventId);
+        pipedriveInitialEventsServiceV1.extractOrganizationFields(rootEventId);
+        pipedriveInitialEventsServiceV1.extractOrganizations(updatedUntil, rootEventId);
+        pipedriveInitialEventsServiceV1.extractLeadLabels(rootEventId);
+        pipedriveInitialEventsServiceV1.extractLeads(rootEventId);
     }
 
     @Transactional

@@ -59,6 +59,24 @@ public class PagingServiceV2 {
         }
     }
 
+
+    public void fetchAllDataNew(Long rootEvent,
+                             Function<String,String> apiCallFunction,
+                             BiFunction<String, Long, Long> function) {
+        String cursor = null;
+        Long eventId = rootEvent;
+        try {
+            do {
+                String jsonResponse = apiCallFunction.apply(cursor);
+                eventId = function.apply(jsonResponse, eventId);
+                cursor = extractNextCursor(jsonResponse);
+            } while (cursor != null && !cursor.isEmpty());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch data", e);
+        }
+    }
+
+
     private String extractNextCursor(String jsonResponse) {
         try {
             return new com.fasterxml.jackson.databind.ObjectMapper()

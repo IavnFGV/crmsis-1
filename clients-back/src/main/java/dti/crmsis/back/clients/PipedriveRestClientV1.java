@@ -1,15 +1,17 @@
 package dti.crmsis.back.clients;
 
+import dti.crmsis.back.ApiTokenRequestFilter;
 import dti.crmsis.back.clients.dto.DealFieldsResponse;
 import dti.crmsis.back.clients.dto.OrganizationFieldsResponse;
-import dti.crmsis.back.clients.dto.PipelineResponse;
 import dti.crmsis.back.clients.openapi.v1.model.GetPipelinesResponse;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(baseUri = Constants.API_PIPEDRIVE_COM + Constants.V_1)
+@RegisterProvider(ApiTokenRequestFilter.class)
 public interface PipedriveRestClientV1 {
 
     @GET
@@ -21,8 +23,13 @@ public interface PipedriveRestClientV1 {
     @GET
     @Path("/dealFields")
     String getDealFieldsAsJson(@QueryParam("start") Integer start,
-                               @QueryParam("limit") Integer limit,
-                               @QueryParam("api_token") String token);
+                               @QueryParam("limit") Integer limit);
+
+    @GET
+    @Path("/deals")
+    String getDealsAsJson(@QueryParam("start") Integer start,
+                          @QueryParam("limit") Integer limit);
+
 
     @GET
     @Path("/organizationFields")
@@ -33,22 +40,29 @@ public interface PipedriveRestClientV1 {
     @GET
     @Path("/organizationFields")
     String getOrganizationFieldsAsJson(@QueryParam("start") Integer start,
-                                       @QueryParam("limit") Integer limit,
-                                       @QueryParam("api_token") String token);
+                                       @QueryParam("limit") Integer limit);
 
     @GET
     @Path("/personFields")
     String getPersonFieldsAsJson(@QueryParam("start") Integer start,
-                                 @QueryParam("limit") Integer limit,
-                                 @QueryParam("api_token") String token);
+                                 @QueryParam("limit") Integer limit);
+
+    @GET
+    @Path("/persons/collection")
+    String getPersonsCollectionAsJson(
+            @QueryParam("cursor") String cursor,
+            @QueryParam("limit") Integer limit,
+            @QueryParam("since") String since,
+            @QueryParam("until") String until);
+
 
     @GET
     @Path("/users")
-    String getUsersAsJson(@QueryParam("api_token") String token);
+    String getUsersAsJson();
 
     @GET
     @Path("/leadLabels")
-    String getLeadLabelsAsJson(@QueryParam("api_token") String apiToken);
+    String getLeadLabelsAsJson();
 
     @GET
     @Path("/leads")
@@ -59,14 +73,28 @@ public interface PipedriveRestClientV1 {
                           @QueryParam("person_id") Integer personId,
                           @QueryParam("organization_id") Integer organizationId,
                           @QueryParam("filter_id") Integer filterId,
-                          @QueryParam("sort") String sort,
-                          @QueryParam("api_token") String token);
+                          @QueryParam("sort") String sort);
 
+    @GET
+    @Path("/organizations/collection")
+    String getOrganizationsCollectionAsJson(@QueryParam("cursor") String cursor,
+                                            @QueryParam("limit") Integer limit,
+                                            @QueryParam("since") String since,
+                                            @QueryParam("until") String until,
+                                            @QueryParam("owner_id") Integer ownerId,
+                                            @QueryParam("first_char") String firstChar
+
+    );
 
     @GET
     @Path("/pipelines")
-    GetPipelinesResponse getPipelines(@QueryParam("start") Integer start,
-                                      @QueryParam("limit") Integer limit,
-                                      @QueryParam("api_token") String token);
+    String getPipelinesAsJson(@QueryParam("start") Integer start,
+                              @QueryParam("limit") Integer limit);
+
+    @GET
+    @Path("/stages")
+    String getStagesAsJson(@QueryParam("start") Integer start,
+                           @QueryParam("limit") Integer limit);
+
 
 }

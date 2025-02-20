@@ -2,7 +2,6 @@ package dti.crmsis.back.services;
 
 import dti.crmsis.back.clients.Constants;
 import dti.crmsis.back.clients.PipedriveRestClientV1;
-import dti.crmsis.back.clients.PipedriveRestClientV2;
 import dti.crmsis.back.clients.openapi.v1.api.PipelinesApi;
 import dti.crmsis.back.dao.clientsback.EventEntity;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,14 +11,12 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 @ApplicationScoped
 public class PipedriveInitialEventsServiceV1 {
 
+    @Inject
+    PagingServiceV1 pagingServiceV1;
 
     @Inject
     PagingServiceV2 pagingServiceV2;
-    @Inject
-    PagingServiceV1 pagingServiceV1;
-    @Inject
-    @RestClient
-    private PipedriveRestClientV2 pipedriveRestClientV2;
+
     @Inject
     @RestClient
     private PipedriveRestClientV1 pipedriveRestClientV1;
@@ -27,15 +24,6 @@ public class PipedriveInitialEventsServiceV1 {
     @Inject
     @RestClient
     PipelinesApi pipelinesApi;
-
-    public void extractPipelines(String apiToken, long rootEvent) {
-        pagingServiceV2.fetchAllData(apiToken, rootEvent,
-                this::getPipelines,
-                (json, rootEventId) -> persistEvent(json, rootEventId, "PIPELINES")
-        );
-
-
-    }
 
     private static Long persistEvent(String json, Long rootEventId, String entityType) {
         EventEntity eventEntity = new EventEntity();
@@ -46,104 +34,112 @@ public class PipedriveInitialEventsServiceV1 {
         return eventEntity.id;
     }
 
-    private String getPipelines(String cursor, String token) {
-        return pipedriveRestClientV2.getPipelinesAsJson(null, null, Constants.PAGE_LIMIT, cursor, token);
+    public void extractPipelines(long rootEvent) {
+        pagingServiceV1.fetchAllDataNew(rootEvent,
+                this::getPipelines,
+                (json, rootEventId) -> persistEvent(json, rootEventId, "PIPELINES")
+        );
     }
 
-    public void extractStages(String apiToken, long rootEventId) {
-        pagingServiceV2.fetchAllData(
-                apiToken, rootEventId,
+    private String getPipelines(Integer start) {
+        return pipedriveRestClientV1.getPipelinesAsJson(start, Constants.PAGE_LIMIT);
+    }
+
+    public void extractStages(long rootEventId) {
+        pagingServiceV1.fetchAllDataNew(
+                rootEventId,
                 this::getStages,
                 (String json, Long rootEvent) -> persistEvent(json, rootEvent, "STAGES")
         );
     }
 
-    private String getStages(String cursor, String token) {
-        return pipedriveRestClientV2.getStagesAsJson(null, null, null, Constants.PAGE_LIMIT, cursor, token);
+    private String getStages(Integer start) {
+        return pipedriveRestClientV1.getStagesAsJson(start, Constants.PAGE_LIMIT);
     }
 
-    public void extractDealFields(String apiToken, long rootEventId) {
-        pagingServiceV1.fetchAllData(apiToken, rootEventId,
+    public void extractDealFields(long rootEventId) {
+        pagingServiceV1.fetchAllDataNew(rootEventId,
                 this::getDealFields,
                 (json, rootEvent) -> persistEvent(json, rootEvent, "DEAL_FIELDS")
         );
     }
 
-    private String getDealFields(Integer start, Integer limit, String token) {
-        return pipedriveRestClientV1.getDealFieldsAsJson(start, limit, token);
+    private String getDealFields(Integer start) {
+        return pipedriveRestClientV1.getDealFieldsAsJson(start, Constants.PAGE_LIMIT);
     }
 
-    public void extractDeals(String apiToken, String updatedUntil, long rootEventId) {
-        pagingServiceV2.fetchAllData(apiToken, rootEventId,
-                (cursor, token) -> {
-                    return pipedriveRestClientV2.getDealsAsJson(null, null, null, null, null, null, null,
-                            null, null, updatedUntil, null, null, null, null,
-                            Constants.PAGE_LIMIT, cursor, token);
-                },
+    public void extractDeals(String updatedUntil, long rootEventId) {
+        pagingServiceV1.fetchAllDataNew(rootEventId,
+                this::getDeals,
                 (json, rootEvent) -> persistEvent(json, rootEvent, "DEALS")
         );
     }
 
-    public void extractUsers(String apiToken, long rootEventId) {
-        String usersAsString = pipedriveRestClientV1.getUsersAsJson(apiToken);
+    private String getDeals(Integer start) {
+        return pipedriveRestClientV1.getDealsAsJson(start, Constants.PAGE_LIMIT);
+    }
+
+    public void extractUsers(long rootEventId) {
+        String usersAsString = pipedriveRestClientV1.getUsersAsJson();
         persistEvent(usersAsString, rootEventId, "USERS");
     }
 
-    public void extractPersonFields(String apiToken, long rootEventId) {
-        pagingServiceV1.fetchAllData(apiToken, rootEventId,
+    public void extractPersonFields(long rootEventId) {
+        pagingServiceV1.fetchAllDataNew(rootEventId,
                 this::getPersonFields,
                 (json, rootEvent) -> persistEvent(json, rootEvent, "PERSON_FIELDS")
         );
     }
 
-    private String getPersonFields(Integer start, Integer limit, String token) {
-        return pipedriveRestClientV1.getPersonFieldsAsJson(start, limit, token);
+    private String getPersonFields(Integer start) {
+        return pipedriveRestClientV1.getPersonFieldsAsJson(start, Constants.PAGE_LIMIT);
     }
 
-    public void extractPersons(String apiToken, String updatedUntil, long rootEventId) {
-        pagingServiceV2.fetchAllData(apiToken, rootEventId,
-                (cursor, token) -> {
-                    return pipedriveRestClientV2.getPersonsAsJson(null, null, null, null, null, updatedUntil, null,
-                            null, null, null, Constants.PAGE_LIMIT, cursor, token);
+    public void extractPersons(String updatedUntil, long rootEventId) {
+        pagingServiceV2.fetchAllDataNew(rootEventId,
+                (cursor) -> {
+                    return pipedriveRestClientV1.getPersonsCollectionAsJson(cursor, Constants.PAGE_LIMIT, null, updatedUntil);
                 },
                 (json, rootEvent) -> persistEvent(json, rootEvent, "PERSONS"));
     }
 
-    public void extractOrganizationFields(String apiToken, long rootEventId) {
-        pagingServiceV1.fetchAllData(apiToken, rootEventId,
+    public void extractOrganizationFields(long rootEventId) {
+        pagingServiceV1.fetchAllDataNew(rootEventId,
                 this::getOrganizationFields,
                 (json, rootEvent) -> persistEvent(json, rootEvent, "ORGANIZATION_FIELDS")
         );
     }
 
-    private String getOrganizationFields(Integer start, Integer limit, String token) {
-        return pipedriveRestClientV1.getOrganizationFieldsAsJson(start, limit, token);
+    private String getOrganizationFields(Integer start) {
+        return pipedriveRestClientV1.getOrganizationFieldsAsJson(start, Constants.PAGE_LIMIT);
     }
 
-    public void extractOrganizations(String apiToken, String updatedUntil, long rootEventId) {
-        pagingServiceV2.fetchAllData(apiToken, rootEventId,
-                (cursor, token) -> {
-                    return pipedriveRestClientV2.getOrganizationsAsJson(null, null, null, null, updatedUntil, null, null,
-                            null, null, Constants.PAGE_LIMIT, cursor, token);
-                },
+    public void extractOrganizations(String updatedUntil, long rootEventId) {
+        pagingServiceV2.fetchAllDataNew( rootEventId,
+                (cursor) -> pipedriveRestClientV1.getOrganizationsCollectionAsJson(cursor, Constants.PAGE_LIMIT,
+                        null, updatedUntil, null, null),
                 (json, rootEvent) -> persistEvent(json, rootEvent, "ORGANIZATIONS")
         );
     }
 
-    public void extractLeadLabels(String apiToken, long rootEventId) {
-        String leadLabelsAsString = pipedriveRestClientV1.getLeadLabelsAsJson(apiToken);
+
+    public void extractLeadLabels(long rootEventId) {
+        String leadLabelsAsString = pipedriveRestClientV1.getLeadLabelsAsJson();
         persistEvent(leadLabelsAsString, rootEventId, "LEAD_LABELS");
     }
 
-    public void extractLeads(String apiToken, long rootEventId) {
-        pagingServiceV1.fetchAllData(apiToken, rootEventId,
+    public void extractLeads(long rootEventId) {
+        pagingServiceV1.fetchAllDataNew(rootEventId,
                 this::getLeads,
                 (json, rootEvent) -> persistEvent(json, rootEvent, "LEADS")
         );
     }
 
-    private String getLeads(Integer start, Integer limit, String token) {
-        return pipedriveRestClientV1.getLeadsAsJson(start,limit,null,null,null,
-                null,null,null,token);
+    private String getLeads(Integer start) {
+        return pipedriveRestClientV1.getLeadsAsJson(start, Constants.PAGE_LIMIT,
+                null, null, null,
+                null, null, null);
     }
+
+
 }

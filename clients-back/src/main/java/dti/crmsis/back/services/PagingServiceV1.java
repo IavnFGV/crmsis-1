@@ -1,6 +1,5 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.clients.Constants;
 import dti.crmsis.back.utils.TriFunction;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -58,6 +57,26 @@ public class PagingServiceV1 {
             throw new RuntimeException("Failed to fetch data", e);
         }
     }
+
+    public void fetchAllDataNew(Long rootEvent,
+                                Function<Integer, String> apiCallFunction,
+                                BiFunction<String, Long, Long> function
+    ) {
+        int start = 0;
+        Long eventId = rootEvent;
+
+        try {
+            String jsonResponse;
+            do {
+                jsonResponse = apiCallFunction.apply(start);
+                eventId = function.apply(jsonResponse, eventId);
+                start += PAGE_LIMIT;
+            } while (hasMoreItems(jsonResponse));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch data", e);
+        }
+    }
+
 
     private boolean hasMoreItems(String jsonResponse) {
         try {
