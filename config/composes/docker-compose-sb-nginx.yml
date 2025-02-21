@@ -1,0 +1,15 @@
+services:
+  sb-webhooks-nginx:
+    image: nginx:latest
+    container_name: sb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - D:\projects\sb-1\config\sb-webhooks-nginx:/etc/nginx/
+    networks:
+      - sb_network
+
+networks:
+  sb_network:
+    external: true
