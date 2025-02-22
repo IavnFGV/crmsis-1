@@ -32,3 +32,7 @@ copy_files() {
     cp -r ../config/scripts* /opt/sb/sb_project/config/scripts
 }
 
+install_python3
+create_network
+create_work_dir
+copy_files
