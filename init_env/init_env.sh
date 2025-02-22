@@ -11,6 +11,9 @@ install_python3() {
         echo "Python 3 is already installed."
     fi
 
+    apt update
+    apt install python3-pip -y
+
     python3 -m ensurepip --default-pip
     python3 -m pip install --upgrade pip
     pip install mysql-connector-python
@@ -18,7 +21,7 @@ install_python3() {
 }
 
 create_network() {
-    docker network create --if-not-exists sb_network
+    docker network create --if-not-present sb_network
 }
 
 create_work_dir() {
