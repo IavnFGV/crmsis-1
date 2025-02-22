@@ -10,9 +10,9 @@ create_work_dir() {
 }
 
 copy_files() {
-    cp -r ../config/composes/* /opt/sb/SB-project
-    cp -r ../config/nginx /opt/sb/SB-project/config/nginx
-    cp -r ../config/scripts /opt/sb/SB-project/config/scripts
+    cp -r ../../../config/composes/* /opt/sb/SB-project
+    cp -r ../../../config/nginx /opt/sb/SB-project/config/nginx
+    cp -r ../../../config/scripts /opt/sb/SB-project/config/scripts
 }
 
 
