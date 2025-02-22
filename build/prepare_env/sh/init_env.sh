@@ -7,6 +7,10 @@ create_network() {
 
 create_work_dir() {
     mkdir /opt/sb
+    mkdir /opt/sb/SB-project
+    mkdir /opt/sb/SB-project/config
+    mkdir /opt/sb/SB-project/config/nginx
+    mkdir /opt/sb/SB-project/config/scripts
 }
 
 copy_files() {
@@ -15,6 +19,3 @@ copy_files() {
     cp -r ../../../config/scripts /opt/sb/SB-project/config/scripts
 }
 
-
-create_network
-create_work_dir
