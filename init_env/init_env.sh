@@ -21,7 +21,7 @@ install_python3() {
 }
 
 create_network() {
-    docker network create --if-not-present sb_network
+    docker network create sb_network
 }
 
 create_work_dir() {
@@ -35,7 +35,7 @@ create_work_dir() {
 copy_files() {
     cp -r ../config/composes/* /opt/sb/sb_project
     cp -r ../config/nginx/* /opt/sb/sb_project/config/nginx
-    cp -r ../config/scripts* /opt/sb/sb_project/config/scripts
+    cp -r ../config/scripts/* /opt/sb/sb_project/config/scripts
 }
 
 install_python3
