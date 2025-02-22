@@ -10,6 +10,9 @@ install_python3() {
     else
         echo "Python 3 is already installed."
     fi
+
+    python3 -m ensurepip --default-pip
+    python3 -m pip install --upgrade pip
     pip install mysql-connector-python
     pip install python-dotenv
 }
