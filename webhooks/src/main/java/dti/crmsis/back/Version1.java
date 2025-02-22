@@ -19,7 +19,7 @@ public class Version1 {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response hello() {
-        return Response.ok(Version1.class.getSimpleName() + " says hello ").build();
+        return Response.ok(Version1.class.getSimpleName() + " says hello").build();
     }
 
     @POST
