@@ -4,3 +4,4 @@
 /build/build.iml
 /config/composes/environment.env
 /.idea/**
+/config/composes/environment_single_database.env

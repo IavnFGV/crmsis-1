@@ -1,4 +1,5 @@
-USE CRMSIS;
+CREATE DATABASE SB_CLIENTS_BACK; -- remove this when switching to second node
+USE SB_APP;
 
 CREATE TABLE RAW_REQUESTS
 (

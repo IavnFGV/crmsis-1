@@ -5,14 +5,14 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${SB_WEBHOOKS_MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: SB_WEBHOOKS
+      MYSQL_DATABASE: SB_APP
       MYSQL_USER: ${SB_WEBHOOKS_MYSQL_USER}
       MYSQL_PASSWORD: ${SB_WEBHOOKS_MYSQL_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - sb_network
     volumes:
-      - D:\projects\crmsis-1\config\crmsis-webhook-mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - config/scripts/sb_app.sql:/docker-entrypoint-initdb.d/init.sql
     #      - /mnt/volume_5g/mysql:/var/lib/mysql
     ports:
       - "${SB_WEBHOOKS_MYSQL_PORT}:3306"

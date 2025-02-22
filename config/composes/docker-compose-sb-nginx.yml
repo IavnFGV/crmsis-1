@@ -6,7 +6,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - D:\projects\sb-1\config\sb-webhooks-nginx:/etc/nginx/
+      - config/nginx:/etc/nginx/
     networks:
       - sb_network
 

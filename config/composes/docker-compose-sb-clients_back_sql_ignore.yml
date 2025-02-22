@@ -5,14 +5,14 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${SB_CLIENTS_BACK_MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: CLIENTS_BACK
+      MYSQL_DATABASE: SB_CLIENTS_BACK
       MYSQL_USER: ${SB_CLIENTS_BACK_MYSQL_USER}
       MYSQL_PASSWORD: ${SB_CLIENTS_BACK_MYSQL_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - sb_network
     volumes:
-      - D:\projects\sb-1\config\sb-clients-back-mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - config/scripts/sb_clients_back.sql:/docker-entrypoint-initdb.d/init.sql
     #      - /mnt/volume_5g/mysql:/var/lib/mysql
     ports:
       - "${SB_CLIENTS_BACK_MYSQL_PORT}:3306"
