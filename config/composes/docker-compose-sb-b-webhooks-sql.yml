@@ -1,13 +1,13 @@
 services:
-  sb-webhooks-mysql:
+  sb-b-webhooks-sql:
     image: mysql:8.0
-    container_name: sb_webhooks_sql
+    container_name: sb_b_webhooks_sql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${SB_WEBHOOKS_MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SB_APP_MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: SB_APP
-      MYSQL_USER: ${SB_WEBHOOKS_MYSQL_USER}
-      MYSQL_PASSWORD: ${SB_WEBHOOKS_MYSQL_PASSWORD}
+      MYSQL_USER: ${SB_APP_MYSQL_USER}
+      MYSQL_PASSWORD: ${SB_APP_MYSQL_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - sb_network
@@ -15,7 +15,7 @@ services:
       - config/scripts/sb_app.sql:/docker-entrypoint-initdb.d/init.sql
     #      - /mnt/volume_5g/mysql:/var/lib/mysql
     ports:
-      - "${SB_WEBHOOKS_MYSQL_PORT}:3306"
+      - "${SB_APP_MYSQL_PORT}:3306"
 
 networks:
   sb_network:

@@ -1,7 +1,7 @@
 services:
-  sb-clients-back-mysql:
+  sb-b-sql:
     image: mysql:8.0
-    container_name: sb_clients_back_sql
+    container_name: sb_b_sql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${SB_CLIENTS_BACK_MYSQL_ROOT_PASSWORD}

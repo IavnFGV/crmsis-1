@@ -23,23 +23,23 @@ public class Version1 {
     }
 
     @POST
-    @Path("/webhook/{customerId}")
+    @Path("/webhook/{url_path}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response processRawRequest(@PathParam("customerId") String customerId, String jsonBody) {
+    public Response processRawRequest(@PathParam("url_path") String urlPath, String jsonBody) {
         String methodName = Utils.getCallerMethodName();
         Timer.Sample timer = Timer.start(meterRegistry);
         meterRegistry.counter(Version1.class.getSimpleName() + "." + methodName).increment();
-        this.save(customerId, jsonBody);
+        this.save(urlPath, jsonBody);
         timer.stop(meterRegistry.timer("timer-" + Version1.class.getSimpleName() + "." + methodName));
         return Response.ok("saved", MediaType.APPLICATION_JSON).build();
     }
 
     @Transactional
-    void save(String customerId, String jsonBody) {
+    void save(String urlPath, String jsonBody) {
         RawRequest rawRequest = new RawRequest();
         rawRequest.setRequestData(jsonBody);
-        rawRequest.setCustomerName(customerId);
+        rawRequest.setUrlPath(urlPath);
         rawRequest.persist();
     }
 
