@@ -4,6 +4,7 @@ import dti.crmsis.back.LoggingFilter;
 import dti.crmsis.back.clients.dto.NewWebhookRequest;
 import dti.crmsis.back.clients.dto.WebhookRegistrationResponse;
 import dti.crmsis.back.clients.dto.WebhookResponse;
+import dti.crmsis.back.services.Constants;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;

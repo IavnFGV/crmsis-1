@@ -5,6 +5,8 @@ import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,7 +16,8 @@ import java.net.URISyntaxException;
 @Priority(1000)
 public class ApiTokenRequestFilter implements ClientRequestFilter {
 
-    public String apiToken; // Можно загружать из конфига
+    @ConfigProperty(name = "APP_TOKEN")
+    public String apiToken;
 
     public void setApiToken(String apiToken) {
         this.apiToken = apiToken;

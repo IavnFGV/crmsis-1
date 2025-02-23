@@ -1,7 +1,6 @@
 package dti.crmsis.back.services;
 
 import dti.crmsis.back.ApiTokenRequestFilter;
-import dti.crmsis.back.clients.Constants;
 import dti.crmsis.back.clients.PipedriveRestClientV1;
 import dti.crmsis.back.clients.PipedriveRestClientV2;
 import dti.crmsis.back.clients.WebhooksRestClientV1;
@@ -45,29 +44,23 @@ public class ClientRegistrationService {
     @Inject
     ApiTokenRequestFilter apiTokenRequestFilter;
 
-    public void registerClient(String clientName, String apiToken, String pipedriveUrl) {
-        apiTokenRequestFilter.setApiToken(apiToken);
-        try{
-        CustomerEntity client = getCustomerEntity(clientName, apiToken, pipedriveUrl);
+    public void initClient(CustomerEntity client) {
 
         String updatedUntil = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
-         if(!registerWebhook(apiToken,client)){
-             return;
-         }
+        if (!registerWebhook(client)) {
+            return;
+        }
         long rootEventId = startSyncingData(client, updatedUntil);
 
 //        syncClientData(client, updatedUntil, rootEventId);
-            generateInitialEvents(client, updatedUntil, rootEventId);
-            stopSyncData(client, updatedUntil, rootEventId);
-        }finally {
-            apiTokenRequestFilter.setApiToken(null);
-        }
+        generateInitialEvents(client, updatedUntil, rootEventId);
+        stopSyncData(client, updatedUntil, rootEventId);
     }
 
     @Transactional
     protected void stopSyncData(CustomerEntity client, String updatedUntil, long rootEventId) {
         EventEntity eventEntity = new EventEntity();
-        eventEntity.customerName = client.customerName;
+        eventEntity.customerName = client.urlPath;
         eventEntity.comments = "{ \"type\": \"STOP_SYNC\", \"client\": \"$CUSTOMER_NAME\", \"updatedUntil\": \"$UPDATED_UNTIL\" }"
                 .replace("$CUSTOMER_NAME", eventEntity.customerName)
                 .replace("$UPDATED_UNTIL", updatedUntil);
@@ -93,32 +86,21 @@ public class ClientRegistrationService {
 
     @Transactional
     protected long startSyncingData(CustomerEntity client, String updatedUntil) {
-        logger.info("Start syncing data for client" + client.customerName);
+        logger.info("Start syncing data for client " + client.urlPath);
 
         EventEntity eventEntity = new EventEntity();
-        eventEntity.customerName = client.customerName;
+        eventEntity.customerName = client.urlPath;
         eventEntity.comments = "{ \"type\": \"START_SYNC\", \"client\": \"$CUSTOMER_NAME\", \"updatedUntil\": \"$UPDATED_UNTIL\" }"
                 .replace("$CUSTOMER_NAME", eventEntity.customerName)
                 .replace("$UPDATED_UNTIL", updatedUntil);
-        eventEntity.processedData="{}";
+        eventEntity.processedData = "{}";
         eventEntity.persist();
         return eventEntity.id;
     }
 
-    @Transactional
-    protected CustomerEntity getCustomerEntity(String clientName, String apiToken, String pipedriveUrl) {
-        CustomerEntity client = new CustomerEntity();
-        client.customerName = clientName;
-        client.fullName = clientName;
-        client.apiToken = apiToken;
-        client.url = pipedriveUrl;
-        client.persist();
-        return client;
-    }
+    private boolean registerWebhook(CustomerEntity client) {
 
-    private boolean registerWebhook(String apiToken, CustomerEntity client) {
-
-        String expectedUrl = Constants.URL_FOR_WEBHOOKS + client.customerName;
+        String expectedUrl = Constants.URL_FOR_WEBHOOKS + client.urlPath;
         WebhookResponse response = webhooksRestClientV1.getAll(client.apiToken);
         boolean alreadyRegistered = response.getData().stream().anyMatch(webhookData -> webhookData.getSubscriptionUrl().equals(expectedUrl));
         if (alreadyRegistered) {

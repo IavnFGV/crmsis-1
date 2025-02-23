@@ -1,6 +1,5 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.clients.Constants;
 import dti.crmsis.back.clients.PipedriveRestClientV1;
 import dti.crmsis.back.clients.openapi.v1.api.PipelinesApi;
 import dti.crmsis.back.dao.clientsback.EventEntity;

@@ -1,9 +1,10 @@
 package dti.crmsis.back.clients;
 
 import dti.crmsis.back.ApiTokenRequestFilter;
+import dti.crmsis.back.RateLimitFilter;
 import dti.crmsis.back.clients.dto.DealFieldsResponse;
 import dti.crmsis.back.clients.dto.OrganizationFieldsResponse;
-import dti.crmsis.back.clients.openapi.v1.model.GetPipelinesResponse;
+import dti.crmsis.back.services.Constants;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -12,6 +13,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(baseUri = Constants.API_PIPEDRIVE_COM + Constants.V_1)
 @RegisterProvider(ApiTokenRequestFilter.class)
+@RegisterProvider(RateLimitFilter.class)
 public interface PipedriveRestClientV1 {
 
     @GET

@@ -1,4 +1,6 @@
-CREATE DATABASE SB_CLIENTS_BACK; -- remove this when switching to second node
+CREATE DATABASE SB_CLIENTS_BACK;-- remove this when switching to second node
+GRANT ALL PRIVILEGES ON SB_CLIENTS_BACK.* TO 'sb_usr'@'%';
+
 USE SB_APP;
 
 CREATE TABLE RAW_REQUESTS

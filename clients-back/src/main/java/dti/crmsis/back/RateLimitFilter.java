@@ -1,6 +1,6 @@
 package dti.crmsis.back;
 
-import dti.crmsis.back.clients.Constants;
+import dti.crmsis.back.services.Constants;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;

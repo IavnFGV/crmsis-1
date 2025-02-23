@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static dti.crmsis.back.clients.Constants.PAGE_LIMIT;
+import static dti.crmsis.back.services.Constants.PAGE_LIMIT;
 
 @ApplicationScoped
 public class PagingServiceV1 {

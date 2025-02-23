@@ -3,6 +3,7 @@ package dti.crmsis.back.clients;
 import dti.crmsis.back.LoggingFilter;
 import dti.crmsis.back.RateLimitFilter;
 import dti.crmsis.back.clients.dto.*;
+import dti.crmsis.back.services.Constants;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;

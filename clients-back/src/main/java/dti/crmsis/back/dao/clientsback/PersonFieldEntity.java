@@ -17,7 +17,7 @@ public class PersonFieldEntity extends PanacheEntityBase {
     @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
     public Long idPipedrive;
 
-    @Column(name = "KEY", nullable = false)
+    @Column(name = "KEY_FIELD", nullable = false)
     public String key;
 
     @Column(name = "NAME", nullable = false)

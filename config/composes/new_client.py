@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Read input data
-full_name = input("FULL_NAME: ")
-url = input("URL: ")
-url_path = input("URL_PATH: ")
+full_name = input("FULL_NAME description of client: ")
+url = input("URL pipedrive address: ")
+url_path = input("URL_PATH we will catch webhooks on this postfix for our server: ")
 api_token = input("API_TOKEN: ")
 
 # Insert data into MySQL database

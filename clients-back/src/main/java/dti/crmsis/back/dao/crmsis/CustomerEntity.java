@@ -14,8 +14,8 @@ public class CustomerEntity extends PanacheEntity {
     @Column(name = "FULL_NAME", nullable = false)
     public String fullName;
 
-    @Column(name = "CUSTOMER_NAME", length = 50, unique = true, nullable = false)
-    public String customerName;
+    @Column(name = "URL_PATH", length = 50, unique = true, nullable = false)
+    public String urlPath;
 
     @Column(name = "CREATED_AT", updatable = false, insertable = false)
     public LocalDateTime createdAt;
@@ -30,6 +30,6 @@ public class CustomerEntity extends PanacheEntity {
     public String url;
 
     public static CustomerEntity findByCustomerName(String customerName) {
-        return find("customerName", customerName).firstResult();
+        return find("urlPath", customerName).firstResult();
     }
 }
