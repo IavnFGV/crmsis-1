@@ -24,8 +24,8 @@ def build_clients_back_docker_image():
 
 
 
-build_webhooks_app()
-build_webhooks_docker_image()
+# build_webhooks_app()
+# build_webhooks_docker_image()
 
 build_clients_back_app()
 build_clients_back_docker_image()

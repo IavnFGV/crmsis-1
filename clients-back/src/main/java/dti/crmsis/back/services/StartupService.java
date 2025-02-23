@@ -1,14 +1,15 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.LoggingFilter;
 import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
 import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import io.quarkus.runtime.Startup;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
+
+import static dti.crmsis.back.services.Constants.STARTUP_SERVICE_START_UP_PRIORITY;
 
 
 @ApplicationScoped
@@ -23,7 +24,7 @@ public class StartupService {
     @ConfigProperty(name = "APP_TOKEN")
     public String apiToken;
 
-    @Startup(5000)
+    @Startup(STARTUP_SERVICE_START_UP_PRIORITY)
     public void start() {
         if (alreadyInitted()) return;
         CustomerEntity customerEntity = getCustomerEntity();

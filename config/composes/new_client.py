@@ -47,7 +47,7 @@ cursor.close()
 conn.close()
 
 # Process docker-compose file
-with open('docker-compose-sb-b-app.yml', 'r') as file:
+with open('docker-compose-sb-b-app-template.yml', 'r') as file:
     docker_compose_content = file.read()
 
 docker_compose_content = docker_compose_content.replace('$@{SB_APP_URL_PATH}', url_path)

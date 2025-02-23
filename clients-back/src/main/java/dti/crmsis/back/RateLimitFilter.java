@@ -1,6 +1,7 @@
 package dti.crmsis.back;
 
 import dti.crmsis.back.services.Constants;
+import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
@@ -16,8 +17,17 @@ import java.util.concurrent.TimeUnit;
 @Priority(5000)
 public class RateLimitFilter implements ClientResponseFilter , ClientRequestFilter {
 
-    private static final Semaphore semaphore = new Semaphore(Constants.MAX_REQUESTS_PER_SECOND);
+    private static Semaphore semaphore;
     private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
+    {
+        log.info("Rate limit filter created.");
+    }
+
+    @Startup(Constants.RATE_LIMIT_FILTER_START_UP_PRIORITY)
+    public void init() {
+        log.info("Rate limit filter initialized.");
+        semaphore = new Semaphore(Constants.MAX_REQUESTS_PER_SECOND);
+    }
 
     @Override
     public void filter(ClientRequestContext clientRequestContext) throws IOException {
