@@ -13,7 +13,7 @@ services:
       - sb_network
     volumes:
       - ./config/scripts/sb_app.sql:/docker-entrypoint-initdb.d/init.sql
-    #      - /mnt/volume_5g/mysql:/var/lib/mysql
+      - /mnt/volume_5g/mysql:/var/lib/mysql
 #      - ./sb_app.sql:/docker-entrypoint-initdb.d/init.sql
 #      sql:
     ports:
