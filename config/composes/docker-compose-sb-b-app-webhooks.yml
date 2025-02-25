@@ -1,7 +1,7 @@
 services:
   sb-b-webhooks-app:
-    image: ivandrozda/sb-b-webhooks-app:latest
-    container_name: sb_b_webhooks_app
+    image: ivandrozda/sb-b-app-webhooks:latest
+    container_name: sb_b_app_webhooks
     restart: unless-stopped
     environment:
       - QUARKUS_DATASOURCE_DB_KIND=mysql

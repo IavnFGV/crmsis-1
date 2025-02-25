@@ -1,7 +1,7 @@
 services:
   sb-b-webhooks-sql:
     image: mysql:8.0
-    container_name: sb_b_webhooks_sql
+    container_name: sb_b_sql_webhooks
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${SB_APP_MYSQL_ROOT_PASSWORD}
