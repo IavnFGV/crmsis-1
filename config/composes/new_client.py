@@ -112,7 +112,7 @@ with open(nginx_conf_file_name, 'r') as file:
 
 new_location_config = f"""
       location /api/{url_path}{{
-          proxy_pass http://sb_b_{url_path}:8080;
+          proxy_pass http://sb_b_app_{url_path}:8080;
       }}
 #ADD_NEXT_LOCATION_HERE
 """
