@@ -70,14 +70,15 @@ print("Connected to MySQL as root.")
 root_cursor = root_conn.cursor()
 print("Root MySQL cursor created.")
 
+new_db_name= f'SB_{url_path}'.upper()
 # Create new database and grant privileges
-create_db_query = f"CREATE DATABASE SB_{url_path};"
-grant_privileges_query = f"GRANT ALL PRIVILEGES ON SB_{url_path}.* TO 'sb_usr'@'%';"
+create_db_query = f"CREATE DATABASE IF NOT EXISTS {new_db_name};"
+grant_privileges_query = f"GRANT ALL PRIVILEGES ON {new_db_name}.* TO 'sb_usr'@'%';"
 
 root_cursor.execute(create_db_query)
-print(f"Executed query to create database SB_{url_path}.")
+print(f"Executed query to create database {new_db_name}.")
 root_cursor.execute(grant_privileges_query)
-print(f"Executed query to grant privileges on SB_{url_path}.")
+print(f"Executed query to grant privileges on {new_db_name}.")
 root_conn.commit()
 print("Root database changes committed.")
 
@@ -92,6 +93,7 @@ with open('docker-compose-sb-b-app-template.yml', 'r') as file:
 print("Read docker-compose template file.")
 
 docker_compose_content = docker_compose_content.replace('$@{SB_APP_URL_PATH}', url_path)
+docker_compose_content = docker_compose_content.replace('$@{SB_NEW_DATABASE_NAME}', new_db_name)
 docker_compose_content = docker_compose_content.replace('$@{SB_APP_TOKEN}', api_token)
 print("Replaced placeholders in docker-compose content.")
 
@@ -99,13 +101,13 @@ output_file_name = f'docker-compose-sb-b-app-{url_path}.yml'
 with open(output_file_name, 'w') as file:
     file.write(docker_compose_content)
 
-nginx_conf_file_name = f'../nginx/nginx.conf'
-backup_nginx_conf_file_name = f'../nginx/nginx.conf.bak'
+nginx_conf_file_name = f'./config/nginx/nginx.conf'
+backup_nginx_conf_file_name = f'./config/nginx/nginx.conf.bak'
 
 shutil.copyfile(nginx_conf_file_name, backup_nginx_conf_file_name)
 print(f'Backup of nginx config saved as {backup_nginx_conf_file_name}')
 
-with open(output_file_name, 'r') as file:
+with open(nginx_conf_file_name, 'r') as file:
     nginx_conf_file_content = file.read()
 
 new_location_config = f"""
