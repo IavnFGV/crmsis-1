@@ -95,6 +95,7 @@ print("Read docker-compose template file.")
 docker_compose_content = docker_compose_content.replace('$@{SB_APP_URL_PATH}', url_path)
 docker_compose_content = docker_compose_content.replace('$@{SB_NEW_DATABASE_NAME}', new_db_name)
 docker_compose_content = docker_compose_content.replace('$@{SB_APP_TOKEN}', api_token)
+docker_compose_content = docker_compose_content.replace('$@{SERVICE_SUFFIX}', url_path)
 print("Replaced placeholders in docker-compose content.")
 
 output_file_name = f'docker-compose-sb-b-app-{url_path}.yml'
