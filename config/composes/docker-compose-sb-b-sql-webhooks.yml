@@ -1,5 +1,5 @@
 services:
-  sb-b-webhooks-sql:
+  sb-b-sql-webhooks:
     image: mysql:8.0
     container_name: sb_b_sql_webhooks
     restart: unless-stopped

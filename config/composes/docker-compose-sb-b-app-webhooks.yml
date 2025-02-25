@@ -1,5 +1,5 @@
 services:
-  sb-b-webhooks-app:
+  sb-b-app-webhooks:
     image: ivandrozda/sb-b-app-webhooks:latest
     container_name: sb_b_app_webhooks
     restart: unless-stopped
