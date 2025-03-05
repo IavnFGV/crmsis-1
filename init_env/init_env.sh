@@ -55,12 +55,14 @@ create_work_dir() {
     mkdir -p /opt/sb/sb_project/config
     mkdir -p /opt/sb/sb_project/config/nginx
     mkdir -p /opt/sb/sb_project/config/scripts
+    mkdir -p /opt/sb/sb_project/config/mysql
 }
 
 copy_files() {
     cp -r ../config/composes/* /opt/sb/sb_project
     cp -r ../config/nginx/* /opt/sb/sb_project/config/nginx
     cp -r ../config/scripts/* /opt/sb/sb_project/config/scripts
+    cp -r ../config/mysql/* /opt/sb/sb_project/config/mysql
 }
 
 load_lazyapps

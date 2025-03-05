@@ -14,10 +14,19 @@ services:
     volumes:
       - ./config/scripts/sb_app.sql:/docker-entrypoint-initdb.d/init.sql
       - /mnt/volume_5gb/mysql:/var/lib/mysql
+      - ./config/mysql/my.cnf:/etc/mysql/my.cnf
 #      - ./sb_app.sql:/docker-entrypoint-initdb.d/init.sql
 #      sql:
     ports:
       - "${SB_APP_MYSQL_PORT}:3306"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 networks:
   sb_network:
