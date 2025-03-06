@@ -1,7 +1,9 @@
 package dti.crmsis.back.dao.clientsback;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +17,10 @@ public class PipelineEntity extends PanacheEntityBase {
 
     @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
     public Long idPipedrive;
+
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json",name = "JSON")
+    public String json;
 
     @Column(nullable = false)
     public String name;

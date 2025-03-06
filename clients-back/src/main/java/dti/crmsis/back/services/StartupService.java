@@ -19,7 +19,7 @@ public class StartupService {
 
 
     @Inject
-    ClientRegistrationService clientRegistrationService;
+    ClientRegistrationService_1 clientRegistrationService;
 
     @ConfigProperty(name = "APP_TOKEN")
     public String apiToken;
@@ -31,7 +31,6 @@ public class StartupService {
         initClient(customerEntity);
     }
 
-    @Transactional
     protected void initClient(CustomerEntity customerEntity) {
         try {
             if (customerEntity == null) {

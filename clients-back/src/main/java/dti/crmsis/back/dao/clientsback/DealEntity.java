@@ -1,7 +1,9 @@
 package dti.crmsis.back.dao.clientsback;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -17,6 +19,10 @@ public class DealEntity extends PanacheEntityBase {
 
     @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
     public Long idPipedrive;
+
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json",name = "JSON")
+    public String json;
 
     @Column(nullable = false, name = "TITLE")
     public String title;

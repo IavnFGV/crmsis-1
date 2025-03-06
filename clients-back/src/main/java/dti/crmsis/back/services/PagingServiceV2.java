@@ -1,6 +1,7 @@
 package dti.crmsis.back.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import static dti.crmsis.back.services.Constants.PAGE_LIMIT;
 
 @ApplicationScoped
 public class PagingServiceV2 {
+    private static final Logger logger = Logger.getLogger(PagingServiceV2.class);
 
 
     public <T, R> List<R> fetchAllPages(BiFunction<String, Integer, T> apiCall,
@@ -67,7 +69,13 @@ public class PagingServiceV2 {
         Long eventId = rootEvent;
         try {
             do {
-                String jsonResponse = apiCallFunction.apply(cursor);
+                String jsonResponse = null;
+                try {
+                    jsonResponse = apiCallFunction.apply(cursor);
+                } catch (Exception e) {
+                    logger.error("Failed to fetch data "+ e.getMessage(), e);
+                    jsonResponse = "{'error': '"+e.getMessage()+"'}";
+                }
                 eventId = function.apply(jsonResponse, eventId);
                 cursor = extractNextCursor(jsonResponse);
             } while (cursor != null && !cursor.isEmpty());
@@ -85,7 +93,7 @@ public class PagingServiceV2 {
                     .path("next_cursor")
                     .asText(null);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to extract next cursor", e);
+            return null;
         }
     }
 

@@ -1,0 +1,33 @@
+services:
+  sb-b-sql-webhooks:
+    image: mysql:8.0
+    container_name: sb_b_sql_webhooks
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SB_APP_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: SB_APP
+      MYSQL_USER: ${SB_APP_MYSQL_USER}
+      MYSQL_PASSWORD: ${SB_APP_MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    networks:
+      - sb_network
+    volumes:
+      - ../scripts/sb_app_local.sql:/docker-entrypoint-initdb.d/init.sql
+#      - /mnt/volume_5gb/mysql:/var/lib/mysql
+      - ../mysql/my.cnf:/etc/mysql/my.cnf
+#      - ./sb_app.sql:/docker-entrypoint-initdb.d/init.sql
+#      sql:
+    ports:
+      - "${SB_APP_MYSQL_PORT}:3306"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  sb_network:
+    external: true

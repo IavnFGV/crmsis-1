@@ -1,6 +1,7 @@
 package dti.crmsis.back.services;
 
 import dti.crmsis.back.ApiTokenRequestFilter;
+import dti.crmsis.back.clients.PipedriveRestClientGeneratedV1;
 import dti.crmsis.back.clients.PipedriveRestClientV1;
 import dti.crmsis.back.clients.PipedriveRestClientV2;
 import dti.crmsis.back.clients.WebhooksRestClientV1;
@@ -22,6 +23,9 @@ public class ClientRegistrationService {
 
     private static final Logger logger = Logger.getLogger(ClientRegistrationService.class);
 
+    @Inject
+    @RestClient
+    PipedriveRestClientGeneratedV1 pipedriveRestClientGeneratedV1;
 
     @Inject
     @RestClient

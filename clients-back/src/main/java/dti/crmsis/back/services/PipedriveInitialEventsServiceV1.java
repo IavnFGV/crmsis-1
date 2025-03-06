@@ -35,7 +35,7 @@ public class PipedriveInitialEventsServiceV1 {
 
     public void extractPipelines(long rootEvent) {
         pagingServiceV1.fetchAllDataNew(rootEvent,
-                this::getPipelines,
+                start -> pipedriveRestClientV1.getPipelinesAsJson(start, Constants.PAGE_LIMIT),
                 (json, rootEventId) -> persistEvent(json, rootEventId, "PIPELINES")
         );
     }
