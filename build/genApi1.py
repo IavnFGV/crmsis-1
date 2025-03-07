@@ -1,6 +1,8 @@
 import os
 import re
 
+from genInitialEvent import generate_java_initial_events_processor
+
 mandatory_methods =[
 # 'getActivities',
 'getActivitiesCollection',
@@ -235,9 +237,11 @@ def extract_methods(file_path):
 
 
         # print(f"Found method: {method_name}, returns: {return_type}, annotations: \n{annotations}, parameters: \n{parameters}")
-        print(f"{method_name} {new_parameters}")
-        extracted_methods.append((annotations, visibility, return_type, method_name, new_parameters))
-
+        # print(f"{method_name} {new_parameters}")
+        entity_name = None
+        if returnListOfEntities(annotations, visibility, return_type, method_name, parameters):
+            entity_name=method_name.replace("get","").replace("Collection","").upper().replace("FIELDS","_FIELDS").replace("TYPES","_TYPES").replace("LABELS","_LABELS")
+        extracted_methods.append((annotations, visibility, return_type, method_name, new_parameters, entity_name))
     return extracted_methods
 
 def process_directory(directory):
@@ -287,7 +291,7 @@ public interface PipedriveRestClientGeneratedV1 {
 """
 
     for file_name, methods in api_methods:
-        for annotations, visibility, return_type, method_name, parameters in methods:
+        for annotations, visibility, return_type, method_name, parameters, entity_names in methods:
             class_code += f"    {'\n\t '.join(annotations)}\n"
             class_code += f"    public {return_type} {method_name}({',\n\t\t '.join(parameters)});\n\n"
 
@@ -306,15 +310,14 @@ def save_code_to_file(file_name, class_code):
     print(f"{file_name} has been created.")
 
 
-def skipMethodInInitCLient(annotations, visibility, return_type, method_name, parameters):
+def returnListOfEntities(annotations, visibility, return_type, method_name, parameters):
     if (not "@jakarta.ws.rs.GET" in annotations):
-        return True
+        return False
     for annotation in annotations:
         if "@jakarta.ws.rs.Path" in annotation:
             if "{id}" in annotation:
-                return True
-    if method_name not in mandatory_methods:
-        return True
+                return False
+    return method_name in mandatory_methods
 
 
 def generate_java_init_service(api_methods):
@@ -337,9 +340,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @ApplicationScoped
-public class ClientRegistrationServiceGenerated {
+public class ClientDataExtractorServiceGenerated {
 
-    private static final Logger logger = Logger.getLogger(ClientRegistrationServiceGenerated.class);
+    private static final Logger logger = Logger.getLogger(ClientDataExtractorServiceGenerated.class);
 
     @Inject
     @RestClient
@@ -428,24 +431,19 @@ public class ClientRegistrationServiceGenerated {
     protected void generateInitialEvents(CustomerEntity client, String updatedUntil, long rootEventId) {
 """
 
-    entity_names = []
     for file_name, methods in api_methods:
-        for annotations, visibility, return_type, method_name, parameters in methods:
-            if(skipMethodInInitCLient(annotations, visibility, return_type, method_name, parameters)):
+        for annotations, visibility, return_type, method_name, parameters, entity_name in methods:
+            if(not entity_name):
                 continue
-            print(method_name)
             method_type = "NO_PARAMS"
             for parameter in parameters:
-                print(f"parameter: {parameter}")
+                # print(f"parameter: {parameter}")
                 if('String cursor' in parameter):
                     method_type = "CURSOR"
                     break
                 if("Integer start" in parameter):
                     method_type = "PAGING"
                     break
-            entity_name=method_name.replace("get","").replace("Collection","").upper().replace("FIELDS","_FIELDS").replace("TYPES","_TYPES").replace("LABELS","_LABELS")
-
-            entity_names.append(entity_name)
 
             if method_type == "NO_PARAMS":
                 def build_actual_params(parameters):
@@ -507,7 +505,7 @@ public class ClientRegistrationServiceGenerated {
             class_code += "\n"
     class_code += "}"  # close method
     class_code += "}"  # close class
-    return (class_code,entity_names)
+    return class_code
 
 
 def generateEntities(entity_names):
@@ -515,7 +513,7 @@ def generateEntities(entity_names):
         words = [word[0].upper() + word[1:] for word in entity_name[0:-1].replace("_"," ").lower().split()]
         className = "".join(words)+"Entity"
 
-        class_code = """package dti.crmsis.back.dao.clientsback;
+        class_code_common = """package dti.crmsis.back.dao.clientsback;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -531,12 +529,46 @@ public class $ENTITY_NAME extends PanacheEntityBase {
 public Long id;
 
         @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
-        public Long idPipedrive;
+        public Integer idPipedrive;
 
         @Type(JsonType.class)
     @Column(columnDefinition = "json",name = "JSON")
     public String json;
 """
+
+        class_code_uuid_id = """package dti.crmsis.back.dao.clientsback;
+
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+import java.util.UUID;
+
+@Entity
+@Table(name = "$TABLE_NAME")
+public class $ENTITY_NAME extends PanacheEntityBase {
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Column(name = "ID")
+public Long id;
+
+        @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
+        public UUID idPipedrive;
+
+        @Type(JsonType.class)
+    @Column(columnDefinition = "json",name = "JSON")
+    public String json;
+"""
+
+        if entity_name in ("LEADS", "LEAD_LABELS"):
+            class_code = class_code_uuid_id
+        else:
+            class_code = class_code_common
+
+
+        if className == "ActivitieEntity":
+            className = "ActivityEntity"
+
         class_code = class_code.replace("$ENTITY_NAME", className).replace("$TABLE_NAME", entity_name)
 
         class_code += "}"
@@ -544,17 +576,27 @@ public Long id;
         save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+className+".java", class_code)
 
 
-
 def main():
     # Указываем путь к директории с API-классами
     directory = "..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\openapi\\v1\\api"  # Заменить на фактический путь
     api_methods = process_directory(directory)
     java_rest_client = generate_java_rest_client(api_methods)
-    java_init_service, entity_names = generate_java_init_service(api_methods)
+    java_init_service = generate_java_init_service(api_methods)
     save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\generated\\PipedriveRestClientGeneratedV1.java", class_code=java_rest_client)
-    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\ClientRegistrationServiceGenerated.java", class_code=java_init_service)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\ClientDataExtractorServiceGenerated.java", class_code=java_init_service)
+    entity_names =[]
+    for file_name, methods in api_methods:
+        for annotations, visibility, return_type, method_name, parameters, entity_name in methods:
+            if(entity_name):
+                entity_names.append(entity_name)
+                print(return_type)
+
 
     generateEntities(entity_names)
+
+    initial_events_processor = generate_java_initial_events_processor(api_methods)
+
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\InitialEventsProcessorGenerated.java", class_code=initial_events_processor)
 
 if __name__ == "__main__":
     main()

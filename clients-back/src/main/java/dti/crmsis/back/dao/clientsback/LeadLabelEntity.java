@@ -5,6 +5,8 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "LEAD_LABELS")
 public class LeadLabelEntity extends PanacheEntityBase {
@@ -14,7 +16,7 @@ public class LeadLabelEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
-    public Long idPipedrive;
+    public UUID idPipedrive;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

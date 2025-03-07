@@ -19,25 +19,26 @@ public class StartupService {
 
 
     @Inject
-    ClientRegistrationServiceGenerated clientRegistrationServiceGenerated;
-
+    ClientDataExtractorServiceGenerated clientDataExtractorServiceGenerated;
+    @Inject
+    InitialEventsProcessorGenerated initialEventsProcessor;
     @ConfigProperty(name = "APP_TOKEN")
     public String apiToken;
 
     @Startup(STARTUP_SERVICE_START_UP_PRIORITY)
     public void start() {
-        if (!initialDataInDatabase()) {
-            CustomerEntity customerEntity = getCustomerEntity();
-            initClient(customerEntity);
-        }
-        if(!initialEventsProcessed()){
-            CustomerEntity customerEntity = getCustomerEntity();
-            processInitialEvents(customerEntity);
-        }
+//        if (!initialDataInDatabase()) {
+//            CustomerEntity customerEntity = getCustomerEntity();
+//            initClient(customerEntity);
+//        }
+//        if(!initialEventsProcessed()){
+//            CustomerEntity customerEntity = getCustomerEntity();
+            processInitialEvents(null);
+//        }
     }
 
     private void processInitialEvents(CustomerEntity customerEntity) {
-
+        initialEventsProcessor.processInitialEvents(customerEntity);
     }
 
     private boolean initialEventsProcessed() {
@@ -55,7 +56,7 @@ public class StartupService {
                 logger.fatalf("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. %s PLEASE REGISTER A CUSTOMER FIRST", apiToken);
                 throw new IllegalStateException("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. PLEASE REGISTER A CUSTOMER FIRST");
             }
-            clientRegistrationServiceGenerated.initClient(customerEntity);
+            clientDataExtractorServiceGenerated.initClient(customerEntity);
             logger.infof("Client successfully registered");
 
             ExtraInfoEntity.saveBoolean(Constants.INITIAL_DATA_LOAD, true);

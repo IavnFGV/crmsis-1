@@ -22,7 +22,7 @@ public class EventEntity extends PanacheEntityBase {
     @Column(name = "PROCESSED_DATA", columnDefinition = "MEDIUMTEXT", nullable = false)
     public String processedData;
 
-    @Column(name = "COMMENTS", columnDefinition = "MEDIUMTEXT", nullable = false)
+    @Column(name = "COMMENTS", columnDefinition = "JSON", nullable = false)
     public String comments;
 
     @Column(name = "PARENT_ID")

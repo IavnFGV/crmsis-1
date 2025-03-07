@@ -14,7 +14,7 @@ public class ProductFieldEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
-    public Long idPipedrive;
+    public Integer idPipedrive;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

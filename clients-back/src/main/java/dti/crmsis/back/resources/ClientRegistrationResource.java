@@ -1,7 +1,7 @@
 package dti.crmsis.back.resources;
 
 import dti.crmsis.back.dao.crmsis.CustomerEntity;
-import dti.crmsis.back.services.ClientRegistrationServiceGenerated;
+import dti.crmsis.back.services.ClientDataExtractorServiceGenerated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -23,7 +23,7 @@ public class ClientRegistrationResource {
     public String apiToken;
 
     @Inject
-    ClientRegistrationServiceGenerated clientRegistrationServiceGenerated;
+    ClientDataExtractorServiceGenerated clientDataExtractorServiceGenerated;
 
     @POST
     @Path("/force_init")
@@ -36,7 +36,7 @@ public class ClientRegistrationResource {
                         .build();
             }
 
-            clientRegistrationServiceGenerated.initClient(customerEntity);
+            clientDataExtractorServiceGenerated.initClient(customerEntity);
             return Response.ok().entity("Client successfully registered").build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
