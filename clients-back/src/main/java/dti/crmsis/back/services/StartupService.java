@@ -19,16 +19,34 @@ public class StartupService {
 
 
     @Inject
-    ClientRegistrationService_1 clientRegistrationService;
+    ClientRegistrationServiceGenerated clientRegistrationServiceGenerated;
 
     @ConfigProperty(name = "APP_TOKEN")
     public String apiToken;
 
     @Startup(STARTUP_SERVICE_START_UP_PRIORITY)
     public void start() {
-        if (alreadyInitted()) return;
-        CustomerEntity customerEntity = getCustomerEntity();
-        initClient(customerEntity);
+        if (!initialDataInDatabase()) {
+            CustomerEntity customerEntity = getCustomerEntity();
+            initClient(customerEntity);
+        }
+        if(!initialEventsProcessed()){
+            CustomerEntity customerEntity = getCustomerEntity();
+            processInitialEvents(customerEntity);
+        }
+    }
+
+    private void processInitialEvents(CustomerEntity customerEntity) {
+
+    }
+
+    private boolean initialEventsProcessed() {
+        boolean initialSetupDone = ExtraInfoEntity.getBooleanByName(Constants.INITIAL_EVENTS_PROCESSED);
+        if (initialSetupDone) {
+            logger.infov("Initial setup already done");
+            return true;
+        }
+        return false;
     }
 
     protected void initClient(CustomerEntity customerEntity) {
@@ -37,10 +55,10 @@ public class StartupService {
                 logger.fatalf("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. %s PLEASE REGISTER A CUSTOMER FIRST", apiToken);
                 throw new IllegalStateException("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. PLEASE REGISTER A CUSTOMER FIRST");
             }
-            clientRegistrationService.initClient(customerEntity);
+            clientRegistrationServiceGenerated.initClient(customerEntity);
             logger.infof("Client successfully registered");
 
-            ExtraInfoEntity.saveBoolean("INITIAL_SETUP_DONE", true);
+            ExtraInfoEntity.saveBoolean(Constants.INITIAL_DATA_LOAD, true);
         } catch (Exception e) {
             System.out.println("Failed to start the application");
             return;
@@ -48,8 +66,8 @@ public class StartupService {
     }
 
     @Transactional
-    protected static boolean alreadyInitted() {
-        boolean initialSetupDone = ExtraInfoEntity.getBooleanByName("INITIAL_SETUP_DONE");
+    protected static boolean initialDataInDatabase() {
+        boolean initialSetupDone = ExtraInfoEntity.getBooleanByName(Constants.INITIAL_DATA_LOAD);
         if (initialSetupDone) {
             logger.infov("Initial setup already done");
             return true;

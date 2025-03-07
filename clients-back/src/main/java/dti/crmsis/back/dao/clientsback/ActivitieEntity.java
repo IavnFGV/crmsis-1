@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "PIPELINES")
-public class PipelineEntity extends PanacheEntityBase {
+@Table(name = "ACTIVITIES")
+public class ActivitieEntity extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")

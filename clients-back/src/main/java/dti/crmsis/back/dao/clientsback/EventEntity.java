@@ -31,6 +31,6 @@ public class EventEntity extends PanacheEntityBase {
     @Column(name = "PROCESSED_AT")
     public LocalDateTime processedAt;
 
-    @Column(insertable = false, updatable = false, name = "CREATED_AT",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(insertable = false, updatable = false, name = "CREATED_AT", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public LocalDateTime createdAt;
 }

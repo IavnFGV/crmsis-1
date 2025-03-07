@@ -98,7 +98,6 @@ mandatory_methods =[
 # 'getPipelineDeals',
 # 'getPipelineMovementStatistics',
 'getPipelines',
-# 'getPipelinesAsJson',
 # 'getProductField',
 'getProductFields',
 # 'getProduct',
@@ -172,20 +171,27 @@ def extract_methods(file_path):
 
 
     # Шаг 1: Найти аннотации + метод без параметров
-    # Шаг 1: Найти аннотации + метод без параметров
     method_pattern = re.compile(
-        r'((?:\s*@(?:[\w.]+)(?:\([^)]*\))?\s*)+)'  # Аннотации (включая без параметров)
-        r'\s*(public|private|protected)\s+([\w<>]+)\s+(\w+)\s*'  # Метод (модификатор, тип, имя)
-        r'\(',  # Открывающая скобка параметров (но без их обработки)
-        re.MULTILINE
+        r'((?:\s*@(?:[\w.]+)(?:\([^)]*\))?\s*)*)'  # Аннотации (если есть)
+        r'\s*(public|private|protected)\s+([\w<>]+)\s+(\w+)\s*'  # Модификатор, тип, имя метода
+        r'\((.*?)\)\s*(?=\{|;)',  # Ограничение: метод должен заканчиваться на `);` или `) {`
+        re.MULTILINE | re.DOTALL
     )
 
     # Шаг 2: Найти параметры метода (разрешая переносы строк)
     param_pattern = re.compile(
-        r'((?:\s*@(?:[\w.]+)(?:\([^)]*\))?\s*)*'  # Аннотации параметров
-        r'\s*[\w<>]+\s+[\w]+\s*(?:,\s*)*)+',  # Тип + имя параметра (убираем лишнюю скобку)
-        re.MULTILINE
+        r'('
+        r'(?:'
+        r'\s*(?:@(?:[\w.]+)(?:\([^)]*\))?\s*)*'  # Опциональные аннотации (могут быть несколько)
+        r'\s*([\w<>]+)\s+([\w]+)\s*'  # Тип параметра + имя параметра
+        r'(?:,\s*)?'  # Опциональная запятая (если есть ещё параметры)
+        r')*'  # Повторяем шаблон для нескольких параметров
+        r')',
+        re.MULTILINE | re.DOTALL
     )
+
+    remove_generated_param_re = r'@io\.quarkiverse\.openapi\.generator\.annotations\.GeneratedParam\("[^"]+"\)\s*'
+
 
     extracted_methods = []
 
@@ -195,9 +201,12 @@ def extract_methods(file_path):
         return_type = match.group(3).strip()
         method_name = match.group(4).strip()
 
+        raw_params = match.group(5).strip()
+
+
         # Найти параметры после метода (ускоренный поиск)
-        param_match = param_pattern.search(content, match.end())
-        parameters = param_match.group(0).strip() if param_match else ""
+        param_match = param_pattern.search(raw_params)
+        parameters = param_match.group(1).strip() if param_match else ""
 
         new_parameters =[]
 
@@ -212,10 +221,7 @@ def extract_methods(file_path):
         #     continue
 
         for param in parameters.split(","):
-            new_param=""
-            for param_part in param.split("@"):
-                if param_part.startswith("jakarta.ws.rs.QueryParam"):
-                    new_param+=("@"+param_part)
+            new_param=re.sub(remove_generated_param_re, "", param).strip()
             new_parameters.append(new_param)
 
         annotations = [annotation.strip() for annotation in annotations.splitlines() if "@jakarta.ws.rs.Path" not in annotation]
@@ -250,28 +256,32 @@ def process_directory(directory):
 def generate_java_rest_client(api_methods):
     class_code = """package dti.crmsis.back.clients.generated;
 
+import dti.crmsis.back.LoggingFilter;
+import dti.crmsis.back.RateLimitFilter;
+
+import dti.crmsis.back.clients.openapi.v1.model.*;
+import dti.crmsis.back.services.Constants;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.inject.Inject;
-import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
-import dti.crmsis.back.LoggingFilter;
-import dti.crmsis.back.RateLimitFilter;
-import dti.crmsis.back.services.Constants;
-
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
+import static dti.crmsis.back.clients.openapi.v1.api.CallLogsApi.AddCallLogAudioFileMultipartForm;
+import static dti.crmsis.back.clients.openapi.v1.api.FilesApi.*;
+import static dti.crmsis.back.clients.openapi.v1.api.MailboxApi.UpdateMailThreadDetailsMultipartForm;
+import static dti.crmsis.back.clients.openapi.v1.api.PersonsApi.AddPersonPictureMultipartForm;
 
 @RegisterRestClient(baseUri = Constants.API_PIPEDRIVE_COM + Constants.V_1)
 @RestStreamElementType(MediaType.APPLICATION_JSON)
 @RegisterProvider(LoggingFilter.class)
 @RegisterProvider(RateLimitFilter.class)
-public interface PipedriveRestClientGeneratedV1.java {
+public interface PipedriveRestClientGeneratedV1 {
 
 
 """
@@ -279,13 +289,19 @@ public interface PipedriveRestClientGeneratedV1.java {
     for file_name, methods in api_methods:
         for annotations, visibility, return_type, method_name, parameters in methods:
             class_code += f"    {'\n\t '.join(annotations)}\n"
-            class_code += f"    public String {method_name}({',\n\t\t '.join(parameters)});\n\n"
+            class_code += f"    public {return_type} {method_name}({',\n\t\t '.join(parameters)});\n\n"
+
+            if(method_name in mandatory_methods):
+                class_code += f"    {'\n\t '.join(annotations)}\n"
+                class_code += f"    public String {method_name}AsJson({',\n\t\t '.join(parameters)});\n\n"
+
+
 
     class_code += "}"  # Закрываем класс
     return class_code
 
 def save_code_to_file(file_name, class_code):
-    with open("generated/"+file_name, "w", encoding="utf-8") as f:
+    with open(file_name, "w", encoding="utf-8") as f:
         f.write(class_code)
     print(f"{file_name} has been created.")
 
@@ -304,7 +320,7 @@ def skipMethodInInitCLient(annotations, visibility, return_type, method_name, pa
 def generate_java_init_service(api_methods):
     class_code = """package dti.crmsis.back.services;
 
-import dti.crmsis.back.clients.PipedriveRestClientGeneratedV1;
+import dti.crmsis.back.clients.generated.PipedriveRestClientGeneratedV1;
 import dti.crmsis.back.clients.WebhooksRestClientV1;
 import dti.crmsis.back.clients.dto.NewWebhookRequest;
 import dti.crmsis.back.clients.dto.WebhookRegistrationResponse;
@@ -321,9 +337,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @ApplicationScoped
-public class ClientRegistrationService_1 {
+public class ClientRegistrationServiceGenerated {
 
-    private static final Logger logger = Logger.getLogger(ClientRegistrationService_1.class);
+    private static final Logger logger = Logger.getLogger(ClientRegistrationServiceGenerated.class);
 
     @Inject
     @RestClient
@@ -332,9 +348,6 @@ public class ClientRegistrationService_1 {
     @Inject
     @RestClient
     WebhooksRestClientV1 webhooksRestClientV1;
-
-    @Inject
-    PipedriveInitialEventsServiceV1 pipedriveInitialEventsServiceV1;
 
     @Inject
     PagingServiceV1 pagingServiceV1;
@@ -443,13 +456,13 @@ public class ClientRegistrationService_1 {
                         actual_params.append("null")
                     return ",".join(actual_params)
                 actual_params = build_actual_params(parameters)
-                call_template= (f'persistEvent(pipedriveRestClientGeneratedV1.$METHOD_NAME($PARAMS), rootEventId, "$ENTITY_NAME");'.replace("$METHOD_NAME", method_name).replace("$ENTITY_NAME", entity_name)).replace("$PARAMS", actual_params)
+                call_template= (f'persistEvent(pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS), rootEventId, "$ENTITY_NAME");'.replace("$METHOD_NAME", method_name).replace("$ENTITY_NAME", entity_name)).replace("$PARAMS", actual_params)
                 class_code += call_template
 
             elif method_type == "CURSOR":
                 call_template = """pagingServiceV2.fetchAllDataNew(rootEventId,
                 (cursor) -> {
-                    return pipedriveRestClientGeneratedV1.$METHOD_NAME($PARAMS);
+                    return pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS);
                 },
                 (json, rootEvent) -> persistEvent(json, rootEvent, "$ENTITY_NAME"));"""
 
@@ -472,7 +485,7 @@ public class ClientRegistrationService_1 {
             elif method_type == "PAGING":
                 call_template = """pagingServiceV1.fetchAllDataNew(
                 rootEventId,
-                start-> pipedriveRestClientGeneratedV1.$METHOD_NAME($PARAMS),
+                start-> pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS),
                 (String json, Long rootEvent) -> persistEvent(json, rootEvent, "$ENTITY_NAME"));
                 """
                 def build_actual_params(parameters):
@@ -509,10 +522,6 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.util.List;
-
 @Entity
 @Table(name = "$TABLE_NAME")
 public class $ENTITY_NAME extends PanacheEntityBase {
@@ -528,22 +537,22 @@ public Long id;
     @Column(columnDefinition = "json",name = "JSON")
     public String json;
 """
-        class_code.replace("$ENTITY_NAME", className).replace("$TABLE_NAME", entity_name)
+        class_code = class_code.replace("$ENTITY_NAME", className).replace("$TABLE_NAME", entity_name)
 
         class_code += "}"
 
-        save_code_to_file(className+".java", class_code)
+        save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+className+".java", class_code)
 
 
 
 def main():
     # Указываем путь к директории с API-классами
-    directory = "D:\\projects\\crmsis-1\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\openapi\\v1\\api"  # Заменить на фактический путь
+    directory = "..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\openapi\\v1\\api"  # Заменить на фактический путь
     api_methods = process_directory(directory)
     java_rest_client = generate_java_rest_client(api_methods)
     java_init_service, entity_names = generate_java_init_service(api_methods)
-    save_code_to_file(file_name="GeneratedApi.java", class_code=java_rest_client)
-    save_code_to_file(file_name="GeneratedClient.java", class_code=java_init_service)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\generated\\PipedriveRestClientGeneratedV1.java", class_code=java_rest_client)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\ClientRegistrationServiceGenerated.java", class_code=java_init_service)
 
     generateEntities(entity_names)
 

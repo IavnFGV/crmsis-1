@@ -13,6 +13,8 @@ public class Constants {
     public static final int CONSTANTS_START_UP_PRIORITY = 1000;
     public static final int RATE_LIMIT_FILTER_START_UP_PRIORITY = 2000;
     public static final int STARTUP_SERVICE_START_UP_PRIORITY = 5000;
+    public static final String INITIAL_DATA_LOAD = "INITIAL_DATA_LOAD";
+    public static final String INITIAL_EVENTS_PROCESSED = "INITIAL_EVENTS_PROCESSED";
 
     public static String URL_FOR_WEBHOOKS;
     public static int PAGE_LIMIT;

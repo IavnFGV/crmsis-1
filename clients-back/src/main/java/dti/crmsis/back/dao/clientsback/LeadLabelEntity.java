@@ -1,27 +1,22 @@
 package dti.crmsis.back.dao.clientsback;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "LEAD_LABELS")
 public class LeadLabelEntity extends PanacheEntityBase {
-
     @Id
-    @Column(name = "ID", nullable = false, unique = true)
-    public UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    public Long id;
 
-    @Column(name = "NAME", nullable = false)
-    public String name;
+    @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
+    public Long idPipedrive;
 
-    @Column(name = "COLOR", nullable = false)
-    public String color;
-
-    @Column(name = "ADD_TIME")
-    public LocalDateTime addTime;
-
-    @Column(name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json", name = "JSON")
+    public String json;
 }

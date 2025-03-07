@@ -23,8 +23,8 @@ public class ExtraInfoEntity extends PanacheEntityBase {
     public String value;
 
     public static boolean getBooleanByName(String propertyName) {
-        ExtraInfoEntity extraInfoEntity =  find("name", propertyName).firstResult();
-        if(extraInfoEntity == null) {
+        ExtraInfoEntity extraInfoEntity = find("name", propertyName).firstResult();
+        if (extraInfoEntity == null) {
             return false;
         }
         return Boolean.parseBoolean(extraInfoEntity.value);
