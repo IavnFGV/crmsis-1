@@ -5,26 +5,12 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
-
+$SPECIFIC_IMPORTS
 
 @Entity
-@Table(name = "PIPELINES")
-public class PipelineEntity extends PanacheEntityBase {
+@Table(name = "$TABLE_NAME")
+public class $ENTITY_NAME extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     public Long id;
-
-    @Column(name = "ID_PIPEDRIVE")
-    public Integer idPipedrive;
-
-
-
-    @Type(JsonType.class)
-    @Column(columnDefinition = "json", name = "JSON")
-    public String json;
-
-    
-
-
-} //close class

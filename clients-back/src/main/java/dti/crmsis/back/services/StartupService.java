@@ -59,11 +59,16 @@ public class StartupService {
             clientDataExtractorServiceGenerated.initClient(customerEntity);
             logger.infof("Client successfully registered");
 
-            ExtraInfoEntity.saveBoolean(Constants.INITIAL_DATA_LOAD, true);
+            initialLoadDone();
         } catch (Exception e) {
             System.out.println("Failed to start the application");
             return;
         }
+    }
+
+    @Transactional
+    protected void initialLoadDone() {
+        ExtraInfoEntity.saveBoolean(Constants.INITIAL_DATA_LOAD, true);
     }
 
     @Transactional

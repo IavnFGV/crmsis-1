@@ -1,7 +1,9 @@
 package dti.crmsis.back.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.utils.TriFunction;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +12,16 @@ import java.util.function.Function;
 
 import static dti.crmsis.back.services.Constants.PAGE_LIMIT;
 
-@ApplicationScoped
+@Singleton
 public class PagingServiceV1 {
 
+
+    private final ObjectMapper objectMapper;
+
+    @jakarta.inject.Inject
+    public PagingServiceV1(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public <T, R> List<R> fetchAllPages(BiFunction<Integer, Integer, T> apiCall,
                                         Function<T, List<R>> extractor,
@@ -80,7 +89,7 @@ public class PagingServiceV1 {
 
     private boolean hasMoreItems(String jsonResponse) {
         try {
-            return new com.fasterxml.jackson.databind.ObjectMapper()
+            return objectMapper
                     .readTree(jsonResponse)
                     .path("additional_data")
                     .path("pagination")

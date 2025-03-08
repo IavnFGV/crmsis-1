@@ -1,6 +1,7 @@
 package dti.crmsis.back.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
 import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.function.Function;
 
 import static dti.crmsis.back.services.Constants.PAGE_LIMIT;
 
-@ApplicationScoped
+@Singleton
 public class PagingServiceV2 {
     private static final Logger logger = Logger.getLogger(PagingServiceV2.class);
 
@@ -69,13 +70,7 @@ public class PagingServiceV2 {
         Long eventId = rootEvent;
         try {
             do {
-                String jsonResponse = null;
-                try {
-                    jsonResponse = apiCallFunction.apply(cursor);
-                } catch (Exception e) {
-                    logger.error("Failed to fetch data "+ e.getMessage(), e);
-                    jsonResponse = "{'error': '"+e.getMessage()+"'}";
-                }
+                String jsonResponse = apiCallFunction.apply(cursor);
                 eventId = function.apply(jsonResponse, eventId);
                 cursor = extractNextCursor(jsonResponse);
             } while (cursor != null && !cursor.isEmpty());

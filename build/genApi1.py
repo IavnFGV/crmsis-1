@@ -1,11 +1,12 @@
 import os
 import re
 
+from genEntities import generate_entities
 from genInitialEvent import generate_java_initial_events_processor
 
 mandatory_methods =[
-# 'getActivities',
-'getActivitiesCollection',
+'getActivities',
+# 'getActivitiesCollection',
 # 'getActivity',
 'getActivityFields',
 'getActivityTypes',
@@ -305,8 +306,9 @@ public interface PipedriveRestClientGeneratedV1 {
     return class_code
 
 def save_code_to_file(file_name, class_code):
+    class_code1 = class_code.replace("\t","    ")
     with open(file_name, "w", encoding="utf-8") as f:
-        f.write(class_code)
+        f.write(class_code1)
     print(f"{file_name} has been created.")
 
 
@@ -338,6 +340,8 @@ import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.function.Supplier;
+
 
 @ApplicationScoped
 public class ClientDataExtractorServiceGenerated {
@@ -426,6 +430,17 @@ public class ClientDataExtractorServiceGenerated {
         }
         return false;
     }
+    
+     private String wrapToRetry(Supplier<String> apiCall) {
+        try {
+            return apiCall.get();
+        } catch (Exception e) {
+            logger.error("Failed to fetch activity fields", e);
+            return "{" +
+                   "\\"error\\": \\"" + e.getMessage() + "\\"" +
+                   "}";
+        }
+    }
 
 
     protected void generateInitialEvents(CustomerEntity client, String updatedUntil, long rootEventId) {
@@ -454,13 +469,14 @@ public class ClientDataExtractorServiceGenerated {
                         actual_params.append("null")
                     return ",".join(actual_params)
                 actual_params = build_actual_params(parameters)
-                call_template= (f'persistEvent(pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS), rootEventId, "$ENTITY_NAME");'.replace("$METHOD_NAME", method_name).replace("$ENTITY_NAME", entity_name)).replace("$PARAMS", actual_params)
+                call_template= (f'persistEvent(wrapToRetry(()->pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS)) , rootEventId, "$ENTITY_NAME");'.replace("$METHOD_NAME", method_name).replace("$ENTITY_NAME", entity_name)).replace("$PARAMS", actual_params)
                 class_code += call_template
 
             elif method_type == "CURSOR":
                 call_template = """pagingServiceV2.fetchAllDataNew(rootEventId,
                 (cursor) -> {
-                    return pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS);
+                
+                    return wrapToRetry(()-> pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS));
                 },
                 (json, rootEvent) -> persistEvent(json, rootEvent, "$ENTITY_NAME"));"""
 
@@ -483,13 +499,13 @@ public class ClientDataExtractorServiceGenerated {
             elif method_type == "PAGING":
                 call_template = """pagingServiceV1.fetchAllDataNew(
                 rootEventId,
-                start-> pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS),
+                start-> wrapToRetry(()->pipedriveRestClientGeneratedV1.$METHOD_NAMEAsJson($PARAMS)),
                 (String json, Long rootEvent) -> persistEvent(json, rootEvent, "$ENTITY_NAME"));
                 """
                 def build_actual_params(parameters):
                     actual_params = []
                     for parameter in parameters:
-                        if "start" in parameter:
+                        if "Integer start" in parameter:
                             actual_params.append("start")
                         elif "Integer limit" in parameter:
                             actual_params.append("Constants.PAGE_LIMIT")
@@ -508,74 +524,6 @@ public class ClientDataExtractorServiceGenerated {
     return class_code
 
 
-def generateEntities(entity_names):
-    for entity_name in entity_names:
-        words = [word[0].upper() + word[1:] for word in entity_name[0:-1].replace("_"," ").lower().split()]
-        className = "".join(words)+"Entity"
-
-        class_code_common = """package dti.crmsis.back.dao.clientsback;
-
-import io.hypersistence.utils.hibernate.type.json.JsonType;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
-
-@Entity
-@Table(name = "$TABLE_NAME")
-public class $ENTITY_NAME extends PanacheEntityBase {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "ID")
-public Long id;
-
-        @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
-        public Integer idPipedrive;
-
-        @Type(JsonType.class)
-    @Column(columnDefinition = "json",name = "JSON")
-    public String json;
-"""
-
-        class_code_uuid_id = """package dti.crmsis.back.dao.clientsback;
-
-import io.hypersistence.utils.hibernate.type.json.JsonType;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
-import java.util.UUID;
-
-@Entity
-@Table(name = "$TABLE_NAME")
-public class $ENTITY_NAME extends PanacheEntityBase {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "ID")
-public Long id;
-
-        @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
-        public UUID idPipedrive;
-
-        @Type(JsonType.class)
-    @Column(columnDefinition = "json",name = "JSON")
-    public String json;
-"""
-
-        if entity_name in ("LEADS", "LEAD_LABELS"):
-            class_code = class_code_uuid_id
-        else:
-            class_code = class_code_common
-
-
-        if className == "ActivitieEntity":
-            className = "ActivityEntity"
-
-        class_code = class_code.replace("$ENTITY_NAME", className).replace("$TABLE_NAME", entity_name)
-
-        class_code += "}"
-
-        save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+className+".java", class_code)
-
-
 def main():
     # Указываем путь к директории с API-классами
     directory = "..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\openapi\\v1\\api"  # Заменить на фактический путь
@@ -591,8 +539,9 @@ def main():
                 entity_names.append(entity_name)
                 print(return_type)
 
-
-    generateEntities(entity_names)
+    entities = generate_entities(entity_names)
+    for entity_name, entity_code in entities:
+        save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+entity_name+".java", entity_code)
 
     initial_events_processor = generate_java_initial_events_processor(api_methods)
 

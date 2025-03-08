@@ -15,10 +15,15 @@ public class LeadEntity extends PanacheEntityBase {
     @Column(name = "ID")
     public Long id;
 
-    @Column(name = "ID_PIPEDRIVE", unique = true, nullable = false)
+    @Column(name = "ID_PIPEDRIVE")
     public UUID idPipedrive;
+
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
-}
+
+    
+
+
+} //close class
