@@ -539,7 +539,7 @@ def main():
                 entity_names.append(entity_name)
                 print(return_type)
 
-    entities = generate_entities(entity_names)
+    entities,fields = generate_entities(entity_names,api_methods)
     for entity_name, entity_code in entities:
         save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+entity_name+".java", entity_code)
 

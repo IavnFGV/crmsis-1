@@ -4,6 +4,8 @@ import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
+import java.time.LocalDateTime;
+
 
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ public class LeadEntity extends PanacheEntityBase {
 
     @Column(name = "ID_PIPEDRIVE")
     public UUID idPipedrive;
+
 
 
     @Type(JsonType.class)

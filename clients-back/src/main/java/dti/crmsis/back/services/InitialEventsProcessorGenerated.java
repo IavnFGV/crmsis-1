@@ -18,10 +18,6 @@ import java.util.*;
 public class InitialEventsProcessorGenerated {
 
     private static final Logger logger = Logger.getLogger(InitialEventsProcessorGenerated.class);
-    Map<String,Map<String,Set<String>>> fields = new HashMap<>();
-    Map<String,Map<String,Set<String>>> dtos = new HashMap<>();
-
-
 
     @Inject
     private ObjectMapper objectMapper;
@@ -49,19 +45,6 @@ public class InitialEventsProcessorGenerated {
                 initTasks();
                 initUsers();
                 initWebhooks();
-
-            try(FileOutputStream fos=new FileOutputStream("D:\\projects\\crmsis-1\\fields.json"))
-            {
-
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(fos,fields);
-                System.out.println("The file has been written");
-            }
-            try(FileOutputStream fos=new FileOutputStream("D:\\projects\\crmsis-1\\dtos.json"))
-            {
-
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(fos,dtos);
-                System.out.println("The file has been written");
-            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -88,23 +71,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Activities", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Activities", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         ActivityEntity entity = new ActivityEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -142,23 +108,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Activity_Fields", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Activity_Fields", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         ActivityFieldEntity entity = new ActivityFieldEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -198,23 +147,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Activity_Types", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Activity_Types", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         ActivityTypeEntity entity = new ActivityTypeEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -252,23 +184,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Currencies", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Currencies", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         CurrencieEntity entity = new CurrencieEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -306,23 +221,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Deal_Fields", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Deal_Fields", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         DealFieldEntity entity = new DealFieldEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -362,23 +260,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Deals", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Deals", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         DealEntity entity = new DealEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -416,23 +297,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Lead_Labels", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Lead_Labels", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         LeadLabelEntity entity = new LeadLabelEntity();
                         entity.idPipedrive = UUID.fromString(node.get("id").asText());
@@ -470,23 +334,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Leads", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Leads", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         LeadEntity entity = new LeadEntity();
                         entity.idPipedrive = UUID.fromString(node.get("id").asText());
@@ -524,23 +371,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Organization_Fields", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Organization_Fields", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         OrganizationFieldEntity entity = new OrganizationFieldEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -580,23 +410,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Organizations", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Organizations", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         OrganizationEntity entity = new OrganizationEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -634,23 +447,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Person_Fields", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Person_Fields", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         PersonFieldEntity entity = new PersonFieldEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -690,23 +486,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Persons", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Persons", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         PersonEntity entity = new PersonEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -744,23 +523,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Pipelines", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Pipelines", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         PipelineEntity entity = new PipelineEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -798,23 +560,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Product_Fields", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Product_Fields", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         ProductFieldEntity entity = new ProductFieldEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -854,23 +599,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Products", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Products", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         ProductEntity entity = new ProductEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -908,23 +636,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Projects", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Projects", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         ProjectEntity entity = new ProjectEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -962,23 +673,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Roles", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Roles", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         RoleEntity entity = new RoleEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -1016,23 +710,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Stages", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Stages", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         StageEntity entity = new StageEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -1070,23 +747,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Tasks", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Tasks", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         TaskEntity entity = new TaskEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -1124,23 +784,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Users", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Users", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         UserEntity entity = new UserEntity();
                         entity.idPipedrive = node.get("id").asInt();
@@ -1178,23 +821,6 @@ public class InitialEventsProcessorGenerated {
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
-                            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                                String fieldName = it.next();
-                                Map<String, Set<String>> fieldMap = fields.computeIfAbsent(fieldName, k -> new HashMap<>());
-                                Set<String> values = fieldMap.computeIfAbsent("Webhooks", k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                                Map<String, Set<String>> fieldMap1 = dtos.computeIfAbsent("Webhooks", k -> new HashMap<>());
-                                Set<String> values1 = fieldMap1.computeIfAbsent(fieldName, k -> new HashSet<>());
-                                if(node.isTextual()){
-                                    values1.add(node.asText().substring(0,Math.min(10,node.asText().length())));
-                                }else{
-                                    values1.add(objectMapper.writeValueAsString(node.get(fieldName)));
-                                }
-                            }
                         entitiesCount++;
                         WebhookEntity entity = new WebhookEntity();
                         entity.idPipedrive = node.get("id").asInt();
