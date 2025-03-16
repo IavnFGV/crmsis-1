@@ -31,9 +31,15 @@ public class StartupService {
 //            CustomerEntity customerEntity = getCustomerEntity();
 //            initClient(customerEntity);
 //        }
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.url = "https://api.pipedrive.com/okacademy.pipedrive.com/";
+        customerEntity.urlPath = "okacademy";
+//        initClient(customerEntity);
+
 //        if(!initialEventsProcessed()){
 //            CustomerEntity customerEntity = getCustomerEntity();
-            processInitialEvents(null);
+            processInitialEvents(customerEntity);
 //        }
     }
 

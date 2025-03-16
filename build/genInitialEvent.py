@@ -1,3 +1,6 @@
+from typing import List
+
+from genEntities import EntityFieldDeclaration
 from templates import read_template
 
 response_class_to_dto_class = {
@@ -28,7 +31,7 @@ def calculate_dto_class_name(return_type):
     return dto_class
 
 
-def generate_init_entity_method(method_tuple):
+def generate_init_entity_method(method_tuple, fields: List[EntityFieldDeclaration]):
     annotations, visibility, return_type, method_name, new_parameters, entity_name = method_tuple
 
     entity_name_titled = entity_name.lower().title()
@@ -54,13 +57,41 @@ def generate_init_entity_method(method_tuple):
         other_fields_extractors.append('entity.key = node.get("key").asText();')
         other_fields_extractors.append('entity.name = node.get("name").asText();')
         other_fields_extractors.append('entity.fieldType = node.get("field_type").asText();')
+
+    for field in fields:
+        if(len(field.field_name)==40):
+            continue
+        if(field.field_name == "id"):
+            continue
+        if(entity_name.endswith("FIELDS") and field.field_name in ("key", "name", "fieldType")):
+            continue
+
+        if field.type_name == "Boolean":
+            other_fields_extractors.append('entity.{0} = node.hasNonNull("{1}") ? node.get("{1}").asBoolean() : null;'
+                                           .format(field.field_name, field.aux_name_in_dto))
+        elif field.type_name == "Long":
+            other_fields_extractors.append('entity.{0} = node.hasNonNull("{1}") ? node.get("{1}").asLong() : null;'
+                                           .format(field.field_name, field.aux_name_in_dto))
+        elif field.type_name == "LocalDateTime":
+            other_fields_extractors.append('entity.{0} = parseDateTime(node.hasNonNull("{1}") ? node.get("{1}").asText() : null);'
+                                           .format(field.field_name, field.aux_name_in_dto))
+        elif field.type_name == "LocalDate":
+            other_fields_extractors.append('entity.{0} = parseDate(node.hasNonNull("{1}") ? node.get("{1}").asText() : null);'
+                                           .format(field.field_name, field.aux_name_in_dto))
+        elif field.type_name == "Double":
+            other_fields_extractors.append('entity.{0} = node.hasNonNull("{1}") ? node.get("{1}").asDouble() : null;'
+                                           .format(field.field_name, field.aux_name_in_dto))
+        else:
+            other_fields_extractors.append('entity.{0} = node.hasNonNull("{1}") ? objectMapper.writeValueAsString(node.get("{1}")) : null;'
+                                           .format(field.field_name, field.aux_name_in_dto))
+
     method_code = method_code.replace("$PERSISTING_CODE", persisting_code_common)
 
     method_code = method_code.replace("$ENTITY_NAME_TITLED", entity_name_titled) \
         .replace("$OTHER_FIELDS_EXTRACTOR", "\n\t\t\t\t\t".join(other_fields_extractors)) \
         .replace("$ID_EXTRACTOR", id_extractor) \
         .replace("$ENTITY_CLASS_NAME", entity_class_name) \
-        .replace("$ENTITY_NAME", entity_name)
+        .replace("$ENTITY_NAME", entity_name.replace("REF_",""))
         # .replace("$METHOD_RESPONSE_CLASS", return_type) \
         # .replace("$METHOD_RESPONSE_DATA_DTO_CLASS", calculate_dto_class_name(return_type))
     method_call = "init$ENTITY_NAME_TITLED()"
@@ -69,7 +100,7 @@ def generate_init_entity_method(method_tuple):
     return (method_code, method_call)
 
 
-def generate_java_initial_events_processor(api_methods):
+def generate_java_initial_events_processor(api_methods,fields):
     class_code = read_template("initial_event_processor_template")
 
     init_entity_calls = []
@@ -80,7 +111,7 @@ def generate_java_initial_events_processor(api_methods):
             entity_name = method[5]
             if (not entity_name):
                 continue
-            entity_method, method_call = generate_init_entity_method(method)
+            entity_method, method_call = generate_init_entity_method(method,fields.get(entity_name,[]))
 
             init_entity_calls.append(method_call)
             init_entity_methods.append(entity_method)

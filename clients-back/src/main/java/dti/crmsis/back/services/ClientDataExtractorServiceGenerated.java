@@ -124,13 +124,13 @@ pagingServiceV1.fetchAllDataNew(
                 start-> wrapToRetry(()->pipedriveRestClientGeneratedV1.getActivitiesAsJson(null,null,null,Constants.PAGE_LIMIT,start,null,null,null)),
                 (String json, Long rootEvent) -> persistEvent(json, rootEvent, "ACTIVITIES"));
                 
-persistEvent(wrapToRetry(()->pipedriveRestClientGeneratedV1.getActivityFieldsAsJson()) , rootEventId, "ACTIVITY_FIELDS");
+persistEvent(wrapToRetry(()->pipedriveRestClientGeneratedV1.getActivityFieldsAsJson()) , rootEventId, "REF_ACTIVITY_FIELDS");
 persistEvent(wrapToRetry(()->pipedriveRestClientGeneratedV1.getActivityTypesAsJson()) , rootEventId, "ACTIVITY_TYPES");
 persistEvent(wrapToRetry(()->pipedriveRestClientGeneratedV1.getCurrenciesAsJson(null)) , rootEventId, "CURRENCIES");
 pagingServiceV1.fetchAllDataNew(
                 rootEventId,
                 start-> wrapToRetry(()->pipedriveRestClientGeneratedV1.getDealFieldsAsJson(start,Constants.PAGE_LIMIT)),
-                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "DEAL_FIELDS"));
+                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "REF_DEAL_FIELDS"));
                 
 pagingServiceV2.fetchAllDataNew(rootEventId,
                 (cursor) -> {
@@ -147,7 +147,7 @@ pagingServiceV1.fetchAllDataNew(
 pagingServiceV1.fetchAllDataNew(
                 rootEventId,
                 start-> wrapToRetry(()->pipedriveRestClientGeneratedV1.getOrganizationFieldsAsJson(start,Constants.PAGE_LIMIT)),
-                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "ORGANIZATION_FIELDS"));
+                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "REF_ORGANIZATION_FIELDS"));
                 
 pagingServiceV2.fetchAllDataNew(rootEventId,
                 (cursor) -> {
@@ -158,7 +158,7 @@ pagingServiceV2.fetchAllDataNew(rootEventId,
 pagingServiceV1.fetchAllDataNew(
                 rootEventId,
                 start-> wrapToRetry(()->pipedriveRestClientGeneratedV1.getPersonFieldsAsJson(start,Constants.PAGE_LIMIT)),
-                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "PERSON_FIELDS"));
+                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "REF_PERSON_FIELDS"));
                 
 pagingServiceV2.fetchAllDataNew(rootEventId,
                 (cursor) -> {
@@ -170,7 +170,7 @@ persistEvent(wrapToRetry(()->pipedriveRestClientGeneratedV1.getPipelinesAsJson()
 pagingServiceV1.fetchAllDataNew(
                 rootEventId,
                 start-> wrapToRetry(()->pipedriveRestClientGeneratedV1.getProductFieldsAsJson(start,Constants.PAGE_LIMIT)),
-                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "PRODUCT_FIELDS"));
+                (String json, Long rootEvent) -> persistEvent(json, rootEvent, "REF_PRODUCT_FIELDS"));
                 
 pagingServiceV1.fetchAllDataNew(
                 rootEventId,

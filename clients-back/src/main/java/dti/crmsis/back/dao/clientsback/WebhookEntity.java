@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 
@@ -37,8 +38,8 @@ public String subscriptionUrl;
 public Long isActive;
 @Column(columnDefinition="VARCHAR(255)", name="ADD_TIME")
 public String addTime;
-@Column(columnDefinition="TEXT", name="REMOVE_TIME")
-public String removeTime;
+@Column(columnDefinition="DATETIME", name="REMOVE_TIME")
+public LocalDateTime removeTime;
 @Column(columnDefinition="VARCHAR(255)", name="TYPE")
 public String type;
 @Column(columnDefinition="TEXT", name="HTTP_AUTH_USER")

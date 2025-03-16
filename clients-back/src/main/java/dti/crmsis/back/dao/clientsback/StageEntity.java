@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 

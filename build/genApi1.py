@@ -242,6 +242,8 @@ def extract_methods(file_path):
         entity_name = None
         if returnListOfEntities(annotations, visibility, return_type, method_name, parameters):
             entity_name=method_name.replace("get","").replace("Collection","").upper().replace("FIELDS","_FIELDS").replace("TYPES","_TYPES").replace("LABELS","_LABELS")
+            if entity_name.endswith("FIELDS"):
+                entity_name = "REF_"+entity_name
         extracted_methods.append((annotations, visibility, return_type, method_name, new_parameters, entity_name))
     return extracted_methods
 
@@ -543,7 +545,7 @@ def main():
     for entity_name, entity_code in entities:
         save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+entity_name+".java", entity_code)
 
-    initial_events_processor = generate_java_initial_events_processor(api_methods)
+    initial_events_processor = generate_java_initial_events_processor(api_methods,fields)
 
     save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\InitialEventsProcessorGenerated.java", class_code=initial_events_processor)
 

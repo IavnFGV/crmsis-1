@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 
@@ -37,8 +38,8 @@ public String color;
 public Boolean isCustomFlag;
 @Column(columnDefinition="DATETIME", name="ADD_TIME")
 public LocalDateTime addTime;
-@Column(columnDefinition="TEXT", name="UPDATE_TIME")
-public String updateTime;
+@Column(columnDefinition="DATETIME", name="UPDATE_TIME")
+public LocalDateTime updateTime;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

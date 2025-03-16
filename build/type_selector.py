@@ -15,6 +15,18 @@ def detect_mysql_type_extended(key,values):
     mysql_type = "TEXT"
     java_type = "String"
 
+    # guess from name
+    if(key[1].endswith("_id")):
+        mysql_type, java_type=  "BIGINT", "Long"
+    elif(key[1].endswith("_date")):
+        mysql_type, java_type= "DATE", "LocalDate"
+    elif(key[1].endswith("_datetime")):
+        mysql_type, java_type= "DATETIME", "LocalDateTime"
+    elif(key[1].endswith("_time")):
+        mysql_type, java_type= "DATETIME", "LocalDateTime"
+    elif(key[1].startswith("is_")):
+        mysql_type, java_type= "BOOLEAN", "Boolean"
+
     if all(v is None for v in values):
         if(key[1].endswith("_id")):
              mysql_type, java_type=  "BIGINT", "Long"
@@ -22,10 +34,13 @@ def detect_mysql_type_extended(key,values):
              mysql_type, java_type= "DATE", "LocalDate"
         elif(key[1].endswith("_datetime")):
              mysql_type, java_type= "DATETIME", "LocalDateTime"
+        elif(key[1].endswith("_time")):
+             mysql_type, java_type= "DATETIME", "LocalDateTime"
         elif(key[1].startswith("is_")):
              mysql_type, java_type= "BOOLEAN", "Boolean"
         return mysql_type, java_type
-    values = [v for v in values if v is not None]  # Игнорируем NULL значения (None
+    values = [v for v in values if v is not None and v != "" ]  # Игнорируем NULL значения (None
+
     if all(isinstance(v, bool) for v in values):
         return "BOOLEAN", "Boolean"
     elif all(isinstance(v, int) for v in values):

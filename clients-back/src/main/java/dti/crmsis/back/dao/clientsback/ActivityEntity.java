@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 
@@ -39,24 +40,24 @@ public String conferenceMeetingUrl;
 public LocalDate dueDate;
 @Column(columnDefinition="VARCHAR(255)", name="DUE_TIME")
 public String dueTime;
-@Column(columnDefinition="VARCHAR(255)", name="DURATION")
-public String duration;
+@Column(columnDefinition="BOOLEAN", name="DURATION")
+public Boolean duration;
 @Column(columnDefinition="BOOLEAN", name="BUSY_FLAG")
 public Boolean busyFlag;
 @Column(columnDefinition="DATETIME", name="ADD_TIME")
 public LocalDateTime addTime;
-@Column(columnDefinition="VARCHAR(255)", name="MARKED_AS_DONE_TIME")
-public String markedAsDoneTime;
-@Column(columnDefinition="TEXT", name="LAST_NOTIFICATION_TIME")
-public String lastNotificationTime;
+@Column(columnDefinition="DATETIME", name="MARKED_AS_DONE_TIME")
+public LocalDateTime markedAsDoneTime;
+@Column(columnDefinition="DATETIME", name="LAST_NOTIFICATION_TIME")
+public LocalDateTime lastNotificationTime;
 @Column(columnDefinition="BIGINT", name="LAST_NOTIFICATION_USER_ID")
 public Long lastNotificationUserId;
 @Column(columnDefinition="BIGINT", name="NOTIFICATION_LANGUAGE_ID")
 public Long notificationLanguageId;
 @Column(columnDefinition="VARCHAR(255)", name="SUBJECT")
 public String subject;
-@Column(columnDefinition="VARCHAR(255)", name="PUBLIC_DESCRIPTION")
-public String publicDescription;
+@Column(columnDefinition="BOOLEAN", name="PUBLIC_DESCRIPTION")
+public Boolean publicDescription;
 @Column(columnDefinition="TEXT", name="CALENDAR_SYNC_INCLUDE_CONTEXT")
 public String calendarSyncIncludeContext;
 @Column(columnDefinition="TEXT", name="LOCATION")
@@ -85,10 +86,10 @@ public String recRuleExtension;
 public Long recMasterActivityId;
 @Column(columnDefinition="BIGINT", name="CONFERENCE_MEETING_ID")
 public Long conferenceMeetingId;
-@Column(columnDefinition="TEXT", name="ORIGINAL_START_TIME")
-public String originalStartTime;
+@Column(columnDefinition="DATETIME", name="ORIGINAL_START_TIME")
+public LocalDateTime originalStartTime;
 @Column(columnDefinition="BOOLEAN", name="PRIVATE")
-public Boolean private;
+public Boolean isPrivate;
 @Column(columnDefinition="TEXT", name="PRIORITY")
 public String priority;
 @Column(columnDefinition="TEXT", name="NOTE")
@@ -141,7 +142,7 @@ public String dealDropboxBcc;
 public Long assignedToUserId;
 @Column(columnDefinition="VARCHAR(255)", name="TYPE_NAME")
 public String typeName;
-@Column(columnDefinition="TEXT", name="LEAD")
+@Column(columnDefinition="TEXT", name="LEAD_TEXT")
 public String lead;
 @Column(columnDefinition="BIGINT", name="COMPANY_ID")
 public Long companyId;

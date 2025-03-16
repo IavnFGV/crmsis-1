@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 
@@ -35,8 +36,8 @@ public String phone;
 public String email;
 @Column(columnDefinition="DATETIME", name="UPDATE_TIME")
 public LocalDateTime updateTime;
-@Column(columnDefinition="TEXT", name="DELETE_TIME")
-public String deleteTime;
+@Column(columnDefinition="DATETIME", name="DELETE_TIME")
+public LocalDateTime deleteTime;
 @Column(columnDefinition="DATETIME", name="ADD_TIME")
 public LocalDateTime addTime;
 @Column(columnDefinition="VARCHAR(255)", name="VISIBLE_TO")
@@ -47,8 +48,6 @@ public Long pictureId;
 public String label;
 @Column(columnDefinition="VARCHAR(255)", name="CC_EMAIL")
 public String ccEmail;
-@Column(columnDefinition="VARCHAR(255)", name="43BFE2A67561E910F73E802F02E641DC2BE77F8B")
-public String 43bfe2a67561e910f73e802f02e641dc2be77f8b;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
