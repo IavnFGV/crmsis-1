@@ -14,8 +14,8 @@ public class RawRequest extends PanacheEntityBase {
     public Long id;
     @Column(name = "REQUEST_DATA")
     private String requestData; // Содержимое запроса
-    @Column(name = "CUSTOMER_NAME")
-    private String customerName;
+    @Column(name = "URL_PATH")
+    private String urlPath;
     @Column(insertable = false, updatable = false, name = "CREATED_AT") // created_at не должен обновляться
     private java.time.LocalDateTime createdAt; // Время вставки
 
@@ -32,8 +32,8 @@ public class RawRequest extends PanacheEntityBase {
         return requestData;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public String getUrlPath() {
+        return urlPath;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -44,8 +44,8 @@ public class RawRequest extends PanacheEntityBase {
         this.requestData = requestData;
     }
 
-    public void setCustomerName(String customerId) {
-        this.customerName = customerId;
+    public void setUrlPath(String urlPath) {
+        this.urlPath = urlPath;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {

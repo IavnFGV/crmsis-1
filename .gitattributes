@@ -1,0 +1,4 @@
+*.sh text eol=lf
+*.sh chmod=+x
+*.py text eol=lf
+*.py chmod=+x

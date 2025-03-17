@@ -1,0 +1,7 @@
+/config/environment.env
+/.idea/
+/build/venv/
+/build/build.iml
+/config/composes/environment.env
+/.idea/**
+/config/composes/.env
