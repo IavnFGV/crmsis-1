@@ -58,8 +58,8 @@ def generate_entities(entity_names, api_methods):
                     continue
             if (key[1].upper() in skip_entities_fields):
                 continue
-            if (len(key[1]) == 40):
-                continue
+            # if (len(key[1]) == 40):
+            #     continue
             fieldDeclaration = EntityFieldDeclaration(to_camel_case(key[1]))
             fieldDeclaration.type_name = value[1]
             fieldDeclaration.aux_name_in_dto = key[1]
@@ -70,6 +70,8 @@ def generate_entities(entity_names, api_methods):
             field_list = field_declarations.get(entity_name, [])
             field_list.append(fieldDeclaration)
             field_declarations[entity_name] = field_list
+            if (len(key[1]) == 40):
+                continue
             field_declarations_str.append(fieldDeclaration.to_string())
 
         class_elements.append("\n".join(field_declarations_str))

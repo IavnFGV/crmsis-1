@@ -4,12 +4,16 @@ package dti.crmsis.back.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.dao.clientsback.*;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +32,9 @@ public class InitialEventsProcessorGenerated {
 
     @Inject
     private ObjectMapper objectMapper;
+
+    @Inject
+    private ThreadPoolExecutor executorService;
 
     public void processInitialEvents(CustomerEntity customerEntity) {
         try {
@@ -55,6 +62,66 @@ public class InitialEventsProcessorGenerated {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public PanacheEntityBase saveCustomField(String mainEntityClassName, Long mainEntityId, String customFieldName, String value) {
+        if(value == null || value.isEmpty()) {
+            return null;
+        }
+        switch (mainEntityClassName) {
+            case "ActivityEntity":
+                ActivityCustomFieldEntity  activityCustomFieldEntity = new ActivityCustomFieldEntity();
+                activityCustomFieldEntity.mainEntityId = mainEntityId;
+                activityCustomFieldEntity.key = customFieldName;
+                activityCustomFieldEntity.value = value;
+                return activityCustomFieldEntity;
+            case "DealEntity":
+                DealCustomFieldEntity  dealCustomFieldEntity = new DealCustomFieldEntity();
+                dealCustomFieldEntity.mainEntityId = mainEntityId;
+                dealCustomFieldEntity.key = customFieldName;
+                dealCustomFieldEntity.value = value;
+                return dealCustomFieldEntity;
+            case "OrganizationEntity":
+                OrganizationCustomFieldEntity organizationCustomFieldEntity = new OrganizationCustomFieldEntity();
+                organizationCustomFieldEntity.mainEntityId = mainEntityId;
+                organizationCustomFieldEntity.key = customFieldName;
+                organizationCustomFieldEntity.value = value;
+                return organizationCustomFieldEntity;
+            case "PersonEntity":
+                PersonCustomFieldEntity  personCustomFieldEntity = new PersonCustomFieldEntity();
+                personCustomFieldEntity.mainEntityId = mainEntityId;
+                personCustomFieldEntity.key = customFieldName;
+                personCustomFieldEntity.value = value;
+                return personCustomFieldEntity;
+            case "ProductEntity":
+                ProductCustomFieldEntity productCustomFieldEntity = new ProductCustomFieldEntity();
+                productCustomFieldEntity.mainEntityId = mainEntityId;
+                productCustomFieldEntity.key = customFieldName;
+                productCustomFieldEntity.value = value;
+                return productCustomFieldEntity;
+            default:
+                logger.warn("Unknown main entity type: " + mainEntityClassName);
+                break;
+        }
+        return null;
+    }
+
+    protected   List<EventEntity> getEventEntities(int pageIndex, int pageSize, String entityName) {
+        List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", entityName)
+                .page(Page.of(pageIndex, pageSize))
+                .list();
+        return events;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void persistEntities(List<PanacheEntityBase> entities,String entityName){
+        logger.infof("Persisting %d entities of type %s", entities.size(), entityName);
+        PanacheEntityBase.persist(entities);
+    }
+
+    public void  persistEntitiesAsync(List<PanacheEntityBase> entities,String entityName){
+        logger.infof("active %d queue %d max %d",executorService.getActiveCount(),executorService.getQueue().size(), executorService.getLargestPoolSize());
+        executorService.submit(() -> persistEntities(entities, entityName));
     }
 
     public LocalDateTime parseDateTime(String dateStr) {
@@ -90,10 +157,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "ACTIVITIES")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ACTIVITIES");
             if (events.isEmpty()) {
                 break;
             }
@@ -101,6 +165,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -169,14 +235,18 @@ public class InitialEventsProcessorGenerated {
                     entity.typeName = node.hasNonNull("type_name") ? objectMapper.writeValueAsString(node.get("type_name")) : null;
                     entity.lead = node.hasNonNull("lead") ? objectMapper.writeValueAsString(node.get("lead")) : null;
                     entity.companyId = node.hasNonNull("company_id") ? node.get("company_id").asLong() : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Activities");
+                    persistEntitiesAsync(customFields,"Activities");
                 }else{
                     logger.warn("Activities HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Activities DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Activities processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -188,10 +258,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "ACTIVITY_FIELDS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ACTIVITY_FIELDS");
             if (events.isEmpty()) {
                 break;
             }
@@ -199,6 +266,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -230,14 +299,18 @@ public class InitialEventsProcessorGenerated {
                     entity.isSubfield = node.hasNonNull("is_subfield") ? node.get("is_subfield").asBoolean() : null;
                     entity.parentId = node.hasNonNull("parent_id") ? node.get("parent_id").asLong() : null;
                     entity.idSuffix = node.hasNonNull("id_suffix") ? objectMapper.writeValueAsString(node.get("id_suffix")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Ref_Activity_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Activity_Fields");
                 }else{
                     logger.warn("Ref_Activity_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Ref_Activity_Fields DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Ref_Activity_Fields processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -249,10 +322,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "ACTIVITY_TYPES")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ACTIVITY_TYPES");
             if (events.isEmpty()) {
                 break;
             }
@@ -260,6 +330,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -275,14 +347,18 @@ public class InitialEventsProcessorGenerated {
                     entity.isCustomFlag = node.hasNonNull("is_custom_flag") ? node.get("is_custom_flag").asBoolean() : null;
                     entity.addTime = parseDateTime(node.hasNonNull("add_time") ? node.get("add_time").asText() : null);
                     entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Activity_Types");
+                    persistEntitiesAsync(customFields,"Activity_Types");
                 }else{
                     logger.warn("Activity_Types HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Activity_Types DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Activity_Types processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -294,10 +370,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "CURRENCIES")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "CURRENCIES");
             if (events.isEmpty()) {
                 break;
             }
@@ -305,6 +378,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -317,14 +392,18 @@ public class InitialEventsProcessorGenerated {
                     entity.decimalPoints = node.hasNonNull("decimal_points") ? node.get("decimal_points").asLong() : null;
                     entity.activeFlag = node.hasNonNull("active_flag") ? node.get("active_flag").asBoolean() : null;
                     entity.isCustomFlag = node.hasNonNull("is_custom_flag") ? node.get("is_custom_flag").asBoolean() : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Currencies");
+                    persistEntitiesAsync(customFields,"Currencies");
                 }else{
                     logger.warn("Currencies HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Currencies DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Currencies processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -336,10 +415,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "DEAL_FIELDS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "DEAL_FIELDS");
             if (events.isEmpty()) {
                 break;
             }
@@ -347,6 +423,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -382,14 +460,18 @@ public class InitialEventsProcessorGenerated {
                     entity.parentId = node.hasNonNull("parent_id") ? node.get("parent_id").asLong() : null;
                     entity.idSuffix = node.hasNonNull("id_suffix") ? objectMapper.writeValueAsString(node.get("id_suffix")) : null;
                     entity.options = node.hasNonNull("options") ? objectMapper.writeValueAsString(node.get("options")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Ref_Deal_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Deal_Fields");
                 }else{
                     logger.warn("Ref_Deal_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Ref_Deal_Fields DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Ref_Deal_Fields processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -401,10 +483,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "DEALS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "DEALS");
             if (events.isEmpty()) {
                 break;
             }
@@ -412,6 +491,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -438,14 +519,39 @@ public class InitialEventsProcessorGenerated {
                     entity.lostTime = parseDateTime(node.hasNonNull("lost_time") ? node.get("lost_time").asText() : null);
                     entity.expectedCloseDate = parseDate(node.hasNonNull("expected_close_date") ? node.get("expected_close_date").asText() : null);
                     entity.label = node.hasNonNull("label") ? objectMapper.writeValueAsString(node.get("label")) : null;
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "3883508ee2b24c7e32ffab7a0495669094e8bda7", node.hasNonNull("3883508ee2b24c7e32ffab7a0495669094e8bda7") ? objectMapper.writeValueAsString(node.get("3883508ee2b24c7e32ffab7a0495669094e8bda7")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "0b9d4472baec48899d2ac6862777d37401ff116b", node.hasNonNull("0b9d4472baec48899d2ac6862777d37401ff116b") ? objectMapper.writeValueAsString(node.get("0b9d4472baec48899d2ac6862777d37401ff116b")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "65d68fc7fd9580ec398278279af739e81f46c69b", node.hasNonNull("65d68fc7fd9580ec398278279af739e81f46c69b") ? objectMapper.writeValueAsString(node.get("65d68fc7fd9580ec398278279af739e81f46c69b")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "63dcdaadd906301fb8d49583f076e60d6778e02b", node.hasNonNull("63dcdaadd906301fb8d49583f076e60d6778e02b") ? objectMapper.writeValueAsString(node.get("63dcdaadd906301fb8d49583f076e60d6778e02b")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "d81269cef9a27d5fe421990a5b25d1035e726278", node.hasNonNull("d81269cef9a27d5fe421990a5b25d1035e726278") ? objectMapper.writeValueAsString(node.get("d81269cef9a27d5fe421990a5b25d1035e726278")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "447ae5b6e73c3aacc87873c7a2b0c6db302b6772", node.hasNonNull("447ae5b6e73c3aacc87873c7a2b0c6db302b6772") ? objectMapper.writeValueAsString(node.get("447ae5b6e73c3aacc87873c7a2b0c6db302b6772")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "f9cb09a3d65029b77889df2ec437a6ea2926d903", node.hasNonNull("f9cb09a3d65029b77889df2ec437a6ea2926d903") ? objectMapper.writeValueAsString(node.get("f9cb09a3d65029b77889df2ec437a6ea2926d903")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "87e85a5534b18cff61f906e173354c8b1069d4df", node.hasNonNull("87e85a5534b18cff61f906e173354c8b1069d4df") ? objectMapper.writeValueAsString(node.get("87e85a5534b18cff61f906e173354c8b1069d4df")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "4eecb53ceb49f5b42d8f0916750909e3b11dc617", node.hasNonNull("4eecb53ceb49f5b42d8f0916750909e3b11dc617") ? objectMapper.writeValueAsString(node.get("4eecb53ceb49f5b42d8f0916750909e3b11dc617")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "302b8516b5021dab05bb0440db68fe12f6ebbbf7", node.hasNonNull("302b8516b5021dab05bb0440db68fe12f6ebbbf7") ? objectMapper.writeValueAsString(node.get("302b8516b5021dab05bb0440db68fe12f6ebbbf7")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "38e2819059967b6a5674a81fccd3119a071220ce", node.hasNonNull("38e2819059967b6a5674a81fccd3119a071220ce") ? objectMapper.writeValueAsString(node.get("38e2819059967b6a5674a81fccd3119a071220ce")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "2b79fd3ef8aeded77fddfada47808d486d7af456", node.hasNonNull("2b79fd3ef8aeded77fddfada47808d486d7af456") ? objectMapper.writeValueAsString(node.get("2b79fd3ef8aeded77fddfada47808d486d7af456")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "22465465f349d9902050838bed48cc481b8aad33", node.hasNonNull("22465465f349d9902050838bed48cc481b8aad33") ? objectMapper.writeValueAsString(node.get("22465465f349d9902050838bed48cc481b8aad33")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "465f1d50c1544de7bdf7ad752d1f96353f15cfd1", node.hasNonNull("465f1d50c1544de7bdf7ad752d1f96353f15cfd1") ? objectMapper.writeValueAsString(node.get("465f1d50c1544de7bdf7ad752d1f96353f15cfd1")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "59d0afccc1f28f8f07d633822ae106ee01fb88c8", node.hasNonNull("59d0afccc1f28f8f07d633822ae106ee01fb88c8") ? objectMapper.writeValueAsString(node.get("59d0afccc1f28f8f07d633822ae106ee01fb88c8")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "22491a17f6579d7759e03fdf6211dbc26c56f280", node.hasNonNull("22491a17f6579d7759e03fdf6211dbc26c56f280") ? objectMapper.writeValueAsString(node.get("22491a17f6579d7759e03fdf6211dbc26c56f280")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "e03e32567fde47b2b76f4b45ebff2cf6accdc270", node.hasNonNull("e03e32567fde47b2b76f4b45ebff2cf6accdc270") ? objectMapper.writeValueAsString(node.get("e03e32567fde47b2b76f4b45ebff2cf6accdc270")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "da6dbbee66a5ddf5eb03537a1120884f1e4624bc", node.hasNonNull("da6dbbee66a5ddf5eb03537a1120884f1e4624bc") ? objectMapper.writeValueAsString(node.get("da6dbbee66a5ddf5eb03537a1120884f1e4624bc")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "b2d9d57ff766881c26ef19043e1acfb7b90f1acd", node.hasNonNull("b2d9d57ff766881c26ef19043e1acfb7b90f1acd") ? objectMapper.writeValueAsString(node.get("b2d9d57ff766881c26ef19043e1acfb7b90f1acd")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "566658a615fb64eefa4e30b05dc88b474d0437b7", node.hasNonNull("566658a615fb64eefa4e30b05dc88b474d0437b7") ? objectMapper.writeValueAsString(node.get("566658a615fb64eefa4e30b05dc88b474d0437b7")) : null));
+                    customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "477c1ee94c57bfef11e8b1e749f4f1b1a288e3df", node.hasNonNull("477c1ee94c57bfef11e8b1e749f4f1b1a288e3df") ? objectMapper.writeValueAsString(node.get("477c1ee94c57bfef11e8b1e749f4f1b1a288e3df")) : null));
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Deals");
+                    persistEntitiesAsync(customFields,"Deals");
                 }else{
                     logger.warn("Deals HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Deals DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Deals processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -457,10 +563,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "LEAD_LABELS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "LEAD_LABELS");
             if (events.isEmpty()) {
                 break;
             }
@@ -468,6 +571,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -478,14 +583,18 @@ public class InitialEventsProcessorGenerated {
                     entity.color = node.hasNonNull("color") ? objectMapper.writeValueAsString(node.get("color")) : null;
                     entity.addTime = node.hasNonNull("add_time") ? objectMapper.writeValueAsString(node.get("add_time")) : null;
                     entity.updateTime = node.hasNonNull("update_time") ? objectMapper.writeValueAsString(node.get("update_time")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Lead_Labels");
+                    persistEntitiesAsync(customFields,"Lead_Labels");
                 }else{
                     logger.warn("Lead_Labels HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Lead_Labels DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Lead_Labels processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -497,10 +606,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "LEADS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "LEADS");
             if (events.isEmpty()) {
                 break;
             }
@@ -508,6 +614,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -515,14 +623,18 @@ public class InitialEventsProcessorGenerated {
                         LeadEntity entity = new LeadEntity();
                         entity.idPipedrive = UUID.fromString(node.get("id").asText());
                         
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Leads");
+                    persistEntitiesAsync(customFields,"Leads");
                 }else{
                     logger.warn("Leads HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Leads DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Leads processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -534,10 +646,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "ORGANIZATION_FIELDS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ORGANIZATION_FIELDS");
             if (events.isEmpty()) {
                 break;
             }
@@ -545,6 +654,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -579,14 +690,18 @@ public class InitialEventsProcessorGenerated {
                     entity.isSubfield = node.hasNonNull("is_subfield") ? node.get("is_subfield").asBoolean() : null;
                     entity.parentId = node.hasNonNull("parent_id") ? node.get("parent_id").asLong() : null;
                     entity.idSuffix = node.hasNonNull("id_suffix") ? objectMapper.writeValueAsString(node.get("id_suffix")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Ref_Organization_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Organization_Fields");
                 }else{
                     logger.warn("Ref_Organization_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Ref_Organization_Fields DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Ref_Organization_Fields processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -598,10 +713,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "ORGANIZATIONS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ORGANIZATIONS");
             if (events.isEmpty()) {
                 break;
             }
@@ -609,6 +721,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -616,14 +730,18 @@ public class InitialEventsProcessorGenerated {
                         OrganizationEntity entity = new OrganizationEntity();
                         entity.idPipedrive = node.get("id").asInt();
                         
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Organizations");
+                    persistEntitiesAsync(customFields,"Organizations");
                 }else{
                     logger.warn("Organizations HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Organizations DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Organizations processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -635,10 +753,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "PERSON_FIELDS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "PERSON_FIELDS");
             if (events.isEmpty()) {
                 break;
             }
@@ -646,6 +761,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -678,14 +795,18 @@ public class InitialEventsProcessorGenerated {
                     entity.options = node.hasNonNull("options") ? objectMapper.writeValueAsString(node.get("options")) : null;
                     entity.autocomplete = node.hasNonNull("autocomplete") ? objectMapper.writeValueAsString(node.get("autocomplete")) : null;
                     entity.displayField = node.hasNonNull("display_field") ? objectMapper.writeValueAsString(node.get("display_field")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Ref_Person_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Person_Fields");
                 }else{
                     logger.warn("Ref_Person_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Ref_Person_Fields DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Ref_Person_Fields processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -697,10 +818,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "PERSONS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "PERSONS");
             if (events.isEmpty()) {
                 break;
             }
@@ -708,6 +826,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -727,14 +847,19 @@ public class InitialEventsProcessorGenerated {
                     entity.pictureId = node.hasNonNull("picture_id") ? node.get("picture_id").asLong() : null;
                     entity.label = node.hasNonNull("label") ? objectMapper.writeValueAsString(node.get("label")) : null;
                     entity.ccEmail = node.hasNonNull("cc_email") ? objectMapper.writeValueAsString(node.get("cc_email")) : null;
+                    customFields.add(saveCustomField("PersonEntity", node.get("id").asLong(), "43bfe2a67561e910f73e802f02e641dc2be77f8b", node.hasNonNull("43bfe2a67561e910f73e802f02e641dc2be77f8b") ? objectMapper.writeValueAsString(node.get("43bfe2a67561e910f73e802f02e641dc2be77f8b")) : null));
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Persons");
+                    persistEntitiesAsync(customFields,"Persons");
                 }else{
                     logger.warn("Persons HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Persons DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Persons processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -746,10 +871,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "PIPELINES")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "PIPELINES");
             if (events.isEmpty()) {
                 break;
             }
@@ -757,6 +879,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -771,14 +895,18 @@ public class InitialEventsProcessorGenerated {
                     entity.addTime = parseDateTime(node.hasNonNull("add_time") ? node.get("add_time").asText() : null);
                     entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
                     entity.selected = node.hasNonNull("selected") ? node.get("selected").asBoolean() : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Pipelines");
+                    persistEntitiesAsync(customFields,"Pipelines");
                 }else{
                     logger.warn("Pipelines HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Pipelines DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Pipelines processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -790,10 +918,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "PRODUCT_FIELDS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "PRODUCT_FIELDS");
             if (events.isEmpty()) {
                 break;
             }
@@ -801,6 +926,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -832,14 +959,18 @@ public class InitialEventsProcessorGenerated {
                     entity.link = node.hasNonNull("link") ? objectMapper.writeValueAsString(node.get("link")) : null;
                     entity.displayField = node.hasNonNull("display_field") ? objectMapper.writeValueAsString(node.get("display_field")) : null;
                     entity.options = node.hasNonNull("options") ? objectMapper.writeValueAsString(node.get("options")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Ref_Product_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Product_Fields");
                 }else{
                     logger.warn("Ref_Product_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Ref_Product_Fields DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Ref_Product_Fields processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -851,10 +982,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "PRODUCTS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "PRODUCTS");
             if (events.isEmpty()) {
                 break;
             }
@@ -862,6 +990,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -884,14 +1014,18 @@ public class InitialEventsProcessorGenerated {
                     entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
                     entity.prices = node.hasNonNull("prices") ? objectMapper.writeValueAsString(node.get("prices")) : null;
                     entity.productVariations = node.hasNonNull("product_variations") ? objectMapper.writeValueAsString(node.get("product_variations")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Products");
+                    persistEntitiesAsync(customFields,"Products");
                 }else{
                     logger.warn("Products HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Products DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Products processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -903,10 +1037,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "PROJECTS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "PROJECTS");
             if (events.isEmpty()) {
                 break;
             }
@@ -914,6 +1045,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -921,14 +1054,18 @@ public class InitialEventsProcessorGenerated {
                         ProjectEntity entity = new ProjectEntity();
                         entity.idPipedrive = node.get("id").asInt();
                         
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Projects");
+                    persistEntitiesAsync(customFields,"Projects");
                 }else{
                     logger.warn("Projects HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Projects DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Projects processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -940,10 +1077,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "ROLES")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ROLES");
             if (events.isEmpty()) {
                 break;
             }
@@ -951,6 +1085,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -964,14 +1100,18 @@ public class InitialEventsProcessorGenerated {
                     entity.subRoleCount = node.hasNonNull("sub_role_count") ? objectMapper.writeValueAsString(node.get("sub_role_count")) : null;
                     entity.level = node.hasNonNull("level") ? node.get("level").asLong() : null;
                     entity.description = node.hasNonNull("description") ? objectMapper.writeValueAsString(node.get("description")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Roles");
+                    persistEntitiesAsync(customFields,"Roles");
                 }else{
                     logger.warn("Roles HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Roles DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Roles processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -983,10 +1123,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "STAGES")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "STAGES");
             if (events.isEmpty()) {
                 break;
             }
@@ -994,6 +1131,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -1011,14 +1150,18 @@ public class InitialEventsProcessorGenerated {
                     entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
                     entity.pipelineName = node.hasNonNull("pipeline_name") ? objectMapper.writeValueAsString(node.get("pipeline_name")) : null;
                     entity.pipelineDealProbability = node.hasNonNull("pipeline_deal_probability") ? node.get("pipeline_deal_probability").asBoolean() : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Stages");
+                    persistEntitiesAsync(customFields,"Stages");
                 }else{
                     logger.warn("Stages HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Stages DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Stages processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -1030,10 +1173,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "TASKS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "TASKS");
             if (events.isEmpty()) {
                 break;
             }
@@ -1041,6 +1181,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -1048,14 +1190,18 @@ public class InitialEventsProcessorGenerated {
                         TaskEntity entity = new TaskEntity();
                         entity.idPipedrive = node.get("id").asInt();
                         
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Tasks");
+                    persistEntitiesAsync(customFields,"Tasks");
                 }else{
                     logger.warn("Tasks HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Tasks DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Tasks processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -1067,10 +1213,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "USERS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "USERS");
             if (events.isEmpty()) {
                 break;
             }
@@ -1078,6 +1221,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -1103,14 +1248,18 @@ public class InitialEventsProcessorGenerated {
                     entity.modified = parseDateTime(node.hasNonNull("modified") ? node.get("modified").asText() : null);
                     entity.lastLogin = parseDateTime(node.hasNonNull("last_login") ? node.get("last_login").asText() : null);
                     entity.phone = node.hasNonNull("phone") ? objectMapper.writeValueAsString(node.get("phone")) : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Users");
+                    persistEntitiesAsync(customFields,"Users");
                 }else{
                     logger.warn("Users HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Users DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Users processed. Events = " + eventsCount + ", entities = " + entitiesCount);
@@ -1122,10 +1271,7 @@ public class InitialEventsProcessorGenerated {
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = EventEntity.find("JSON_EXTRACT(comments, '$.type') = ?1 ORDER BY ID ASC", "WEBHOOKS")
-                    .page(Page.of(pageIndex, pageSize))
-                    .list();
-
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "WEBHOOKS");
             if (events.isEmpty()) {
                 break;
             }
@@ -1133,6 +1279,8 @@ public class InitialEventsProcessorGenerated {
             for (EventEntity event : events) {
                 eventsCount++;
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
+                List<PanacheEntityBase>  entities = new ArrayList<>();
+                List<PanacheEntityBase>  customFields = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                                         JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
@@ -1157,14 +1305,18 @@ public class InitialEventsProcessorGenerated {
                     entity.lastDeliveryTime = node.hasNonNull("last_delivery_time") ? objectMapper.writeValueAsString(node.get("last_delivery_time")) : null;
                     entity.lastHttpStatus = node.hasNonNull("last_http_status") ? objectMapper.writeValueAsString(node.get("last_http_status")) : null;
                     entity.adminId = node.hasNonNull("admin_id") ? node.get("admin_id").asLong() : null;
+                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
-                        entity.persist();
+                        entities.add(entity);
                     }
 
+                    persistEntities(entities,"Webhooks");
+                    persistEntitiesAsync(customFields,"Webhooks");
                 }else{
                     logger.warn("Webhooks HAS PROBLEM EVENT. Event id = " + event.id);
                 }
             }
+            logger.info(pageIndex + " Webhooks DONE");
             pageIndex++; // Переход к следующей странице
         }
         logger.info("Webhooks processed. Events = " + eventsCount + ", entities = " + entitiesCount);

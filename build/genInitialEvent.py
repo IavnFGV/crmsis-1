@@ -32,9 +32,11 @@ def calculate_dto_class_name(return_type):
 
 
 def generate_init_entity_method(method_tuple, fields: List[EntityFieldDeclaration]):
+    custom_fields ={}
     annotations, visibility, return_type, method_name, new_parameters, entity_name = method_tuple
 
     entity_name_titled = entity_name.lower().title()
+
 
     words = [word[0].upper() + word[1:] for word in entity_name[0:-1].replace("_", " ").lower().split()]
     entity_class_name = "".join(words) + "Entity"
@@ -58,8 +60,13 @@ def generate_init_entity_method(method_tuple, fields: List[EntityFieldDeclaratio
         other_fields_extractors.append('entity.name = node.get("name").asText();')
         other_fields_extractors.append('entity.fieldType = node.get("field_type").asText();')
 
+
+
+
     for field in fields:
         if(len(field.field_name)==40):
+            other_fields_extractors.append('customFields.add(saveCustomField("{2}", node.get("id").asLong(), "{0}", node.hasNonNull("{1}") ? objectMapper.writeValueAsString(node.get("{1}")) : null));'
+                                           .format(field.field_name, field.aux_name_in_dto,entity_class_name))
             continue
         if(field.field_name == "id"):
             continue
