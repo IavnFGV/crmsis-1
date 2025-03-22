@@ -37,7 +37,6 @@ def generate_entities(entity_names, api_methods):
         if entity_name in ("LEADS", "LEAD_LABELS"):
             class_elements.append(entity_code_header)
             class_elements.append(entity_id_pipedrive_uuid)
-            specific_imports += ["import java.util.UUID;"]
         else:
             class_elements.append(entity_code_header)
             class_elements.append(entity_id_pipedrive_integer)

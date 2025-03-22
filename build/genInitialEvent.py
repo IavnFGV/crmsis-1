@@ -46,7 +46,7 @@ def generate_init_entity_method(method_tuple, fields: List[EntityFieldDeclaratio
 
     persisting_code_common = read_template("initial_event_processor_init_entity_persisting_code")
 
-    common_id_extractor ='entity.idPipedrive = node.get("id").asInt();'
+    common_id_extractor ='entity.idPipedrive = node.get("id").asLong();'
     uuid_id_extractor ='entity.idPipedrive = UUID.fromString(node.get("id").asText());'
 
     other_fields_extractors =[]

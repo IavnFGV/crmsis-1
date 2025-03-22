@@ -1,22 +1,19 @@
 package dti.crmsis.back.dao.clientsback;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "EXTRA_INFO")
 public class ExtraInfoEntity extends PanacheEntityBase {
-
     @Id
-    @Column(name = "ID", nullable = false, unique = true)
-    public UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    public Long id;
 
-    @Column(name = "NAME")
+    @Column(name = "NAME",unique = true, nullable = false)
     public String name;
 
     @Column(name = "VALUE")
@@ -30,14 +27,33 @@ public class ExtraInfoEntity extends PanacheEntityBase {
         return Boolean.parseBoolean(extraInfoEntity.value);
     }
 
+    public static Long getLongByName(String propertyName) {
+        ExtraInfoEntity extraInfoEntity = find("name", propertyName).firstResult();
+        if (extraInfoEntity == null) {
+            return null;
+        }
+        return Long.parseLong(extraInfoEntity.value);
+    }
+
     public static void saveBoolean(String propertyName, Boolean value) {
         ExtraInfoEntity extraInfoEntity = find("name", propertyName).firstResult();
         if (extraInfoEntity == null) {
             extraInfoEntity = new ExtraInfoEntity();
-            extraInfoEntity.id = UUID.randomUUID();
             extraInfoEntity.name = propertyName;
         }
         extraInfoEntity.value = value.toString();
         extraInfoEntity.persist();
     }
+
+
+    public static void saveLong(String propertyName, Long value) {
+        ExtraInfoEntity extraInfoEntity = find("name", propertyName).firstResult();
+        if (extraInfoEntity == null) {
+            extraInfoEntity = new ExtraInfoEntity();
+            extraInfoEntity.name = propertyName;
+        }
+        extraInfoEntity.value = value.toString();
+        extraInfoEntity.persist();
+    }
+
 }

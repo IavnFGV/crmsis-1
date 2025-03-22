@@ -7,8 +7,8 @@ import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.client.ClientResponseContext;
 import jakarta.ws.rs.client.ClientResponseFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
+
 
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitFilter implements ClientResponseFilter , ClientRequestFilter {
 
     private static Semaphore semaphore;
-    private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
+    private static final Logger log = Logger.getLogger(RateLimitFilter.class);
     {
         log.info("Rate limit filter created.");
     }

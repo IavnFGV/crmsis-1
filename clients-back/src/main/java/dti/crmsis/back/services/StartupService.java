@@ -4,6 +4,7 @@ import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
 import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -13,6 +14,7 @@ import static dti.crmsis.back.services.Constants.STARTUP_SERVICE_START_UP_PRIORI
 
 
 @ApplicationScoped
+@Alternative
 public class StartupService {
 
     private static final Logger logger = Logger.getLogger(StartupService.class);

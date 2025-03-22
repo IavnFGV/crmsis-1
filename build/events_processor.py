@@ -1,10 +1,13 @@
-from db_connection import Session
-from models import Event
+from db_connection import Session, Session2
+from models import Event,RawRequest
 from sqlalchemy import text
 from type_selector import analise_data
 
+
 def process_events(entity_name):
     session = Session()
+    session2 = Session2()
+
     try:
         # Получение всех событий
         # events = session.query(Event).all()
@@ -21,6 +24,24 @@ def process_events(entity_name):
             # print(f"Customer: {event.customer_name}")
             # print(f"Processed data: {event.processed_data}")
 
+        type_in_webhook_table = {"ACTIVITIES": "activity",
+                           "DEALS": "deal",
+                           "LEADS": "lead",
+                           "NOTES": "note",
+                           "ORGANIZATIONS": "organization",
+                           "PERSONS": "person",
+                           "PIPELINES": "pipeline",
+                           "PRODUCTS": "product",
+                           "STAGES": "stage",
+                           "USERS": "user"}
+
+        type_in_webhook = type_in_webhook_table.get(entity_name, None)
+        if type_in_webhook:
+            rows = session2.query(RawRequest).filter(text(f"REQUEST_DATA->>'$.meta.entity' = '{type_in_webhook}'")).all()
+            for row in rows:
+                analyse_rest_response(entity_name,row.request_data,skip_fields=["custom_fields"],from_webhook=True)
+
+
         field_types = analise_data(field_values)
         print("---")
     finally:
@@ -34,19 +55,27 @@ def process_events(entity_name):
 #     ("entity1", "field1"): [1, 2, 3
 
 field_values = {}
-def analyse_rest_response(entity_name,rest_response):
+def analyse_rest_response(entity_name,rest_response,skip_fields=[], from_webhook = False):
 
     data = rest_response.get("data")
 
     if not data:
         print (f"No data for {entity_name}")
         return
-    for dto in data:
-        for field_name, field_value in dto.items():
-            list = field_values.get((entity_name, field_name), [])
-            list.append(field_value)
-            field_values[(entity_name, field_name)]= list
+    if from_webhook :
+        parse_dto(data,entity_name,skip_fields)
+    else:
+        for dto in data:
+            parse_dto(dto, entity_name,skip_fields)
 
+
+def parse_dto(dto, entity_name,skip_fields):
+    for field_name, field_value in dto.items():
+        if field_name in skip_fields:
+            continue
+        list = field_values.get((entity_name, field_name), [])
+        list.append(field_value)
+        field_values[(entity_name, field_name)] = list
 
 # process_events("START_SYNC", analyse_rest_response)
 

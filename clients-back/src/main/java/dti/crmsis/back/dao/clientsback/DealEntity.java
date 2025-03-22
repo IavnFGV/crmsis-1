@@ -7,6 +7,9 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
+import java.util.UUID;
+
+
 
 
 
@@ -19,7 +22,7 @@ public class DealEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE")
-    public Integer idPipedrive;
+    public Long idPipedrive;
 
 
 @Column(columnDefinition="BIGINT", name="CREATOR_USER_ID")
@@ -38,10 +41,10 @@ public String title;
 public Double value;
 @Column(columnDefinition="VARCHAR(255)", name="CURRENCY")
 public String currency;
-@Column(columnDefinition="DATETIME", name="ADD_TIME")
-public LocalDateTime addTime;
-@Column(columnDefinition="DATETIME", name="UPDATE_TIME")
-public LocalDateTime updateTime;
+@Column(columnDefinition="VARCHAR(255)", name="ADD_TIME")
+public String addTime;
+@Column(columnDefinition="VARCHAR(255)", name="UPDATE_TIME")
+public String updateTime;
 @Column(columnDefinition="VARCHAR(255)", name="STATUS")
 public String status;
 @Column(columnDefinition="TEXT", name="PROBABILITY")
@@ -50,22 +53,45 @@ public String probability;
 public String lostReason;
 @Column(columnDefinition="VARCHAR(255)", name="VISIBLE_TO")
 public String visibleTo;
-@Column(columnDefinition="DATETIME", name="CLOSE_TIME")
-public LocalDateTime closeTime;
+@Column(columnDefinition="VARCHAR(255)", name="CLOSE_TIME")
+public String closeTime;
 @Column(columnDefinition="BIGINT", name="PIPELINE_ID")
 public Long pipelineId;
-@Column(columnDefinition="DATETIME", name="WON_TIME")
-public LocalDateTime wonTime;
-@Column(columnDefinition="DATETIME", name="LOST_TIME")
-public LocalDateTime lostTime;
+@Column(columnDefinition="VARCHAR(255)", name="WON_TIME")
+public String wonTime;
+@Column(columnDefinition="VARCHAR(255)", name="LOST_TIME")
+public String lostTime;
 @Column(columnDefinition="DATE", name="EXPECTED_CLOSE_DATE")
 public LocalDate expectedCloseDate;
 @Column(columnDefinition="VARCHAR(255)", name="LABEL")
 public String label;
+@Column(columnDefinition="VARCHAR(255)", name="ORIGIN")
+public String origin;
+@Column(columnDefinition="TEXT", name="CHANNEL")
+public String channel;
+@Column(columnDefinition="BIGINT", name="OWNER_ID")
+public Long ownerId;
+@Column(columnDefinition="JSON", name="LABEL_IDS")
+public String labelIds;
+@Column(columnDefinition="BIGINT", name="ORIGIN_ID")
+public Long originId;
+@Column(columnDefinition="BIGINT", name="CHANNEL_ID")
+public Long channelId;
+@Column(columnDefinition="VARCHAR(255)", name="FIRST_WON_TIME")
+public String firstWonTime;
+@Column(columnDefinition="VARCHAR(255)", name="STAGE_CHANGE_TIME")
+public String stageChangeTime;
+@Column(columnDefinition="BOOLEAN", name="IS_ARCHIVED")
+public Boolean isArchived;
+@Column(columnDefinition="DATETIME", name="ARCHIVE_TIME")
+public LocalDateTime archiveTime;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 
     
 

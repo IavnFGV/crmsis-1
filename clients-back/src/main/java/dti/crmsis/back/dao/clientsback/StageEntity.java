@@ -7,6 +7,9 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
+import java.util.UUID;
+
+
 
 
 
@@ -19,7 +22,7 @@ public class StageEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE")
-    public Integer idPipedrive;
+    public Long idPipedrive;
 
 
 @Column(columnDefinition="BIGINT", name="ORDER_NR")
@@ -36,10 +39,10 @@ public Long pipelineId;
 public Boolean rottenFlag;
 @Column(columnDefinition="TEXT", name="ROTTEN_DAYS")
 public String rottenDays;
-@Column(columnDefinition="DATETIME", name="ADD_TIME")
-public LocalDateTime addTime;
-@Column(columnDefinition="DATETIME", name="UPDATE_TIME")
-public LocalDateTime updateTime;
+@Column(columnDefinition="VARCHAR(255)", name="ADD_TIME")
+public String addTime;
+@Column(columnDefinition="VARCHAR(255)", name="UPDATE_TIME")
+public String updateTime;
 @Column(columnDefinition="VARCHAR(255)", name="PIPELINE_NAME")
 public String pipelineName;
 @Column(columnDefinition="BOOLEAN", name="PIPELINE_DEAL_PROBABILITY")
@@ -48,6 +51,9 @@ public Boolean pipelineDealProbability;
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 
     
 

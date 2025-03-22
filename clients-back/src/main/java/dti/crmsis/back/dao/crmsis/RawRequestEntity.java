@@ -57,8 +57,9 @@ public class RawRequestEntity extends PanacheEntityBase {
         this.createdAt = createdAt;
     }
 
-    public static List<RawRequestEntity> findByCustomerNameAndIdGreaterThan(Long idSelector, String customerSelector) {
-        return list("id>?1 and customerName = ?2");
+    public static List<RawRequestEntity> findByIdGreaterThan(Long idSelector) {
+        return list("id>?1 ",idSelector);
     }
+
 
 }

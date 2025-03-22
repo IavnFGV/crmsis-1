@@ -3,6 +3,8 @@ package dti.crmsis.back.dao.clientsback;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "DEAL_CUSTOM_FIELDS")
 public class DealCustomFieldEntity extends PanacheEntityBase {
@@ -22,4 +24,7 @@ public class DealCustomFieldEntity extends PanacheEntityBase {
 
     @Column(columnDefinition = "VARCHAR(512)" , name = "STRING_VALUE")
     public String value;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 }

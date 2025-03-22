@@ -172,7 +172,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         ActivityEntity entity = new ActivityEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.userId = node.hasNonNull("user_id") ? node.get("user_id").asLong() : null;
                     entity.done = node.hasNonNull("done") ? node.get("done").asBoolean() : null;
                     entity.type = node.hasNonNull("type") ? objectMapper.writeValueAsString(node.get("type")) : null;
@@ -184,7 +184,7 @@ public class InitialEventsProcessorGenerated {
                     entity.dueTime = node.hasNonNull("due_time") ? objectMapper.writeValueAsString(node.get("due_time")) : null;
                     entity.duration = node.hasNonNull("duration") ? node.get("duration").asBoolean() : null;
                     entity.busyFlag = node.hasNonNull("busy_flag") ? node.get("busy_flag").asBoolean() : null;
-                    entity.addTime = parseDateTime(node.hasNonNull("add_time") ? node.get("add_time").asText() : null);
+                    entity.addTime = node.hasNonNull("add_time") ? objectMapper.writeValueAsString(node.get("add_time")) : null;
                     entity.markedAsDoneTime = parseDateTime(node.hasNonNull("marked_as_done_time") ? node.get("marked_as_done_time").asText() : null);
                     entity.lastNotificationTime = parseDateTime(node.hasNonNull("last_notification_time") ? node.get("last_notification_time").asText() : null);
                     entity.lastNotificationUserId = node.hasNonNull("last_notification_user_id") ? node.get("last_notification_user_id").asLong() : null;
@@ -198,7 +198,7 @@ public class InitialEventsProcessorGenerated {
                     entity.dealId = node.hasNonNull("deal_id") ? node.get("deal_id").asLong() : null;
                     entity.leadId = node.hasNonNull("lead_id") ? node.get("lead_id").asLong() : null;
                     entity.activeFlag = node.hasNonNull("active_flag") ? node.get("active_flag").asBoolean() : null;
-                    entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
+                    entity.updateTime = node.hasNonNull("update_time") ? objectMapper.writeValueAsString(node.get("update_time")) : null;
                     entity.updateUserId = node.hasNonNull("update_user_id") ? node.get("update_user_id").asLong() : null;
                     entity.sourceTimezone = node.hasNonNull("source_timezone") ? objectMapper.writeValueAsString(node.get("source_timezone")) : null;
                     entity.recRule = node.hasNonNull("rec_rule") ? objectMapper.writeValueAsString(node.get("rec_rule")) : null;
@@ -235,13 +235,14 @@ public class InitialEventsProcessorGenerated {
                     entity.typeName = node.hasNonNull("type_name") ? objectMapper.writeValueAsString(node.get("type_name")) : null;
                     entity.lead = node.hasNonNull("lead") ? objectMapper.writeValueAsString(node.get("lead")) : null;
                     entity.companyId = node.hasNonNull("company_id") ? node.get("company_id").asLong() : null;
+                    entity.ownerId = node.hasNonNull("owner_id") ? node.get("owner_id").asLong() : null;
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
                         entities.add(entity);
                     }
 
                     persistEntities(entities,"Activities");
-                    persistEntitiesAsync(customFields,"Activities");
+                    persistEntitiesAsync(customFields,"ActivitiesCustomField");
                 }else{
                     logger.warn("Activities HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -273,7 +274,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         RefActivityFieldEntity entity = new RefActivityFieldEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.key = node.get("key").asText();
                     entity.name = node.get("name").asText();
                     entity.fieldType = node.get("field_type").asText();
@@ -305,7 +306,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Ref_Activity_Fields");
-                    persistEntitiesAsync(customFields,"Ref_Activity_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Activity_FieldsCustomField");
                 }else{
                     logger.warn("Ref_Activity_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -337,7 +338,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         ActivityTypeEntity entity = new ActivityTypeEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.orderNr = node.hasNonNull("order_nr") ? node.get("order_nr").asLong() : null;
                     entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.keyString = node.hasNonNull("key_string") ? objectMapper.writeValueAsString(node.get("key_string")) : null;
@@ -353,7 +354,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Activity_Types");
-                    persistEntitiesAsync(customFields,"Activity_Types");
+                    persistEntitiesAsync(customFields,"Activity_TypesCustomField");
                 }else{
                     logger.warn("Activity_Types HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -385,7 +386,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         CurrencieEntity entity = new CurrencieEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.code = node.hasNonNull("code") ? objectMapper.writeValueAsString(node.get("code")) : null;
                     entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.symbol = node.hasNonNull("symbol") ? objectMapper.writeValueAsString(node.get("symbol")) : null;
@@ -398,7 +399,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Currencies");
-                    persistEntitiesAsync(customFields,"Currencies");
+                    persistEntitiesAsync(customFields,"CurrenciesCustomField");
                 }else{
                     logger.warn("Currencies HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -430,7 +431,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         RefDealFieldEntity entity = new RefDealFieldEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.key = node.get("key").asText();
                     entity.name = node.get("name").asText();
                     entity.fieldType = node.get("field_type").asText();
@@ -466,7 +467,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Ref_Deal_Fields");
-                    persistEntitiesAsync(customFields,"Ref_Deal_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Deal_FieldsCustomField");
                 }else{
                     logger.warn("Ref_Deal_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -498,7 +499,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         DealEntity entity = new DealEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.creatorUserId = node.hasNonNull("creator_user_id") ? node.get("creator_user_id").asLong() : null;
                     entity.userId = node.hasNonNull("user_id") ? node.get("user_id").asLong() : null;
                     entity.personId = node.hasNonNull("person_id") ? node.get("person_id").asLong() : null;
@@ -507,16 +508,16 @@ public class InitialEventsProcessorGenerated {
                     entity.title = node.hasNonNull("title") ? objectMapper.writeValueAsString(node.get("title")) : null;
                     entity.value = node.hasNonNull("value") ? node.get("value").asDouble() : null;
                     entity.currency = node.hasNonNull("currency") ? objectMapper.writeValueAsString(node.get("currency")) : null;
-                    entity.addTime = parseDateTime(node.hasNonNull("add_time") ? node.get("add_time").asText() : null);
-                    entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
+                    entity.addTime = node.hasNonNull("add_time") ? objectMapper.writeValueAsString(node.get("add_time")) : null;
+                    entity.updateTime = node.hasNonNull("update_time") ? objectMapper.writeValueAsString(node.get("update_time")) : null;
                     entity.status = node.hasNonNull("status") ? objectMapper.writeValueAsString(node.get("status")) : null;
                     entity.probability = node.hasNonNull("probability") ? objectMapper.writeValueAsString(node.get("probability")) : null;
                     entity.lostReason = node.hasNonNull("lost_reason") ? objectMapper.writeValueAsString(node.get("lost_reason")) : null;
                     entity.visibleTo = node.hasNonNull("visible_to") ? objectMapper.writeValueAsString(node.get("visible_to")) : null;
-                    entity.closeTime = parseDateTime(node.hasNonNull("close_time") ? node.get("close_time").asText() : null);
+                    entity.closeTime = node.hasNonNull("close_time") ? objectMapper.writeValueAsString(node.get("close_time")) : null;
                     entity.pipelineId = node.hasNonNull("pipeline_id") ? node.get("pipeline_id").asLong() : null;
-                    entity.wonTime = parseDateTime(node.hasNonNull("won_time") ? node.get("won_time").asText() : null);
-                    entity.lostTime = parseDateTime(node.hasNonNull("lost_time") ? node.get("lost_time").asText() : null);
+                    entity.wonTime = node.hasNonNull("won_time") ? objectMapper.writeValueAsString(node.get("won_time")) : null;
+                    entity.lostTime = node.hasNonNull("lost_time") ? objectMapper.writeValueAsString(node.get("lost_time")) : null;
                     entity.expectedCloseDate = parseDate(node.hasNonNull("expected_close_date") ? node.get("expected_close_date").asText() : null);
                     entity.label = node.hasNonNull("label") ? objectMapper.writeValueAsString(node.get("label")) : null;
                     customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "3883508ee2b24c7e32ffab7a0495669094e8bda7", node.hasNonNull("3883508ee2b24c7e32ffab7a0495669094e8bda7") ? objectMapper.writeValueAsString(node.get("3883508ee2b24c7e32ffab7a0495669094e8bda7")) : null));
@@ -540,13 +541,23 @@ public class InitialEventsProcessorGenerated {
                     customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "b2d9d57ff766881c26ef19043e1acfb7b90f1acd", node.hasNonNull("b2d9d57ff766881c26ef19043e1acfb7b90f1acd") ? objectMapper.writeValueAsString(node.get("b2d9d57ff766881c26ef19043e1acfb7b90f1acd")) : null));
                     customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "566658a615fb64eefa4e30b05dc88b474d0437b7", node.hasNonNull("566658a615fb64eefa4e30b05dc88b474d0437b7") ? objectMapper.writeValueAsString(node.get("566658a615fb64eefa4e30b05dc88b474d0437b7")) : null));
                     customFields.add(saveCustomField("DealEntity", node.get("id").asLong(), "477c1ee94c57bfef11e8b1e749f4f1b1a288e3df", node.hasNonNull("477c1ee94c57bfef11e8b1e749f4f1b1a288e3df") ? objectMapper.writeValueAsString(node.get("477c1ee94c57bfef11e8b1e749f4f1b1a288e3df")) : null));
+                    entity.origin = node.hasNonNull("origin") ? objectMapper.writeValueAsString(node.get("origin")) : null;
+                    entity.channel = node.hasNonNull("channel") ? objectMapper.writeValueAsString(node.get("channel")) : null;
+                    entity.ownerId = node.hasNonNull("owner_id") ? node.get("owner_id").asLong() : null;
+                    entity.labelIds = node.hasNonNull("label_ids") ? objectMapper.writeValueAsString(node.get("label_ids")) : null;
+                    entity.originId = node.hasNonNull("origin_id") ? node.get("origin_id").asLong() : null;
+                    entity.channelId = node.hasNonNull("channel_id") ? node.get("channel_id").asLong() : null;
+                    entity.firstWonTime = node.hasNonNull("first_won_time") ? objectMapper.writeValueAsString(node.get("first_won_time")) : null;
+                    entity.stageChangeTime = node.hasNonNull("stage_change_time") ? objectMapper.writeValueAsString(node.get("stage_change_time")) : null;
+                    entity.isArchived = node.hasNonNull("is_archived") ? node.get("is_archived").asBoolean() : null;
+                    entity.archiveTime = parseDateTime(node.hasNonNull("archive_time") ? node.get("archive_time").asText() : null);
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
                         entities.add(entity);
                     }
 
                     persistEntities(entities,"Deals");
-                    persistEntitiesAsync(customFields,"Deals");
+                    persistEntitiesAsync(customFields,"DealsCustomField");
                 }else{
                     logger.warn("Deals HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -589,7 +600,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Lead_Labels");
-                    persistEntitiesAsync(customFields,"Lead_Labels");
+                    persistEntitiesAsync(customFields,"Lead_LabelsCustomField");
                 }else{
                     logger.warn("Lead_Labels HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -629,7 +640,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Leads");
-                    persistEntitiesAsync(customFields,"Leads");
+                    persistEntitiesAsync(customFields,"LeadsCustomField");
                 }else{
                     logger.warn("Leads HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -661,7 +672,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         RefOrganizationFieldEntity entity = new RefOrganizationFieldEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.key = node.get("key").asText();
                     entity.name = node.get("name").asText();
                     entity.fieldType = node.get("field_type").asText();
@@ -696,7 +707,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Ref_Organization_Fields");
-                    persistEntitiesAsync(customFields,"Ref_Organization_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Organization_FieldsCustomField");
                 }else{
                     logger.warn("Ref_Organization_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -728,7 +739,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         OrganizationEntity entity = new OrganizationEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
@@ -736,7 +747,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Organizations");
-                    persistEntitiesAsync(customFields,"Organizations");
+                    persistEntitiesAsync(customFields,"OrganizationsCustomField");
                 }else{
                     logger.warn("Organizations HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -768,7 +779,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         RefPersonFieldEntity entity = new RefPersonFieldEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.key = node.get("key").asText();
                     entity.name = node.get("name").asText();
                     entity.fieldType = node.get("field_type").asText();
@@ -801,7 +812,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Ref_Person_Fields");
-                    persistEntitiesAsync(customFields,"Ref_Person_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Person_FieldsCustomField");
                 }else{
                     logger.warn("Ref_Person_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -833,28 +844,32 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         PersonEntity entity = new PersonEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.activeFlag = node.hasNonNull("active_flag") ? node.get("active_flag").asBoolean() : null;
                     entity.ownerId = node.hasNonNull("owner_id") ? node.get("owner_id").asLong() : null;
                     entity.orgId = node.hasNonNull("org_id") ? node.get("org_id").asLong() : null;
                     entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.phone = node.hasNonNull("phone") ? objectMapper.writeValueAsString(node.get("phone")) : null;
                     entity.email = node.hasNonNull("email") ? objectMapper.writeValueAsString(node.get("email")) : null;
-                    entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
+                    entity.updateTime = node.hasNonNull("update_time") ? objectMapper.writeValueAsString(node.get("update_time")) : null;
                     entity.deleteTime = parseDateTime(node.hasNonNull("delete_time") ? node.get("delete_time").asText() : null);
-                    entity.addTime = parseDateTime(node.hasNonNull("add_time") ? node.get("add_time").asText() : null);
+                    entity.addTime = node.hasNonNull("add_time") ? objectMapper.writeValueAsString(node.get("add_time")) : null;
                     entity.visibleTo = node.hasNonNull("visible_to") ? objectMapper.writeValueAsString(node.get("visible_to")) : null;
                     entity.pictureId = node.hasNonNull("picture_id") ? node.get("picture_id").asLong() : null;
                     entity.label = node.hasNonNull("label") ? objectMapper.writeValueAsString(node.get("label")) : null;
                     entity.ccEmail = node.hasNonNull("cc_email") ? objectMapper.writeValueAsString(node.get("cc_email")) : null;
                     customFields.add(saveCustomField("PersonEntity", node.get("id").asLong(), "43bfe2a67561e910f73e802f02e641dc2be77f8b", node.hasNonNull("43bfe2a67561e910f73e802f02e641dc2be77f8b") ? objectMapper.writeValueAsString(node.get("43bfe2a67561e910f73e802f02e641dc2be77f8b")) : null));
+                    entity.emails = node.hasNonNull("emails") ? objectMapper.writeValueAsString(node.get("emails")) : null;
+                    entity.phones = node.hasNonNull("phones") ? objectMapper.writeValueAsString(node.get("phones")) : null;
+                    entity.lastName = node.hasNonNull("last_name") ? objectMapper.writeValueAsString(node.get("last_name")) : null;
+                    entity.firstName = node.hasNonNull("first_name") ? objectMapper.writeValueAsString(node.get("first_name")) : null;
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
                         entities.add(entity);
                     }
 
                     persistEntities(entities,"Persons");
-                    persistEntitiesAsync(customFields,"Persons");
+                    persistEntitiesAsync(customFields,"PersonsCustomField");
                 }else{
                     logger.warn("Persons HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -886,7 +901,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         PipelineEntity entity = new PipelineEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.urlTitle = node.hasNonNull("url_title") ? objectMapper.writeValueAsString(node.get("url_title")) : null;
                     entity.orderNr = node.hasNonNull("order_nr") ? node.get("order_nr").asLong() : null;
@@ -901,7 +916,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Pipelines");
-                    persistEntitiesAsync(customFields,"Pipelines");
+                    persistEntitiesAsync(customFields,"PipelinesCustomField");
                 }else{
                     logger.warn("Pipelines HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -933,7 +948,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         RefProductFieldEntity entity = new RefProductFieldEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.key = node.get("key").asText();
                     entity.name = node.get("name").asText();
                     entity.fieldType = node.get("field_type").asText();
@@ -965,7 +980,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Ref_Product_Fields");
-                    persistEntitiesAsync(customFields,"Ref_Product_Fields");
+                    persistEntitiesAsync(customFields,"Ref_Product_FieldsCustomField");
                 }else{
                     logger.warn("Ref_Product_Fields HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -997,7 +1012,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         ProductEntity entity = new ProductEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.code = node.hasNonNull("code") ? objectMapper.writeValueAsString(node.get("code")) : null;
                     entity.description = node.hasNonNull("description") ? objectMapper.writeValueAsString(node.get("description")) : null;
@@ -1020,7 +1035,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Products");
-                    persistEntitiesAsync(customFields,"Products");
+                    persistEntitiesAsync(customFields,"ProductsCustomField");
                 }else{
                     logger.warn("Products HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -1052,7 +1067,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         ProjectEntity entity = new ProjectEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
@@ -1060,7 +1075,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Projects");
-                    persistEntitiesAsync(customFields,"Projects");
+                    persistEntitiesAsync(customFields,"ProjectsCustomField");
                 }else{
                     logger.warn("Projects HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -1092,7 +1107,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         RoleEntity entity = new RoleEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.parentRoleId = node.hasNonNull("parent_role_id") ? node.get("parent_role_id").asLong() : null;
                     entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.activeFlag = node.hasNonNull("active_flag") ? node.get("active_flag").asBoolean() : null;
@@ -1106,7 +1121,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Roles");
-                    persistEntitiesAsync(customFields,"Roles");
+                    persistEntitiesAsync(customFields,"RolesCustomField");
                 }else{
                     logger.warn("Roles HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -1138,7 +1153,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         StageEntity entity = new StageEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.orderNr = node.hasNonNull("order_nr") ? node.get("order_nr").asLong() : null;
                     entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.activeFlag = node.hasNonNull("active_flag") ? node.get("active_flag").asBoolean() : null;
@@ -1146,8 +1161,8 @@ public class InitialEventsProcessorGenerated {
                     entity.pipelineId = node.hasNonNull("pipeline_id") ? node.get("pipeline_id").asLong() : null;
                     entity.rottenFlag = node.hasNonNull("rotten_flag") ? node.get("rotten_flag").asBoolean() : null;
                     entity.rottenDays = node.hasNonNull("rotten_days") ? objectMapper.writeValueAsString(node.get("rotten_days")) : null;
-                    entity.addTime = parseDateTime(node.hasNonNull("add_time") ? node.get("add_time").asText() : null);
-                    entity.updateTime = parseDateTime(node.hasNonNull("update_time") ? node.get("update_time").asText() : null);
+                    entity.addTime = node.hasNonNull("add_time") ? objectMapper.writeValueAsString(node.get("add_time")) : null;
+                    entity.updateTime = node.hasNonNull("update_time") ? objectMapper.writeValueAsString(node.get("update_time")) : null;
                     entity.pipelineName = node.hasNonNull("pipeline_name") ? objectMapper.writeValueAsString(node.get("pipeline_name")) : null;
                     entity.pipelineDealProbability = node.hasNonNull("pipeline_deal_probability") ? node.get("pipeline_deal_probability").asBoolean() : null;
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
@@ -1156,7 +1171,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Stages");
-                    persistEntitiesAsync(customFields,"Stages");
+                    persistEntitiesAsync(customFields,"StagesCustomField");
                 }else{
                     logger.warn("Stages HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -1188,7 +1203,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         TaskEntity entity = new TaskEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         
                         customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
                         entity.json = objectMapper.writeValueAsString(node);
@@ -1196,7 +1211,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Tasks");
-                    persistEntitiesAsync(customFields,"Tasks");
+                    persistEntitiesAsync(customFields,"TasksCustomField");
                 }else{
                     logger.warn("Tasks HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -1228,10 +1243,10 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         UserEntity entity = new UserEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.name = node.hasNonNull("name") ? objectMapper.writeValueAsString(node.get("name")) : null;
                     entity.email = node.hasNonNull("email") ? objectMapper.writeValueAsString(node.get("email")) : null;
-                    entity.lang = node.hasNonNull("lang") ? node.get("lang").asLong() : null;
+                    entity.lang = node.hasNonNull("lang") ? objectMapper.writeValueAsString(node.get("lang")) : null;
                     entity.locale = node.hasNonNull("locale") ? objectMapper.writeValueAsString(node.get("locale")) : null;
                     entity.timezoneName = node.hasNonNull("timezone_name") ? objectMapper.writeValueAsString(node.get("timezone_name")) : null;
                     entity.timezoneOffset = node.hasNonNull("timezone_offset") ? objectMapper.writeValueAsString(node.get("timezone_offset")) : null;
@@ -1254,7 +1269,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Users");
-                    persistEntitiesAsync(customFields,"Users");
+                    persistEntitiesAsync(customFields,"UsersCustomField");
                 }else{
                     logger.warn("Users HAS PROBLEM EVENT. Event id = " + event.id);
                 }
@@ -1286,7 +1301,7 @@ public class InitialEventsProcessorGenerated {
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
                         WebhookEntity entity = new WebhookEntity();
-                        entity.idPipedrive = node.get("id").asInt();
+                        entity.idPipedrive = node.get("id").asLong();
                         entity.companyId = node.hasNonNull("company_id") ? node.get("company_id").asLong() : null;
                     entity.ownerId = node.hasNonNull("owner_id") ? node.get("owner_id").asLong() : null;
                     entity.userId = node.hasNonNull("user_id") ? node.get("user_id").asLong() : null;
@@ -1311,7 +1326,7 @@ public class InitialEventsProcessorGenerated {
                     }
 
                     persistEntities(entities,"Webhooks");
-                    persistEntitiesAsync(customFields,"Webhooks");
+                    persistEntitiesAsync(customFields,"WebhooksCustomField");
                 }else{
                     logger.warn("Webhooks HAS PROBLEM EVENT. Event id = " + event.id);
                 }

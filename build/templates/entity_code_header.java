@@ -7,6 +7,9 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
+import java.util.UUID;
+
+
 
 $SPECIFIC_IMPORTS
 

@@ -7,6 +7,9 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
+import java.util.UUID;
+
+
 
 
 
@@ -19,7 +22,7 @@ public class PersonEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE")
-    public Integer idPipedrive;
+    public Long idPipedrive;
 
 
 @Column(columnDefinition="BOOLEAN", name="ACTIVE_FLAG")
@@ -34,12 +37,12 @@ public String name;
 public String phone;
 @Column(columnDefinition="JSON", name="EMAIL")
 public String email;
-@Column(columnDefinition="DATETIME", name="UPDATE_TIME")
-public LocalDateTime updateTime;
+@Column(columnDefinition="VARCHAR(255)", name="UPDATE_TIME")
+public String updateTime;
 @Column(columnDefinition="DATETIME", name="DELETE_TIME")
 public LocalDateTime deleteTime;
-@Column(columnDefinition="DATETIME", name="ADD_TIME")
-public LocalDateTime addTime;
+@Column(columnDefinition="VARCHAR(255)", name="ADD_TIME")
+public String addTime;
 @Column(columnDefinition="VARCHAR(255)", name="VISIBLE_TO")
 public String visibleTo;
 @Column(columnDefinition="BIGINT", name="PICTURE_ID")
@@ -48,10 +51,21 @@ public Long pictureId;
 public String label;
 @Column(columnDefinition="VARCHAR(255)", name="CC_EMAIL")
 public String ccEmail;
+@Column(columnDefinition="JSON", name="EMAILS")
+public String emails;
+@Column(columnDefinition="JSON", name="PHONES")
+public String phones;
+@Column(columnDefinition="VARCHAR(255)", name="LAST_NAME")
+public String lastName;
+@Column(columnDefinition="VARCHAR(255)", name="FIRST_NAME")
+public String firstName;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 
     
 

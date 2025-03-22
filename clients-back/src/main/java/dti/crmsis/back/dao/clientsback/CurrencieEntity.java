@@ -7,6 +7,9 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
+import java.util.UUID;
+
+
 
 
 
@@ -19,7 +22,7 @@ public class CurrencieEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE")
-    public Integer idPipedrive;
+    public Long idPipedrive;
 
 
 @Column(columnDefinition="VARCHAR(255)", name="CODE")
@@ -38,6 +41,9 @@ public Boolean isCustomFlag;
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 
     
 

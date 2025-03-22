@@ -14,7 +14,7 @@ public class RawRequest extends PanacheEntityBase {
     public Long id;
     @Column(name = "REQUEST_DATA")
     private String requestData; // Содержимое запроса
-    @Column(name = "URL_PATH")
+    @Column(name = "CUSTOMER_NAME")
     private String urlPath;
     @Column(insertable = false, updatable = false, name = "CREATED_AT") // created_at не должен обновляться
     private java.time.LocalDateTime createdAt; // Время вставки

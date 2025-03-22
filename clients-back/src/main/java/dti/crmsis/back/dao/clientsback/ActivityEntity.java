@@ -7,6 +7,9 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
+import java.util.UUID;
+
+
 
 
 
@@ -19,7 +22,7 @@ public class ActivityEntity extends PanacheEntityBase {
     public Long id;
 
     @Column(name = "ID_PIPEDRIVE")
-    public Integer idPipedrive;
+    public Long idPipedrive;
 
 
 @Column(columnDefinition="BIGINT", name="USER_ID")
@@ -38,14 +41,14 @@ public String conferenceMeetingClient;
 public String conferenceMeetingUrl;
 @Column(columnDefinition="DATE", name="DUE_DATE")
 public LocalDate dueDate;
-@Column(columnDefinition="VARCHAR(255)", name="DUE_TIME")
+@Column(columnDefinition="TEXT", name="DUE_TIME")
 public String dueTime;
 @Column(columnDefinition="BOOLEAN", name="DURATION")
 public Boolean duration;
 @Column(columnDefinition="BOOLEAN", name="BUSY_FLAG")
 public Boolean busyFlag;
-@Column(columnDefinition="DATETIME", name="ADD_TIME")
-public LocalDateTime addTime;
+@Column(columnDefinition="VARCHAR(255)", name="ADD_TIME")
+public String addTime;
 @Column(columnDefinition="DATETIME", name="MARKED_AS_DONE_TIME")
 public LocalDateTime markedAsDoneTime;
 @Column(columnDefinition="DATETIME", name="LAST_NOTIFICATION_TIME")
@@ -72,8 +75,8 @@ public Long dealId;
 public Long leadId;
 @Column(columnDefinition="BOOLEAN", name="ACTIVE_FLAG")
 public Boolean activeFlag;
-@Column(columnDefinition="DATETIME", name="UPDATE_TIME")
-public LocalDateTime updateTime;
+@Column(columnDefinition="VARCHAR(255)", name="UPDATE_TIME")
+public String updateTime;
 @Column(columnDefinition="BIGINT", name="UPDATE_USER_ID")
 public Long updateUserId;
 @Column(columnDefinition="TEXT", name="SOURCE_TIMEZONE")
@@ -146,10 +149,15 @@ public String typeName;
 public String lead;
 @Column(columnDefinition="BIGINT", name="COMPANY_ID")
 public Long companyId;
+@Column(columnDefinition="BIGINT", name="OWNER_ID")
+public Long ownerId;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 
     
 

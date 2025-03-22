@@ -7,8 +7,11 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
-
 import java.util.UUID;
+
+
+
+
 
 @Entity
 @Table(name = "LEAD_LABELS")
@@ -33,6 +36,9 @@ public String updateTime;
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
+
+    @Column(name = "CORRELATION_ID")
+    public UUID correlationId;
 
     
 
