@@ -123,9 +123,9 @@ public class KnownFieldService {
                     if (jsonNode.get("success") != null && jsonNode.get("success").asBoolean()) {
                         JsonNode jsonArray = jsonNode.path("data");
                         for (JsonNode node : jsonArray) {
-                            List<List<PanacheEntityBase>> entitiesAndCustomFields =
+                            JsonToEntityServiceAnswer<RefActivityFieldEntity, ?, ?> answer =
                                     jsonService.toRefActivityFieldEntity(node);
-                            List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, entitiesAndCustomFields);
+                            List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, answer.getEntities());
                             entities.addAll(newFields);
                         }
                     }
@@ -141,9 +141,9 @@ public class KnownFieldService {
                                 if (jsonNode.get("success") != null && jsonNode.get("success").asBoolean()) {
                                     JsonNode jsonArray = jsonNode.path("data");
                                     for (JsonNode node : jsonArray) {
-                                        List<List<PanacheEntityBase>> entitiesAndCustomFields = null;
-                                        entitiesAndCustomFields = jsonService.toRefDealFieldEntity(node);
-                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, entitiesAndCustomFields);
+                                        JsonToEntityServiceAnswer<RefDealFieldEntity, ?, ?> answer =
+                                                jsonService.toRefDealFieldEntity(node);
+                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, answer.getEntities());
                                         entities.addAll(newFields);
                                     }
                                 }
@@ -168,9 +168,9 @@ public class KnownFieldService {
                                 if (jsonNode.get("success") != null && jsonNode.get("success").asBoolean()) {
                                     JsonNode jsonArray = jsonNode.path("data");
                                     for (JsonNode node : jsonArray) {
-                                        List<List<PanacheEntityBase>> entitiesAndCustomFields = null;
-                                        entitiesAndCustomFields = jsonService.toRefOrganizationFieldEntity(node);
-                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, entitiesAndCustomFields);
+                                        JsonToEntityServiceAnswer<RefOrganizationFieldEntity, ?, ?> answer =
+                                                jsonService.toRefOrganizationFieldEntity(node);
+                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, answer.getEntities());
                                         entities.addAll(newFields);
                                     }
                                 }
@@ -188,9 +188,9 @@ public class KnownFieldService {
                                 if (jsonNode.get("success") != null && jsonNode.get("success").asBoolean()) {
                                     JsonNode jsonArray = jsonNode.path("data");
                                     for (JsonNode node : jsonArray) {
-                                        List<List<PanacheEntityBase>> entitiesAndCustomFields = null;
-                                        entitiesAndCustomFields = jsonService.toRefPersonFieldEntity(node);
-                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, entitiesAndCustomFields);
+                                        JsonToEntityServiceAnswer<RefPersonFieldEntity, ?, ?> answer =
+                                                jsonService.toRefPersonFieldEntity(node);
+                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, answer.getEntities());
                                         entities.addAll(newFields);
                                     }
                                 }
@@ -211,9 +211,9 @@ public class KnownFieldService {
                                 if (jsonNode.get("success") != null && jsonNode.get("success").asBoolean()) {
                                     JsonNode jsonArray = jsonNode.path("data");
                                     for (JsonNode node : jsonArray) {
-                                        List<List<PanacheEntityBase>> entitiesAndCustomFields = null;
-                                        entitiesAndCustomFields = jsonService.toRefProductFieldEntity(node);
-                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, entitiesAndCustomFields);
+                                        JsonToEntityServiceAnswer<RefProductFieldEntity, ?, ?> answer =
+                                                jsonService.toRefProductFieldEntity(node);
+                                        List<PanacheEntityBase> newFields = filterAllUnknownFields(entityName, answer.getEntities());
                                         entities.addAll(newFields);
                                     }
                                 }
@@ -315,9 +315,8 @@ public class KnownFieldService {
         return entity;
     }
 
-    private List<PanacheEntityBase> filterAllUnknownFields(String entityName, List<List<PanacheEntityBase>> entitiesAndCustomFields) {
-        return entitiesAndCustomFields.get(0).stream()
-                .map(panacheEntityBase -> (RefField) panacheEntityBase)
+    private List<PanacheEntityBase> filterAllUnknownFields(String entityName, List<? extends RefField> entitiesAndCustomFields) {
+        return entitiesAndCustomFields.stream()
                 .filter(refField -> calculateFieldStatus(entityName, refField.getKey()) == FieldStatus.UNKNOWN)
                 .map(panacheEntityBase -> (PanacheEntityBase) panacheEntityBase)
                 .toList();
