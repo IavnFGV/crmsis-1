@@ -15,8 +15,11 @@
                 JsonNode jsonNode = objectMapper.readTree(event.processedData);
                 List<PanacheEntityBase>  entities = new ArrayList<>();
                 List<PanacheEntityBase>  customFields = new ArrayList<>();
+                List<PanacheEntityBase>  customFieldRefs = new ArrayList<>();
                 if(jsonNode.get("success")!=null && jsonNode.get("success").asBoolean()){
                     $PERSISTING_CODE
+
+                    persistEntities(customFieldRefs,"$ENTITY_NAME_TITLED_customFieldRefs");
                     persistEntities(entities,"$ENTITY_NAME_TITLED");
                     persistEntitiesAsync(customFields,"$ENTITY_NAME_TITLEDCustomField");
                 }else{

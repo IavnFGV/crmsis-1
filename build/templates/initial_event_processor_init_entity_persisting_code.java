@@ -1,10 +1,8 @@
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        $ENTITY_CLASS_NAME entity = new $ENTITY_CLASS_NAME();
-                        $ID_EXTRACTOR
-                        $OTHER_FIELDS_EXTRACTOR
-                        customFields = customFields.stream().filter(Objects::nonNull).collect(Collectors.toList());
-                        entity.json = objectMapper.writeValueAsString(node);
-                        entities.add(entity);
+                        List<List<PanacheEntityBase>> entitiesAndCustomFields= jsonService.to$ENTITY_CLASS_NAME(node);
+                        entities.addAll(entitiesAndCustomFields.get(0));
+                        customFields.addAll(entitiesAndCustomFields.get(1));
+                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
                     }

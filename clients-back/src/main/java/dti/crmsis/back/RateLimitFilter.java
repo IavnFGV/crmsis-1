@@ -23,7 +23,6 @@ public class RateLimitFilter implements ClientResponseFilter , ClientRequestFilt
         log.info("Rate limit filter created.");
     }
 
-    @Startup(Constants.RATE_LIMIT_FILTER_START_UP_PRIORITY)
     public void init() {
         log.info("Rate limit filter initialized.");
         semaphore = new Semaphore(Constants.MAX_REQUESTS_PER_SECOND);

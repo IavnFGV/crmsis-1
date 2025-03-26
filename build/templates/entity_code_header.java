@@ -15,7 +15,7 @@ $SPECIFIC_IMPORTS
 
 @Entity
 @Table(name = "$TABLE_NAME")
-public class $ENTITY_NAME extends PanacheEntityBase {
+public class $ENTITY_NAME extends PanacheEntityBase $IMPLEMENTS_INTERFACE {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")

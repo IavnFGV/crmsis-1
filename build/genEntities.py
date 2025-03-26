@@ -83,6 +83,11 @@ def generate_entities(entity_names, api_methods):
                       .replace("$SPECIFIC_IMPORTS", "\n".join(specific_imports))
                       .replace("#BEFORE_CLASS_CLOSE", "\n\t".join(before_class_close)))
 
+        if entity_name.startswith("REF") and entity_name.endswith("FIELDS"):
+            class_code = class_code.replace("$IMPLEMENTS_INTERFACE"," implements RefField")
+        else:
+            class_code = class_code.replace("$IMPLEMENTS_INTERFACE","")
+
         result.append((class_name, class_code))
 
     return result, field_declarations

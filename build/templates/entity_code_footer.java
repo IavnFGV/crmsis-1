@@ -3,8 +3,8 @@
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
 
-    @Column(name = "CORRELATION_ID")
-    public UUID correlationId;
+    @Column(name = "PROCESS_REPORT_ID")
+    public Long processReportId;
 
     #BEFORE_CLASS_CLOSE
 

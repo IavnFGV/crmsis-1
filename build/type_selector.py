@@ -52,8 +52,10 @@ def detect_mysql_type_extended(key,values):
         possible_date_formats = [
             ("%Y-%m-%d", "DATE", "LocalDate"),
             ("%Y-%m-%d %H:%M:%S", "DATETIME", "LocalDateTime"),
+            ("%Y-%m-%dT%H:%M:%SZ", "DATETIME", "LocalDateTime"),
             ("%Y-%m-%dT%H:%M:%S", "DATETIME", "LocalDateTime")
         ]
+
         for date_format, mysql_candidate, java_candidate in possible_date_formats:
             try:
                 parsed_dates = [datetime.strptime(v, date_format) for v in values]
@@ -61,12 +63,13 @@ def detect_mysql_type_extended(key,values):
             except ValueError:
                 continue
 
-        # Если это просто текстовые данные
-        max_length = max(len(v) for v in values)
-        if max_length <= 255:
-            return f"VARCHAR({255})", "String"
-        else:
-            return "TEXT", "String"
+        if mysql_type == "TEXT" and java_type == "String" :
+            max_length = max(len(v) for v in values)
+            if max_length <= 255:
+                return f"VARCHAR({255})", "String"
+            else:
+                return "TEXT", "String"
+        return mysql_type, java_type
     elif all(isinstance(v, list) for v in values):
         return "JSON", "String"
     elif all(isinstance(v, dict) for v in values):

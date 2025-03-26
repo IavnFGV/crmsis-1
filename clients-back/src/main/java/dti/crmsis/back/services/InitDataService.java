@@ -2,22 +2,17 @@ package dti.crmsis.back.services;
 
 import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
 import dti.crmsis.back.dao.crmsis.CustomerEntity;
-import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Alternative;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static dti.crmsis.back.services.Constants.STARTUP_SERVICE_START_UP_PRIORITY;
-
 
 @ApplicationScoped
-@Alternative
-public class StartupService {
+public class InitDataService {
 
-    private static final Logger logger = Logger.getLogger(StartupService.class);
+    private static final Logger logger = Logger.getLogger(InitDataService.class);
 
 
     @Inject
@@ -27,26 +22,25 @@ public class StartupService {
     @ConfigProperty(name = "APP_TOKEN")
     public String apiToken;
 
-    @Startup(STARTUP_SERVICE_START_UP_PRIORITY)
+
     public void start() {
-//        if (!initialDataInDatabase()) {
-//            CustomerEntity customerEntity = getCustomerEntity();
-//            initClient(customerEntity);
-//        }
-
-        CustomerEntity customerEntity = new CustomerEntity();
-        customerEntity.url = "https://api.pipedrive.com/okacademy.pipedrive.com/";
-        customerEntity.urlPath = "okacademy";
-//        initClient(customerEntity);
-
-//        if(!initialEventsProcessed()){
-//            CustomerEntity customerEntity = getCustomerEntity();
+        CustomerEntity customerEntity = getCustomerEntity();
+        if (!initialLoadDone()) {
+            initClient(customerEntity);
+        }
+        if (!initialEventsProcessed()) {
             processInitialEvents(customerEntity);
-//        }
+        }
     }
 
     private void processInitialEvents(CustomerEntity customerEntity) {
         initialEventsProcessor.processInitialEvents(customerEntity);
+        markInitialEventsProcessed();
+    }
+
+    @Transactional
+    protected void markInitialEventsProcessed(){
+        ExtraInfoEntity.saveBoolean(Constants.INITIAL_EVENTS_PROCESSED, true);
     }
 
     private boolean initialEventsProcessed() {
@@ -67,21 +61,20 @@ public class StartupService {
             clientDataExtractorServiceGenerated.initClient(customerEntity);
             logger.infof("Client successfully registered");
 
-            initialLoadDone();
+            markInitialLoadDone();
         } catch (Exception e) {
             System.out.println("Failed to start the application");
-            return;
         }
     }
 
     @Transactional
-    protected void initialLoadDone() {
-        ExtraInfoEntity.saveBoolean(Constants.INITIAL_DATA_LOAD, true);
+    protected void markInitialLoadDone() {
+        ExtraInfoEntity.saveBoolean(Constants.INITIAL_LOAD_DONE, true);
     }
 
     @Transactional
-    protected static boolean initialDataInDatabase() {
-        boolean initialSetupDone = ExtraInfoEntity.getBooleanByName(Constants.INITIAL_DATA_LOAD);
+    protected static boolean initialLoadDone() {
+        boolean initialSetupDone = ExtraInfoEntity.getBooleanByName(Constants.INITIAL_LOAD_DONE);
         if (initialSetupDone) {
             logger.infov("Initial setup already done");
             return true;

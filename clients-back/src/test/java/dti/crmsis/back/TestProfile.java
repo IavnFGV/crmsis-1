@@ -10,4 +10,5 @@ public class TestProfile implements QuarkusTestProfile {
     public Set<Class<?>> getEnabledAlternatives() {
         return Set.of();
     }
+
 }
