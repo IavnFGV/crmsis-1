@@ -25,6 +25,9 @@ import java.time.ZoneOffset;
 import java.io.*;
 import java.util.*;
 
+import static dti.crmsis.back.services.JsonToEntityServiceAnswer.of;
+
+
 @ApplicationScoped
 public class JsonToEntityServiceGenerated{
 

@@ -117,8 +117,9 @@ public class JsonToEntityServiceGenerated {
         return null;
     }
 
-    public List<List<PanacheEntityBase>> toActivityEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<ActivityEntity, PanacheEntityBase, PanacheEntityBase>
+            toActivityEntity(JsonNode node) {
+        List<ActivityEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "activity");
@@ -237,7 +238,8 @@ public class JsonToEntityServiceGenerated {
                 node.hasNonNull("location_street_number")
                         ? writeNodeAsString(node.get("location_street_number"))
                         : null;
-        entity.locationRoute =node.hasNonNull("location_route")
+        entity.locationRoute =
+                node.hasNonNull("location_route")
                         ? writeNodeAsString(node.get("location_route"))
                         : null;
         entity.locationSublocality =
@@ -307,11 +309,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toRefActivityFieldEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<RefActivityFieldEntity, PanacheEntityBase, PanacheEntityBase>
+            toRefActivityFieldEntity(JsonNode node) {
+        List<RefActivityFieldEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "refactivityfield");
@@ -386,11 +389,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toActivityTypeEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<ActivityTypeEntity, PanacheEntityBase, PanacheEntityBase>
+            toActivityTypeEntity(JsonNode node) {
+        List<ActivityTypeEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "activitytype");
@@ -424,11 +428,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toCurrencieEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<CurrencieEntity, PanacheEntityBase, PanacheEntityBase>
+            toCurrencieEntity(JsonNode node) {
+        List<CurrencieEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "currencie");
@@ -455,11 +460,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toRefDealFieldEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<RefDealFieldEntity, PanacheEntityBase, PanacheEntityBase>
+            toRefDealFieldEntity(JsonNode node) {
+        List<RefDealFieldEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "refdealfield");
@@ -547,11 +553,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toDealEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<DealEntity, PanacheEntityBase, PanacheEntityBase> toDealEntity(
+            JsonNode node) {
+        List<DealEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "deal");
@@ -628,11 +635,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toLeadLabelEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<LeadLabelEntity, PanacheEntityBase, PanacheEntityBase>
+            toLeadLabelEntity(JsonNode node) {
+        List<LeadLabelEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "leadlabel");
@@ -657,11 +665,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toLeadEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<LeadEntity, PanacheEntityBase, PanacheEntityBase> toLeadEntity(
+            JsonNode node) {
+        List<LeadEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "lead");
@@ -680,11 +689,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toNoteEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<NoteEntity, PanacheEntityBase, PanacheEntityBase> toNoteEntity(
+            JsonNode node) {
+        List<NoteEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "note");
@@ -728,11 +738,13 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toRefOrganizationFieldEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<
+                    RefOrganizationFieldEntity, PanacheEntityBase, PanacheEntityBase>
+            toRefOrganizationFieldEntity(JsonNode node) {
+        List<RefOrganizationFieldEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "reforganizationfield");
@@ -814,11 +826,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toOrganizationEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<OrganizationEntity, PanacheEntityBase, PanacheEntityBase>
+            toOrganizationEntity(JsonNode node) {
+        List<OrganizationEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "organization");
@@ -837,11 +850,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toRefPersonFieldEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<RefPersonFieldEntity, PanacheEntityBase, PanacheEntityBase>
+            toRefPersonFieldEntity(JsonNode node) {
+        List<RefPersonFieldEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "refpersonfield");
@@ -922,11 +936,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toPersonEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<PersonEntity, PanacheEntityBase, PanacheEntityBase>
+            toPersonEntity(JsonNode node) {
+        List<PersonEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "person");
@@ -971,11 +986,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toPipelineEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<PipelineEntity, PanacheEntityBase, PanacheEntityBase>
+            toPipelineEntity(JsonNode node) {
+        List<PipelineEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "pipeline");
@@ -1008,11 +1024,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toRefProductFieldEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<RefProductFieldEntity, PanacheEntityBase, PanacheEntityBase>
+            toRefProductFieldEntity(JsonNode node) {
+        List<RefProductFieldEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "refproductfield");
@@ -1089,11 +1106,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toProductEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<ProductEntity, PanacheEntityBase, PanacheEntityBase>
+            toProductEntity(JsonNode node) {
+        List<ProductEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "product");
@@ -1141,11 +1159,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toProjectEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<ProjectEntity, PanacheEntityBase, PanacheEntityBase>
+            toProjectEntity(JsonNode node) {
+        List<ProjectEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "project");
@@ -1164,11 +1183,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toRoleEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<RoleEntity, PanacheEntityBase, PanacheEntityBase> toRoleEntity(
+            JsonNode node) {
+        List<RoleEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "role");
@@ -1202,11 +1222,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toStageEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<StageEntity, PanacheEntityBase, PanacheEntityBase>
+            toStageEntity(JsonNode node) {
+        List<StageEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "stage");
@@ -1249,11 +1270,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toTaskEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<TaskEntity, PanacheEntityBase, PanacheEntityBase> toTaskEntity(
+            JsonNode node) {
+        List<TaskEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "task");
@@ -1272,11 +1294,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toUserEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<UserEntity, PanacheEntityBase, PanacheEntityBase> toUserEntity(
+            JsonNode node) {
+        List<UserEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "user");
@@ -1332,11 +1355,12 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 
-    public List<List<PanacheEntityBase>> toWebhookEntity(JsonNode node) {
-        List<PanacheEntityBase> entities = new ArrayList<>();
+    public JsonToEntityServiceAnswer<WebhookEntity, PanacheEntityBase, PanacheEntityBase>
+            toWebhookEntity(JsonNode node) {
+        List<WebhookEntity> entities = new ArrayList<>();
 
         List<PanacheEntityBase> additionalEntities =
                 knownFieldService.ensureAllFieldsAreKnown(node, "webhook");
@@ -1400,6 +1424,6 @@ public class JsonToEntityServiceGenerated {
         entity.json = writeNodeAsString(node);
         entities.add(entity);
 
-        return List.of(entities, customFields, customFieldsRefs);
+        return JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
     }
 }

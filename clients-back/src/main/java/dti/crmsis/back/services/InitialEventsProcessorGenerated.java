@@ -105,11 +105,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toActivityEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        ActivityEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toActivityEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Activities_customFieldRefs");
@@ -148,11 +149,14 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toRefActivityFieldEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        RefActivityFieldEntity,
+                                        PanacheEntityBase,
+                                        PanacheEntityBase>
+                                answer = jsonService.toRefActivityFieldEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Ref_Activity_Fields_customFieldRefs");
@@ -194,11 +198,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toActivityTypeEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        ActivityTypeEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toActivityTypeEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Activity_Types_customFieldRefs");
@@ -240,11 +245,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toCurrencieEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        CurrencieEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toCurrencieEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Currencies_customFieldRefs");
@@ -283,11 +289,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toRefDealFieldEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        RefDealFieldEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toRefDealFieldEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Ref_Deal_Fields_customFieldRefs");
@@ -329,11 +336,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toDealEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<DealEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toDealEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Deals_customFieldRefs");
@@ -371,11 +378,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toLeadLabelEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        LeadLabelEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toLeadLabelEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Lead_Labels_customFieldRefs");
@@ -414,11 +422,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toLeadEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<LeadEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toLeadEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Leads_customFieldRefs");
@@ -456,11 +464,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toNoteEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<NoteEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toNoteEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Notes_customFieldRefs");
@@ -498,11 +506,14 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toRefOrganizationFieldEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        RefOrganizationFieldEntity,
+                                        PanacheEntityBase,
+                                        PanacheEntityBase>
+                                answer = jsonService.toRefOrganizationFieldEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Ref_Organization_Fields_customFieldRefs");
@@ -545,11 +556,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toOrganizationEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        OrganizationEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toOrganizationEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Organizations_customFieldRefs");
@@ -591,11 +603,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toRefPersonFieldEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        RefPersonFieldEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toRefPersonFieldEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Ref_Person_Fields_customFieldRefs");
@@ -637,11 +650,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toPersonEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        PersonEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toPersonEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Persons_customFieldRefs");
@@ -679,11 +693,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toPipelineEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        PipelineEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toPipelineEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Pipelines_customFieldRefs");
@@ -722,11 +737,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toRefProductFieldEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        RefProductFieldEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toRefProductFieldEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Ref_Product_Fields_customFieldRefs");
@@ -768,11 +784,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toProductEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        ProductEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toProductEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Products_customFieldRefs");
@@ -811,11 +828,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toProjectEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        ProjectEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toProjectEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Projects_customFieldRefs");
@@ -854,11 +872,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toRoleEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<RoleEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toRoleEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Roles_customFieldRefs");
@@ -896,11 +914,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toStageEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<StageEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toStageEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Stages_customFieldRefs");
@@ -938,11 +956,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toTaskEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<TaskEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toTaskEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Tasks_customFieldRefs");
@@ -980,11 +998,11 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toUserEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<UserEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toUserEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Users_customFieldRefs");
@@ -1022,11 +1040,12 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         entitiesCount++;
-                        List<List<PanacheEntityBase>> entitiesAndCustomFields =
-                                jsonService.toWebhookEntity(node);
-                        entities.addAll(entitiesAndCustomFields.get(0));
-                        customFields.addAll(entitiesAndCustomFields.get(1));
-                        customFieldRefs.addAll(entitiesAndCustomFields.get(2));
+                        JsonToEntityServiceAnswer<
+                                        WebhookEntity, PanacheEntityBase, PanacheEntityBase>
+                                answer = jsonService.toWebhookEntity(node);
+                        entities.addAll(answer.getEntities());
+                        customFields.addAll(answer.getCustomFieldEntities());
+                        customFieldRefs.addAll(answer.getCustomFieldsRefs());
                     }
 
                     persistEntities(customFieldRefs, "Webhooks_customFieldRefs");

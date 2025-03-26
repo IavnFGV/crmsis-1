@@ -1,5 +1,5 @@
-public List<List<PanacheEntityBase>> to$ENTITY_CLASS_NAME(JsonNode node){
-    List<PanacheEntityBase> entities = new ArrayList<>();
+public JsonToEntityServiceAnswer<$ENTITY_CLASS_NAME,PanacheEntityBase,PanacheEntityBase>  to$ENTITY_CLASS_NAME(JsonNode node){
+    List<$ENTITY_CLASS_NAME> entities = new ArrayList<>();
 
     List<PanacheEntityBase> additionalEntities = knownFieldService.ensureAllFieldsAreKnown(node, "$ENTITY_TYPE_NAME");
     Map<Boolean, List<PanacheEntityBase>> partitioned = additionalEntities.stream().collect(Collectors.partitioningBy(entity -> entity instanceof RefField));
@@ -15,7 +15,7 @@ public List<List<PanacheEntityBase>> to$ENTITY_CLASS_NAME(JsonNode node){
     entity.json = writeNodeAsString(node);
     entities.add(entity);
 
-    return List.of(entities, customFields, customFieldsRefs);
+    return  JsonToEntityServiceAnswer.of(entities, customFields, customFieldsRefs);
 
 }
 
