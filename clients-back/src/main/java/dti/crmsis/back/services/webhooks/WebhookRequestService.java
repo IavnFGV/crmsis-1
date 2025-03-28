@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.clients.dto.KeyValueStore;
 import dti.crmsis.back.services.TimeZoneService;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
@@ -23,11 +22,8 @@ public class WebhookRequestService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
-    @Inject
-    TimeZoneService timeZoneService;
-
-    public JsonProxy getProxy(String json) {
-        return new JsonProxy(json);
+    public JsonProxy getProxy(Long requestId, String json) {
+        return new JsonProxy(requestId,json);
     }
 
     private static void addComment(JsonProcessingException e, JsonProxy jsonProxy) {
@@ -36,6 +32,7 @@ public class WebhookRequestService {
 
     public static class JsonProxy {
 
+        public Long requestId;
         public UUID metaCorrelationId;
         public Integer metaCorrelationIdSuffix;
         public KeyValueStore comment = new KeyValueStore();
@@ -48,8 +45,9 @@ public class WebhookRequestService {
         public LocalDateTime timeStamp;
         public boolean exceptionInHandler;
 
-        public JsonProxy(String json) {
+        public JsonProxy(Long requestId, String json) {
             this.json = json;
+            this.requestId = requestId;
         }
 
         public void init(ObjectMapper objectMapper) {

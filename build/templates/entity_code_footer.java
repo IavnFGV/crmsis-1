@@ -3,8 +3,18 @@
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
 
-    @Column(name = "PROCESS_REPORT_ID")
-    public Long processReportId;
+    @Column(name = "SOURCE_REQUEST_ID")
+    public Long sourceRequestId;
+
+    @Override
+    public void setSourceRequestId(Long sourceRequestId){
+        this.sourceRequestId = sourceRequestId;
+    }
+
+    @Override
+    public Long getSourceRequestId(){
+        return this.sourceRequestId;
+    }
 
     #BEFORE_CLASS_CLOSE
 

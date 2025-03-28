@@ -84,9 +84,9 @@ def generate_entities(entity_names, api_methods):
                       .replace("#BEFORE_CLASS_CLOSE", "\n\t".join(before_class_close)))
 
         if entity_name.startswith("REF") and entity_name.endswith("FIELDS"):
-            class_code = class_code.replace("$IMPLEMENTS_INTERFACE"," implements RefField")
+            class_code = class_code.replace("$IMPLEMENTS_INTERFACE"," implements RefField, HasSourceRequestId")
         else:
-            class_code = class_code.replace("$IMPLEMENTS_INTERFACE","")
+            class_code = class_code.replace("$IMPLEMENTS_INTERFACE"," implements HasSourceRequestId")
 
         result.append((class_name, class_code))
 

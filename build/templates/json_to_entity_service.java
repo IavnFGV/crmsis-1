@@ -78,48 +78,6 @@ public class JsonToEntityServiceGenerated{
         return localDate;
     }
 
-    public static PanacheEntityBase saveCustomField(String mainEntityClassName, Long mainEntityId, String customFieldName, String value) {
-        if(value == null || value.isEmpty()) {
-            return null;
-        }
-        switch (mainEntityClassName) {
-            case "ActivityEntity":
-                ActivityCustomFieldEntity  activityCustomFieldEntity = new ActivityCustomFieldEntity();
-                activityCustomFieldEntity.mainEntityId = mainEntityId;
-                activityCustomFieldEntity.key = customFieldName;
-                activityCustomFieldEntity.value = value;
-                return activityCustomFieldEntity;
-            case "DealEntity":
-                DealCustomFieldEntity  dealCustomFieldEntity = new DealCustomFieldEntity();
-                dealCustomFieldEntity.mainEntityId = mainEntityId;
-                dealCustomFieldEntity.key = customFieldName;
-                dealCustomFieldEntity.value = value;
-                return dealCustomFieldEntity;
-            case "OrganizationEntity":
-                OrganizationCustomFieldEntity organizationCustomFieldEntity = new OrganizationCustomFieldEntity();
-                organizationCustomFieldEntity.mainEntityId = mainEntityId;
-                organizationCustomFieldEntity.key = customFieldName;
-                organizationCustomFieldEntity.value = value;
-                return organizationCustomFieldEntity;
-            case "PersonEntity":
-                PersonCustomFieldEntity  personCustomFieldEntity = new PersonCustomFieldEntity();
-                personCustomFieldEntity.mainEntityId = mainEntityId;
-                personCustomFieldEntity.key = customFieldName;
-                personCustomFieldEntity.value = value;
-                return personCustomFieldEntity;
-            case "ProductEntity":
-                ProductCustomFieldEntity productCustomFieldEntity = new ProductCustomFieldEntity();
-                productCustomFieldEntity.mainEntityId = mainEntityId;
-                productCustomFieldEntity.key = customFieldName;
-                productCustomFieldEntity.value = value;
-                return productCustomFieldEntity;
-            default:
-                logger.warn("Unknown main entity type: " + mainEntityClassName);
-                break;
-        }
-        return null;
-    }
-
     $JSON_TO_ENTITY_METHODS
 
 

@@ -46,7 +46,7 @@ public class InitDataService {
     private boolean initialEventsProcessed() {
         boolean initialSetupDone = ExtraInfoEntity.getBooleanByName(Constants.INITIAL_EVENTS_PROCESSED);
         if (initialSetupDone) {
-            logger.infov("Initial setup already done");
+            logger.infof("%s already done",Constants.INITIAL_EVENTS_PROCESSED);
             return true;
         }
         return false;
@@ -76,7 +76,7 @@ public class InitDataService {
     protected static boolean initialLoadDone() {
         boolean initialSetupDone = ExtraInfoEntity.getBooleanByName(Constants.INITIAL_LOAD_DONE);
         if (initialSetupDone) {
-            logger.infov("Initial setup already done");
+            logger.infof("%s already done", Constants.INITIAL_LOAD_DONE);
             return true;
         }
         return false;

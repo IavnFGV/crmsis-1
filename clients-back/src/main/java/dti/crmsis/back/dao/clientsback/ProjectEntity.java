@@ -9,7 +9,7 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "PROJECTS")
-public class ProjectEntity extends PanacheEntityBase {
+public class ProjectEntity extends PanacheEntityBase implements HasSourceRequestId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -22,6 +22,16 @@ public class ProjectEntity extends PanacheEntityBase {
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
 
-    @Column(name = "PROCESS_REPORT_ID")
-    public Long processReportId;
+    @Column(name = "SOURCE_REQUEST_ID")
+    public Long sourceRequestId;
+
+    @Override
+    public void setSourceRequestId(Long sourceRequestId) {
+        this.sourceRequestId = sourceRequestId;
+    }
+
+    @Override
+    public Long getSourceRequestId() {
+        return this.sourceRequestId;
+    }
 } // close class

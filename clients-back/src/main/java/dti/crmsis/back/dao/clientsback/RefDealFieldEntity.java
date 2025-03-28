@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "REF_DEAL_FIELDS")
-public class RefDealFieldEntity extends PanacheEntityBase implements RefField {
+public class RefDealFieldEntity extends PanacheEntityBase implements RefField, HasSourceRequestId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -116,6 +116,16 @@ public class RefDealFieldEntity extends PanacheEntityBase implements RefField {
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
 
-    @Column(name = "PROCESS_REPORT_ID")
-    public Long processReportId;
+    @Column(name = "SOURCE_REQUEST_ID")
+    public Long sourceRequestId;
+
+    @Override
+    public void setSourceRequestId(Long sourceRequestId) {
+        this.sourceRequestId = sourceRequestId;
+    }
+
+    @Override
+    public Long getSourceRequestId() {
+        return this.sourceRequestId;
+    }
 } // close class

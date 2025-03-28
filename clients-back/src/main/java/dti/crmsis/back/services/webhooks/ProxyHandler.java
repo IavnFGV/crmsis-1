@@ -1,10 +1,7 @@
 package dti.crmsis.back.services.webhooks;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 public interface ProxyHandler {
-    void handle(WebhookRequestService.JsonProxy proxy) throws JsonProcessingException;
+    void handle(WebhookRequestService.JsonProxy proxy);
 
     boolean canProcess(WebhookRequestService.JsonProxy proxy);
-
 }

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "DEAL_CUSTOM_FIELDS")
-public class DealCustomFieldEntity extends PanacheEntityBase {
+public class DealCustomFieldEntity extends PanacheEntityBase implements HasSourceRequestId{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -25,6 +25,16 @@ public class DealCustomFieldEntity extends PanacheEntityBase {
     @Column(columnDefinition = "VARCHAR(512)" , name = "STRING_VALUE")
     public String value;
 
-    @Column(name = "CORRELATION_ID")
-    public UUID correlationId;
+    @Column(name = "SOURCE_REQUEST_ID")
+    public Long sourceRequestId;
+
+    @Override
+    public void setSourceRequestId(Long sourceRequestId) {
+        this.sourceRequestId = sourceRequestId;
+    }
+
+    @Override
+    public Long getSourceRequestId() {
+        return this.sourceRequestId;
+    }
 }

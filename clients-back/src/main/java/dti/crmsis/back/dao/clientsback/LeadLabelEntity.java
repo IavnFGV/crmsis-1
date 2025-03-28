@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "LEAD_LABELS")
-public class LeadLabelEntity extends PanacheEntityBase {
+public class LeadLabelEntity extends PanacheEntityBase implements HasSourceRequestId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -37,6 +37,16 @@ public class LeadLabelEntity extends PanacheEntityBase {
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
 
-    @Column(name = "PROCESS_REPORT_ID")
-    public Long processReportId;
+    @Column(name = "SOURCE_REQUEST_ID")
+    public Long sourceRequestId;
+
+    @Override
+    public void setSourceRequestId(Long sourceRequestId) {
+        this.sourceRequestId = sourceRequestId;
+    }
+
+    @Override
+    public Long getSourceRequestId() {
+        return this.sourceRequestId;
+    }
 } // close class

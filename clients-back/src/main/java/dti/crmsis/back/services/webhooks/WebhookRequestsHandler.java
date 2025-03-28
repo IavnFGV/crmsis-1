@@ -5,6 +5,7 @@ import dti.crmsis.back.clients.dto.Pair;
 import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
 import dti.crmsis.back.dao.clientsback.ProcessReportEntity;
 import dti.crmsis.back.dao.crmsis.RawRequestEntity;
+import dti.crmsis.back.dao.sql.RawRequestNativeRepository;
 import dti.crmsis.back.services.Constants;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,10 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @ApplicationScoped
 public class WebhookRequestsHandler {
@@ -34,26 +32,34 @@ public class WebhookRequestsHandler {
     WebhookRequestService webhookRequestService;
     @Inject
     HandlersCollector handlersCollector;
+    @Inject
+    RawRequestNativeRepository rawRequestNativeRepository;
+
 
     public void processNew() {
         int pageIndex = 0;
-        int pageSize = 40;
+        int pageSize = Constants.PAGE_LIMIT;
         while (true) {
             List<RawRequestEntity> entities = getRequestEntities(pageIndex, pageSize, lastProcessedId);
             if (entities.isEmpty()) {
                 break;
             }
             for (RawRequestEntity entity : entities) {
-                processEntity(entity);
+                processEntity(entity, true);
             }
         }
     }
 
     @Transactional
-    protected void processEntity(RawRequestEntity requestEntity) {
-        lastProcessedId = requestEntity.id;
-        WebhookRequestService.JsonProxy proxy = webhookRequestService.getProxy(requestEntity.getRequestData());
-        ProcessReportEntity report = new ProcessReportEntity();
+    protected void processEntity(RawRequestEntity requestEntity, boolean saveLastId) {
+        WebhookRequestService.JsonProxy proxy = webhookRequestService.getProxy(requestEntity.id, requestEntity.getRequestData());
+        ProcessReportEntity report = ProcessReportEntity.<ProcessReportEntity>find("rawRequestId = ?1", requestEntity.id)
+                .firstResultOptional()
+                .orElseGet(ProcessReportEntity::new);
+        if (saveLastId) {
+            lastProcessedId = requestEntity.id;
+        }
+
         boolean wasException = false;
         try {
             proxy.init(objectMapper);
@@ -87,22 +93,36 @@ public class WebhookRequestsHandler {
             logger.errorf(e, "Exception for request ID %d: %s", requestEntity.id, requestEntity.getRequestData());
         } finally {
             try {
-                report.comment = objectMapper.writeValueAsString(proxy.comment);
+                List<Object> commentList = new ArrayList<>();
+
+                if (report.comment != null && !report.comment.isBlank()) {
+                    try {
+                        commentList.addAll(objectMapper.readValue(report.comment, List.class));
+                    } catch (Exception e) {
+                        logger.warnf("Could not parse existing comment array for request ID %d, fallback to string", requestEntity.id);
+                        commentList.add(report.comment);
+                    }
+                }
+
+                commentList.add(proxy.comment);
+                report.comment = objectMapper.writeValueAsString(commentList);
             } catch (Exception ex) {
                 logger.errorf(ex, "Error serializing comment for request ID %d", requestEntity.id);
             }
 
             if (wasException) {
-                saveReportInSeparateTransaction(report);
+                saveReportInSeparateTransaction(report, saveLastId);
             } else {
                 if (proxy.exceptionInHandler) {
                     report.status = "FAILED_IN_HANDLER";
-                }else{
+                } else {
                     report.status = "OK";
                 }
                 report.persist();
             }
-            ExtraInfoEntity.saveLong(Constants.LAST_PROCESSED_ID, lastProcessedId);
+            if (saveLastId) {
+                ExtraInfoEntity.saveLong(Constants.LAST_PROCESSED_ID, lastProcessedId);
+            }
         }
     }
 
@@ -131,9 +151,11 @@ public class WebhookRequestsHandler {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    protected void saveReportInSeparateTransaction(ProcessReportEntity status) {
-        ExtraInfoEntity.saveLong(Constants.LAST_PROCESSED_ID, lastProcessedId);
-        status.persist();
+    protected void saveReportInSeparateTransaction(ProcessReportEntity report,boolean saveId) {
+        if(saveId){
+            ExtraInfoEntity.saveLong(Constants.LAST_PROCESSED_ID, lastProcessedId);
+        }
+        ProcessReportEntity.getEntityManager().merge(report);
     }
 
 
@@ -149,6 +171,33 @@ public class WebhookRequestsHandler {
         // Initialize the last processed ID
         Long longByName = ExtraInfoEntity.getLongByName(Constants.LAST_PROCESSED_ID);
         lastProcessedId = null == longByName ? 0 : longByName;
+    }
+
+    public void processRetry() {
+        int pageSize = Constants.PAGE_LIMIT;
+        long lastId = 0;
+        while (true) {
+            List<Long> skippedRequestIds = rawRequestNativeRepository.getSkippedRequests(lastId, pageSize);
+            if (skippedRequestIds == null || skippedRequestIds.isEmpty()) {
+                break;
+            }
+            List<RawRequestEntity> entities = getRequestEntities(skippedRequestIds);
+            if (entities.isEmpty()) {
+                break;
+            }
+            for (RawRequestEntity entity : entities) {
+                lastId = entity.getId();
+                processEntity(entity, false);
+            }
+        }
+    }
+
+    private List<RawRequestEntity> getRequestEntities(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return RawRequestEntity.find("id IN ?1 ORDER BY id", ids)
+                .list();
     }
 
     @ApplicationScoped

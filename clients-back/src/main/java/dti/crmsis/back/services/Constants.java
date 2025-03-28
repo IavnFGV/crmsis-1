@@ -18,6 +18,7 @@ public class Constants {
     public static final int STARTUP_SERVICE_START_UP_PRIORITY = 50;
     public static final String INITIAL_LOAD_DONE = "INITIAL_LOAD_DONE";
     public static final String INITIAL_EVENTS_PROCESSED = "INITIAL_EVENTS_PROCESSED";
+    public static final String RETRY_NO_HANDLER = "RETRY_NO_HANDLER";
     public static final String LAST_PROCESSED_ID = "LAST_PROCESSED_ID";
     public static final int STARTUP_SERVICE_ALTERNATIVE_PRIORITY = 10;
 
