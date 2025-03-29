@@ -23,9 +23,15 @@ def build_clients_back_docker_image():
     stdout, stderr = p.communicate()
 
 
+def syncRawRequestClass():
+    p = Popen("sync_raw_request_class.bat")
+    stdout, stderr = p.communicate()
 
-build_webhooks_app()
-build_webhooks_docker_image()
+
+syncRawRequestClass()
+
+# build_webhooks_app()
+# build_webhooks_docker_image()
 
 # build_clients_back_app()
 # build_clients_back_docker_image()
