@@ -14,7 +14,7 @@ public class CustomerEntity extends PanacheEntity {
     @Column(name = "FULL_NAME", nullable = false)
     public String fullName;
 
-    @Column(name = "URL_PATH", length = 50, unique = true, nullable = false)
+    @Column(name = "CUSTOMER_NAME", length = 50, unique = true, nullable = false)
     public String urlPath;
 
     @Column(name = "CREATED_AT", updatable = false, insertable = false)

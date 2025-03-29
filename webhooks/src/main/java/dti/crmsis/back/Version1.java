@@ -1,7 +1,7 @@
 package dti.crmsis.back;
 
 
-import dti.crmsis.back.dao.RawRequest;
+import dti.crmsis.back.dao.crmsis.RawRequestEntity;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import jakarta.inject.Inject;
@@ -23,23 +23,23 @@ public class Version1 {
     }
 
     @POST
-    @Path("/webhook/{url_path}")
+    @Path("/webhook/{customer_name}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response processRawRequest(@PathParam("url_path") String urlPath, String jsonBody) {
+    public Response processRawRequest(@PathParam("customer_name") String customerName, String jsonBody) {
         String methodName = Utils.getCallerMethodName();
         Timer.Sample timer = Timer.start(meterRegistry);
         meterRegistry.counter(Version1.class.getSimpleName() + "." + methodName).increment();
-        this.save(urlPath, jsonBody);
+        this.save(customerName, jsonBody);
         timer.stop(meterRegistry.timer("timer-" + Version1.class.getSimpleName() + "." + methodName));
         return Response.ok("saved", MediaType.APPLICATION_JSON).build();
     }
 
     @Transactional
     void save(String urlPath, String jsonBody) {
-        RawRequest rawRequest = new RawRequest();
+        RawRequestEntity rawRequest = new RawRequestEntity();
         rawRequest.setRequestData(jsonBody);
-        rawRequest.setUrlPath(urlPath);
+        rawRequest.setCustomerName(urlPath);
         rawRequest.persist();
     }
 

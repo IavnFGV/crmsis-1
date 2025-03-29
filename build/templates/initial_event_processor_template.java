@@ -36,54 +36,15 @@ public class InitialEventsProcessorGenerated {
     @Inject
     private ThreadPoolExecutor executorService;
 
+    @Inject
+    JsonToEntityServiceGenerated jsonService;
+
     public void processInitialEvents(CustomerEntity customerEntity) {
         try {
             $INIT_ENTITY_CALLS
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public PanacheEntityBase saveCustomField(String mainEntityClassName, Long mainEntityId, String customFieldName, String value) {
-        if(value == null || value.isEmpty()) {
-            return null;
-        }
-        switch (mainEntityClassName) {
-            case "ActivityEntity":
-                ActivityCustomFieldEntity  activityCustomFieldEntity = new ActivityCustomFieldEntity();
-                activityCustomFieldEntity.mainEntityId = mainEntityId;
-                activityCustomFieldEntity.key = customFieldName;
-                activityCustomFieldEntity.value = value;
-                return activityCustomFieldEntity;
-            case "DealEntity":
-                DealCustomFieldEntity  dealCustomFieldEntity = new DealCustomFieldEntity();
-                dealCustomFieldEntity.mainEntityId = mainEntityId;
-                dealCustomFieldEntity.key = customFieldName;
-                dealCustomFieldEntity.value = value;
-                return dealCustomFieldEntity;
-            case "OrganizationEntity":
-                OrganizationCustomFieldEntity organizationCustomFieldEntity = new OrganizationCustomFieldEntity();
-                organizationCustomFieldEntity.mainEntityId = mainEntityId;
-                organizationCustomFieldEntity.key = customFieldName;
-                organizationCustomFieldEntity.value = value;
-                return organizationCustomFieldEntity;
-            case "PersonEntity":
-                PersonCustomFieldEntity  personCustomFieldEntity = new PersonCustomFieldEntity();
-                personCustomFieldEntity.mainEntityId = mainEntityId;
-                personCustomFieldEntity.key = customFieldName;
-                personCustomFieldEntity.value = value;
-                return personCustomFieldEntity;
-            case "ProductEntity":
-                ProductCustomFieldEntity productCustomFieldEntity = new ProductCustomFieldEntity();
-                productCustomFieldEntity.mainEntityId = mainEntityId;
-                productCustomFieldEntity.key = customFieldName;
-                productCustomFieldEntity.value = value;
-                return productCustomFieldEntity;
-            default:
-                logger.warn("Unknown main entity type: " + mainEntityClassName);
-                break;
-        }
-        return null;
     }
 
     protected   List<EventEntity> getEventEntities(int pageIndex, int pageSize, String entityName) {
@@ -102,31 +63,6 @@ public class InitialEventsProcessorGenerated {
     public void  persistEntitiesAsync(List<PanacheEntityBase> entities,String entityName){
         logger.infof("active %d queue %d max %d",executorService.getActiveCount(),executorService.getQueue().size(), executorService.getLargestPoolSize());
         executorService.submit(() -> persistEntities(entities, entityName));
-    }
-
-    public LocalDateTime parseDateTime(String dateStr) {
-        if (dateStr == null || dateStr.isEmpty()) {
-            return null;
-        }
-        LocalDateTime dateTime;
-        try {
-            dateTime = LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        } catch (DateTimeParseException e1) {
-            try {
-                dateTime = LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            } catch (DateTimeParseException e2) {
-                dateTime = LocalDateTime.ofInstant(Instant.parse(dateStr), ZoneOffset.UTC);
-            }
-        }
-        return dateTime;
-    }
-
-    public LocalDate parseDate(String dateStr) {
-        if (dateStr == null || dateStr.isEmpty()) {
-            return null;
-        }
-        LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return localDate;
     }
 
 

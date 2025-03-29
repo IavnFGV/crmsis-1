@@ -37,7 +37,6 @@ def generate_entities(entity_names, api_methods):
         if entity_name in ("LEADS", "LEAD_LABELS"):
             class_elements.append(entity_code_header)
             class_elements.append(entity_id_pipedrive_uuid)
-            specific_imports += ["import java.util.UUID;"]
         else:
             class_elements.append(entity_code_header)
             class_elements.append(entity_id_pipedrive_integer)
@@ -83,6 +82,11 @@ def generate_entities(entity_names, api_methods):
                       .replace("$TABLE_NAME", entity_name)
                       .replace("$SPECIFIC_IMPORTS", "\n".join(specific_imports))
                       .replace("#BEFORE_CLASS_CLOSE", "\n\t".join(before_class_close)))
+
+        if entity_name.startswith("REF") and entity_name.endswith("FIELDS"):
+            class_code = class_code.replace("$IMPLEMENTS_INTERFACE"," implements RefField, HasSourceRequestId")
+        else:
+            class_code = class_code.replace("$IMPLEMENTS_INTERFACE"," implements HasSourceRequestId")
 
         result.append((class_name, class_code))
 

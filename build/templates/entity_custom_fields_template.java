@@ -1,3 +1,8 @@
+    @Override
+    public String getKey() {
+        return key;
+    }
+
     @Column(columnDefinition = "VARCHAR(100)", name = "KEY_PIPEDRIVE")
     public String key;
 

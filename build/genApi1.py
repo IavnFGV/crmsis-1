@@ -1,8 +1,24 @@
 import os
 import re
 
-from genEntities import generate_entities
+from genEntities import generate_entities, EntityFieldDeclaration
 from genInitialEvent import generate_java_initial_events_processor
+
+from typing import List, Dict
+
+import subprocess
+
+def format_javacode(java_code: str) -> str:
+    """Formats Java code using google-java-format."""
+    process = subprocess.run(
+        ["D:\\java\\openjdk-23.0.1\\bin\\java.exe", "-jar", "google-java-format.jar", "--aosp", "-"],
+        input=java_code.encode("utf-8"),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if process.returncode != 0:
+        raise RuntimeError(f"Formatting failed: {process.stderr.decode()}")
+    return process.stdout.decode("utf-8")
 
 mandatory_methods =[
 'getActivities',
@@ -60,7 +76,7 @@ mandatory_methods =[
 # 'getComment',
 # 'getNote',
 # 'getNoteComments',
-# 'getNotes',
+'getNotes',
 # 'getOrganizationField',
 'getOrganizationFields',
 # 'getOrganizationRelationship',
@@ -307,10 +323,14 @@ public interface PipedriveRestClientGeneratedV1 {
     class_code += "}"  # Закрываем класс
     return class_code
 
-def save_code_to_file(file_name, class_code):
-    class_code1 = class_code.replace("\t","    ")
+def save_code_to_file(file_name, code, is_java=True):
+    if is_java:
+        # formatted_code = code
+        formatted_code = format_javacode(code)
+    else:
+        formatted_code = code
     with open(file_name, "w", encoding="utf-8") as f:
-        f.write(class_code1)
+        f.write(formatted_code)
     print(f"{file_name} has been created.")
 
 
@@ -526,14 +546,57 @@ public class ClientDataExtractorServiceGenerated {
     return class_code
 
 
+to_entity_type_in_webhook={'ACTIVITIES':'activity',
+                           'REF_ACTIVITY_FIELDS':'ref_activity_field',
+                           'ACTIVITY_TYPES':'activity_type',
+                           'CURRENCIES':'currency',
+                           'REF_DEAL_FIELDS':'ref_deal_field',
+                           'DEALS':'deal',
+                           'NOTES':'note',
+                           'LEAD_LABELS':'lead_label',
+                           'REF_ORGANIZATION_FIELDS':'ref_organization_field',
+                           'REF_PERSON_FIELDS':'ref_person_field',
+                           'PERSONS':'person',
+                           'PIPELINES':'pipeline',
+                           'REF_PRODUCT_FIELDS':'ref_product_field',
+                           'PRODUCTS':'product',
+                           'ROLES':'roles',
+                           'STAGES':'stage',
+                           'USERS':'user',
+                           'WEBHOOKS':'webhook'}
+
+
+def to_entity_type(entity_name):
+    return to_entity_type_in_webhook.get(entity_name,None)
+
+
+def in_base_table(aux_name_in_dto):
+    if len(aux_name_in_dto)!=40:
+        return "TRUE"
+    return "FALSE"
+
+
+def save_known_fields(fields: Dict[str, List[EntityFieldDeclaration]]):
+    insert_statements = []
+    for entity_name, fields in fields.items():
+        entity_type=to_entity_type(entity_name)
+        if not entity_type:
+            continue
+        for field in fields:
+            insert = f"INSERT INTO KNOWN_FIELDS(PIPEDRIVE_NAME_IN_JSON,MAIN_ENTITY_TYPE_NAME,IN_BASE_TABLE) values " \
+                     f"('{field.aux_name_in_dto}','{to_entity_type(entity_name)}',{in_base_table(field.aux_name_in_dto)});"
+            insert_statements.append(insert)
+    return insert_statements
+
+
 def main():
     # Указываем путь к директории с API-классами
     directory = "..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\openapi\\v1\\api"  # Заменить на фактический путь
     api_methods = process_directory(directory)
     java_rest_client = generate_java_rest_client(api_methods)
     java_init_service = generate_java_init_service(api_methods)
-    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\generated\\PipedriveRestClientGeneratedV1.java", class_code=java_rest_client)
-    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\ClientDataExtractorServiceGenerated.java", class_code=java_init_service)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\clients\\generated\\PipedriveRestClientGeneratedV1.java", code=java_rest_client)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\ClientDataExtractorServiceGenerated.java", code=java_init_service)
     entity_names =[]
     for file_name, methods in api_methods:
         for annotations, visibility, return_type, method_name, parameters, entity_name in methods:
@@ -545,9 +608,12 @@ def main():
     for entity_name, entity_code in entities:
         save_code_to_file("..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\dao\\clientsback\\"+entity_name+".java", entity_code)
 
-    initial_events_processor = generate_java_initial_events_processor(api_methods,fields)
+    initial_events_processor, json_to_entity = generate_java_initial_events_processor(api_methods,fields)
 
-    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\InitialEventsProcessorGenerated.java", class_code=initial_events_processor)
+    known_fields = save_known_fields(fields)
+    save_code_to_file(file_name="known_fields.sql", code="\n".join(known_fields), is_java=False)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\InitialEventsProcessorGenerated.java", code=initial_events_processor)
+    save_code_to_file(file_name="..\\clients-back\\src\\main\\java\\dti\\crmsis\\back\\services\\JsonToEntityServiceGenerated.java", code=json_to_entity)
 
 if __name__ == "__main__":
     main()
