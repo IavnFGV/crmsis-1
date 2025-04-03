@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dti.crmsis.back.dao.clientsback.*;
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.panache.common.Page;
@@ -30,23 +29,23 @@ public class InitialEventsProcessorGenerated {
 
     @Inject JsonToEntityServiceGenerated jsonService;
 
-    public void processInitialEvents(CustomerEntity customerEntity) {
+    public void processInitialEvents() {
         try {
-            initActivities();
             initRef_Activity_Fields();
+            initRef_Deal_Fields();
+            initRef_Organization_Fields();
+            initRef_Person_Fields();
+            initRef_Product_Fields();
+            initActivities();
             initActivity_Types();
             initCurrencies();
-            initRef_Deal_Fields();
             initDeals();
             initLead_Labels();
             initLeads();
             initNotes();
-            initRef_Organization_Fields();
             initOrganizations();
-            initRef_Person_Fields();
             initPersons();
             initPipelines();
-            initRef_Product_Fields();
             initProducts();
             initProjects();
             initRoles();
@@ -83,7 +82,6 @@ public class InitialEventsProcessorGenerated {
         executorService.submit(() -> persistEntities(entities, entityName));
     }
 
-    @Transactional
     public void initActivities() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -127,14 +125,13 @@ public class InitialEventsProcessorGenerated {
                 "Activities processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initRef_Activity_Fields() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {
-            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "ACTIVITY_FIELDS");
+            List<EventEntity> events = getEventEntities(pageIndex, pageSize, "REF_ACTIVITY_FIELDS");
             if (events.isEmpty()) {
                 break;
             }
@@ -176,7 +173,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initActivity_Types() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -223,7 +219,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initCurrencies() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -267,7 +262,6 @@ public class InitialEventsProcessorGenerated {
                 "Currencies processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initRef_Deal_Fields() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -314,7 +308,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initDeals() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -356,7 +349,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Deals processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initLead_Labels() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -400,7 +392,6 @@ public class InitialEventsProcessorGenerated {
                 "Lead_Labels processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initLeads() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -442,7 +433,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Leads processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initNotes() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -484,7 +474,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Notes processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initRef_Organization_Fields() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -534,7 +523,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initOrganizations() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -581,7 +569,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initRef_Person_Fields() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -628,7 +615,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initPersons() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -671,7 +657,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Persons processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initPipelines() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -715,7 +700,6 @@ public class InitialEventsProcessorGenerated {
                 "Pipelines processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initRef_Product_Fields() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -762,7 +746,6 @@ public class InitialEventsProcessorGenerated {
                         + entitiesCount);
     }
 
-    @Transactional
     public void initProducts() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -806,7 +789,6 @@ public class InitialEventsProcessorGenerated {
                 "Products processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initProjects() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -850,7 +832,6 @@ public class InitialEventsProcessorGenerated {
                 "Projects processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initRoles() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -892,7 +873,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Roles processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initStages() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -934,7 +914,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Stages processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initTasks() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -976,7 +955,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Tasks processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initUsers() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
@@ -1018,7 +996,6 @@ public class InitialEventsProcessorGenerated {
         logger.info("Users processed. Events = " + eventsCount + ", entities = " + entitiesCount);
     }
 
-    @Transactional
     public void initWebhooks() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;

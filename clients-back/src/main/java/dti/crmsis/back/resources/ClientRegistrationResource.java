@@ -1,16 +1,14 @@
 package dti.crmsis.back.resources;
 
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import dti.crmsis.back.services.ClientDataExtractorServiceGenerated;
+import dti.crmsis.back.services.CustomerDetailsService;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+
+import java.util.Objects;
 
 @Path("/clients")
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,24 +17,29 @@ public class ClientRegistrationResource {
 
     private static final Logger logger = Logger.getLogger(ClientRegistrationResource.class);
 
-    @ConfigProperty(name = "APP_TOKEN")
-    public String apiToken;
+    @Inject
+    CustomerDetailsService detailsService;
 
     @Inject
     ClientDataExtractorServiceGenerated clientDataExtractorServiceGenerated;
 
     @POST
     @Path("/force_init")
-    public Response forceInit() {
+    public Response forceInit(@QueryParam("api_token") String apiToken) {
+
+        if (apiToken == null || apiToken.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Missing api_token")
+                    .build();
+        }
+
         try {
-            CustomerEntity customerEntity = CustomerEntity.find("apiToken", apiToken).firstResult();
-            if (customerEntity == null) {
-                return Response.status(Response.Status.NO_CONTENT)
-                        .entity("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. PLEASE REGISTER A CUSTOMER FIRST")
+            if(!Objects.equals(apiToken, detailsService.getApiToken())) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Wrong api_token")
                         .build();
             }
-
-            clientDataExtractorServiceGenerated.initClient(customerEntity);
+            clientDataExtractorServiceGenerated.initClient(detailsService.getCustomerInfo());
             return Response.ok().entity("Client successfully registered").build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

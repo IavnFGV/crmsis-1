@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 
 import org.hibernate.annotations.Type;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -20,18 +19,6 @@ public class LeadLabelEntity extends PanacheEntityBase implements HasSourceReque
 
     @Column(name = "ID_PIPEDRIVE")
     public UUID idPipedrive;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "COLOR")
-    public String color;
-
-    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
-    public LocalDateTime addTime;
-
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

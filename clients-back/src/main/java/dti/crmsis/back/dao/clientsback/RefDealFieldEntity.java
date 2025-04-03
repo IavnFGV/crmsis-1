@@ -34,83 +34,83 @@ public class RefDealFieldEntity extends PanacheEntityBase implements RefField, H
     @Column(columnDefinition = "VARCHAR(50)", name = "FIELD_TYPE")
     public String fieldType;
 
-    @Column(columnDefinition = "BIGINT", name = "GROUP_ID")
-    public Long groupId;
-
-    @Column(columnDefinition = "BIGINT", name = "ORDER_NR")
-    public Long orderNr;
-
-    @Column(columnDefinition = "BOOLEAN", name = "JSON_COLUMN_FLAG")
-    public Boolean jsonColumnFlag;
+    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
+    public Boolean activeFlag;
 
     @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
     public LocalDateTime addTime;
 
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
-
-    @Column(columnDefinition = "BIGINT", name = "LAST_UPDATED_BY_USER_ID")
-    public Long lastUpdatedByUserId;
-
-    @Column(columnDefinition = "BOOLEAN", name = "EDIT_FLAG")
-    public Boolean editFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "DETAILS_VISIBLE_FLAG")
-    public Boolean detailsVisibleFlag;
-
     @Column(columnDefinition = "BOOLEAN", name = "ADD_VISIBLE_FLAG")
     public Boolean addVisibleFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "IMPORTANT_FLAG")
-    public Boolean importantFlag;
 
     @Column(columnDefinition = "BOOLEAN", name = "BULK_EDIT_ALLOWED")
     public Boolean bulkEditAllowed;
 
-    @Column(columnDefinition = "BOOLEAN", name = "FILTERING_ALLOWED")
-    public Boolean filteringAllowed;
-
-    @Column(columnDefinition = "BOOLEAN", name = "SORTABLE_FLAG")
-    public Boolean sortableFlag;
-
-    @Column(columnDefinition = "TEXT", name = "MANDATORY_FLAG")
-    public String mandatoryFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "SEARCHABLE_FLAG")
-    public Boolean searchableFlag;
+    @Column(columnDefinition = "BIGINT", name = "CREATED_BY_USER_ID")
+    public Long createdByUserId;
 
     @Column(columnDefinition = "TEXT", name = "DESCRIPTION")
     public String description;
 
-    @Column(columnDefinition = "BIGINT", name = "CREATED_BY_USER_ID")
-    public Long createdByUserId;
+    @Column(columnDefinition = "BOOLEAN", name = "DETAILS_VISIBLE_FLAG")
+    public Boolean detailsVisibleFlag;
 
-    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
-    public Boolean activeFlag;
+    @Column(columnDefinition = "BOOLEAN", name = "EDIT_FLAG")
+    public Boolean editFlag;
 
-    @Column(columnDefinition = "BOOLEAN", name = "PROJECTS_DETAIL_VISIBLE_FLAG")
-    public Boolean projectsDetailVisibleFlag;
+    @Column(columnDefinition = "BOOLEAN", name = "FILTERING_ALLOWED")
+    public Boolean filteringAllowed;
 
-    @Column(columnDefinition = "JSON", name = "SHOW_IN_PIPELINES")
-    public String showInPipelines;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "USE_FIELD")
-    public String useField;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "LINK")
-    public String link;
-
-    @Column(columnDefinition = "BOOLEAN", name = "IS_SUBFIELD")
-    public Boolean isSubfield;
-
-    @Column(columnDefinition = "BIGINT", name = "PARENT_ID")
-    public Long parentId;
+    @Column(columnDefinition = "BIGINT", name = "GROUP_ID")
+    public Long groupId;
 
     @Column(columnDefinition = "VARCHAR(255)", name = "ID_SUFFIX")
     public String idSuffix;
 
+    @Column(columnDefinition = "BOOLEAN", name = "IMPORTANT_FLAG")
+    public Boolean importantFlag;
+
+    @Column(columnDefinition = "BOOLEAN", name = "IS_SUBFIELD")
+    public Boolean isSubfield;
+
+    @Column(columnDefinition = "BOOLEAN", name = "JSON_COLUMN_FLAG")
+    public Boolean jsonColumnFlag;
+
+    @Column(columnDefinition = "BIGINT", name = "LAST_UPDATED_BY_USER_ID")
+    public Long lastUpdatedByUserId;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "LINK")
+    public String link;
+
+    @Column(columnDefinition = "TEXT", name = "MANDATORY_FLAG")
+    public String mandatoryFlag;
+
     @Column(columnDefinition = "JSON", name = "OPTIONS")
     public String options;
+
+    @Column(columnDefinition = "BIGINT", name = "ORDER_NR")
+    public Long orderNr;
+
+    @Column(columnDefinition = "BIGINT", name = "PARENT_ID")
+    public Long parentId;
+
+    @Column(columnDefinition = "BOOLEAN", name = "PROJECTS_DETAIL_VISIBLE_FLAG")
+    public Boolean projectsDetailVisibleFlag;
+
+    @Column(columnDefinition = "BOOLEAN", name = "SEARCHABLE_FLAG")
+    public Boolean searchableFlag;
+
+    @Column(columnDefinition = "JSON", name = "SHOW_IN_PIPELINES")
+    public String showInPipelines;
+
+    @Column(columnDefinition = "BOOLEAN", name = "SORTABLE_FLAG")
+    public Boolean sortableFlag;
+
+    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
+    public LocalDateTime updateTime;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "USE_FIELD")
+    public String useField;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

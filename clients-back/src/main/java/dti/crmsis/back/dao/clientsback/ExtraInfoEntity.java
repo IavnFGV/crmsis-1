@@ -46,7 +46,7 @@ public class ExtraInfoEntity extends PanacheEntityBase {
     }
 
 
-    public static void saveLong(String propertyName, Long value) {
+    public static synchronized void saveLong(String propertyName, Long value) {
         ExtraInfoEntity extraInfoEntity = find("name", propertyName).firstResult();
         if (extraInfoEntity == null) {
             extraInfoEntity = new ExtraInfoEntity();

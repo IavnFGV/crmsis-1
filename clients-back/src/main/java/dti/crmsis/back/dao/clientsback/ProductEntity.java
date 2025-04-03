@@ -20,8 +20,14 @@ public class ProductEntity extends PanacheEntityBase implements HasSourceRequest
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
+    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
+    public Boolean activeFlag;
+
+    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
+    public LocalDateTime addTime;
+
+    @Column(columnDefinition = "TEXT", name = "CATEGORY")
+    public String category;
 
     @Column(columnDefinition = "TEXT", name = "CODE")
     public String code;
@@ -29,44 +35,38 @@ public class ProductEntity extends PanacheEntityBase implements HasSourceRequest
     @Column(columnDefinition = "TEXT", name = "DESCRIPTION")
     public String description;
 
-    @Column(columnDefinition = "TEXT", name = "UNIT")
-    public String unit;
-
-    @Column(columnDefinition = "BIGINT", name = "TAX")
-    public Long tax;
-
-    @Column(columnDefinition = "TEXT", name = "CATEGORY")
-    public String category;
-
-    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
-    public Boolean activeFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "SELECTABLE")
-    public Boolean selectable;
+    @Column(columnDefinition = "TEXT", name = "FILES_COUNT")
+    public String filesCount;
 
     @Column(columnDefinition = "VARCHAR(255)", name = "FIRST_CHAR")
     public String firstChar;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "VISIBLE_TO")
-    public String visibleTo;
+    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
+    public String name;
 
     @Column(columnDefinition = "JSON", name = "OWNER_ID")
     public String ownerId;
-
-    @Column(columnDefinition = "TEXT", name = "FILES_COUNT")
-    public String filesCount;
-
-    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
-    public LocalDateTime addTime;
-
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
 
     @Column(columnDefinition = "JSON", name = "PRICES")
     public String prices;
 
     @Column(columnDefinition = "JSON", name = "PRODUCT_VARIATIONS")
     public String productVariations;
+
+    @Column(columnDefinition = "BOOLEAN", name = "SELECTABLE")
+    public Boolean selectable;
+
+    @Column(columnDefinition = "BIGINT", name = "TAX")
+    public Long tax;
+
+    @Column(columnDefinition = "TEXT", name = "UNIT")
+    public String unit;
+
+    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
+    public LocalDateTime updateTime;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "VISIBLE_TO")
+    public String visibleTo;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

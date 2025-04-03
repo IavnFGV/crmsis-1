@@ -15,14 +15,11 @@ public class RawRequestNativeRepository {
     @PersistenceContext(unitName = "webhooks")
     EntityManager em;
 
-    /**
-     * Возвращает стабильно отсортированный список ID RAW_REQUESTS с ошибочным статусом из PROCESS_REPORTS.
-     */
     public List<Long> getSkippedRequests(Long afterId, int limit) {
         String sql = """
                     SELECT r.ID
-                    FROM SB_APP.RAW_REQUESTS r
-                    JOIN SB_CLIENTS_BACK.PROCESS_REPORTS p ON r.ID = p.RAW_REQUEST_ID
+                    FROM SB_WH_OKACADEMY.RAW_REQUESTS r
+                    JOIN SB_PD_OKACADEMY.PROCESS_REPORTS p ON r.ID = p.RAW_REQUEST_ID
                     WHERE p.STATUS != 'OK' AND r.ID > ?
                     ORDER BY 
                              CASE

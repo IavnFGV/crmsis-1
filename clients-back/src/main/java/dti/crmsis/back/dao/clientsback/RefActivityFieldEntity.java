@@ -7,8 +7,6 @@ import jakarta.persistence.*;
 
 import org.hibernate.annotations.Type;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "REF_ACTIVITY_FIELDS")
 public class RefActivityFieldEntity extends PanacheEntityBase
@@ -34,72 +32,6 @@ public class RefActivityFieldEntity extends PanacheEntityBase
 
     @Column(columnDefinition = "VARCHAR(50)", name = "FIELD_TYPE")
     public String fieldType;
-
-    @Column(columnDefinition = "BIGINT", name = "GROUP_ID")
-    public Long groupId;
-
-    @Column(columnDefinition = "BIGINT", name = "ORDER_NR")
-    public Long orderNr;
-
-    @Column(columnDefinition = "BOOLEAN", name = "JSON_COLUMN_FLAG")
-    public Boolean jsonColumnFlag;
-
-    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
-    public LocalDateTime addTime;
-
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
-
-    @Column(columnDefinition = "BIGINT", name = "LAST_UPDATED_BY_USER_ID")
-    public Long lastUpdatedByUserId;
-
-    @Column(columnDefinition = "BOOLEAN", name = "EDIT_FLAG")
-    public Boolean editFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "DETAILS_VISIBLE_FLAG")
-    public Boolean detailsVisibleFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "ADD_VISIBLE_FLAG")
-    public Boolean addVisibleFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "IMPORTANT_FLAG")
-    public Boolean importantFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "BULK_EDIT_ALLOWED")
-    public Boolean bulkEditAllowed;
-
-    @Column(columnDefinition = "BOOLEAN", name = "FILTERING_ALLOWED")
-    public Boolean filteringAllowed;
-
-    @Column(columnDefinition = "BOOLEAN", name = "SORTABLE_FLAG")
-    public Boolean sortableFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "MANDATORY_FLAG")
-    public Boolean mandatoryFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "SEARCHABLE_FLAG")
-    public Boolean searchableFlag;
-
-    @Column(columnDefinition = "TEXT", name = "DESCRIPTION")
-    public String description;
-
-    @Column(columnDefinition = "BIGINT", name = "CREATED_BY_USER_ID")
-    public Long createdByUserId;
-
-    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
-    public Boolean activeFlag;
-
-    @Column(columnDefinition = "JSON", name = "OPTIONS")
-    public String options;
-
-    @Column(columnDefinition = "BOOLEAN", name = "IS_SUBFIELD")
-    public Boolean isSubfield;
-
-    @Column(columnDefinition = "BIGINT", name = "PARENT_ID")
-    public Long parentId;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "ID_SUFFIX")
-    public String idSuffix;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

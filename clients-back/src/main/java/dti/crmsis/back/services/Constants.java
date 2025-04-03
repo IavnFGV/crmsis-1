@@ -34,7 +34,7 @@ public class Constants {
     public Integer maxRequestPerSecond;
 
 
-    public void start(){
+    public void init(){
         URL_FOR_WEBHOOKS = urlForWebhooks;
         PAGE_LIMIT = pageLimit;
         MAX_REQUESTS_PER_SECOND = maxRequestPerSecond;

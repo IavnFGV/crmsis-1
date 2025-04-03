@@ -1,12 +1,9 @@
 package dti.crmsis.back;
 
-import dti.crmsis.back.services.Constants;
-import dti.crmsis.back.services.KnownFieldService;
-import dti.crmsis.back.services.InitDataService;
-import dti.crmsis.back.services.TimeZoneService;
+import dti.crmsis.back.services.*;
 import dti.crmsis.back.services.webhooks.WebhookRequestsHandler;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -26,34 +23,31 @@ public class ApplicationLifecycleManager {
     @Inject
     KnownFieldService knownFieldService;
     @Inject
-    InitDataService initDataService;
-    @Inject
     TimeZoneService timeZoneService;
     @Inject
     ScheduledJobSetup scheduledJobSetup;
 
 
     void onStart(@Observes StartupEvent event) {
-        LOG.info("🚀 Application is starting...");
+        LOG.info("Application is starting...");
         doSomethingOnStartup();
     }
 
     void onStop(@Observes ShutdownEvent event) {
-        LOG.info("🛑 Application is stopping...");
+        LOG.info("Application is stopping...");
         cleanupOnShutdown();
     }
 
     private void doSomethingOnStartup() {
-        constants.start();
+        constants.init();
         rateLimitFilter.init();
         webhookRequestsHandler.init();
         knownFieldService.init();
-        timeZoneService.initStatic(timeZoneService);
+        timeZoneService.init(timeZoneService);
         scheduledJobSetup.activate();
     }
 
     private void cleanupOnShutdown() {
-        LOG.info("🔄 Cleaning up resources...");
-        // Example: Close DB connections, stop background jobs
+        LOG.info("Cleaning up resources...");
     }
 }

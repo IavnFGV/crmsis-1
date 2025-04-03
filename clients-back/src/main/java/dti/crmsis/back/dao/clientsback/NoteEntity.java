@@ -20,8 +20,11 @@ public class NoteEntity extends PanacheEntityBase implements HasSourceRequestId 
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
 
-    @Column(columnDefinition = "BIGINT", name = "ORG_ID")
-    public Long orgId;
+    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
+    public Boolean activeFlag;
+
+    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
+    public LocalDateTime addTime;
 
     @Column(columnDefinition = "TEXT", name = "CONTENT")
     public String content;
@@ -32,32 +35,29 @@ public class NoteEntity extends PanacheEntityBase implements HasSourceRequestId 
     @Column(columnDefinition = "BIGINT", name = "LEAD_ID")
     public Long leadId;
 
-    @Column(columnDefinition = "BIGINT", name = "USER_ID")
-    public Long userId;
-
-    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
-    public LocalDateTime addTime;
+    @Column(columnDefinition = "BIGINT", name = "ORG_ID")
+    public Long orgId;
 
     @Column(columnDefinition = "BIGINT", name = "PERSON_ID")
     public Long personId;
 
-    @Column(columnDefinition = "BIGINT", name = "PROJECT_ID")
-    public Long projectId;
-
-    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
-    public Boolean activeFlag;
-
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
-
     @Column(columnDefinition = "BOOLEAN", name = "PINNED_TO_DEAL_FLAG")
     public Boolean pinnedToDealFlag;
+
+    @Column(columnDefinition = "BOOLEAN", name = "PINNED_TO_ORGANIZATION_FLAG")
+    public Boolean pinnedToOrganizationFlag;
 
     @Column(columnDefinition = "BOOLEAN", name = "PINNED_TO_PERSON_FLAG")
     public Boolean pinnedToPersonFlag;
 
-    @Column(columnDefinition = "BOOLEAN", name = "PINNED_TO_ORGANIZATION_FLAG")
-    public Boolean pinnedToOrganizationFlag;
+    @Column(columnDefinition = "BIGINT", name = "PROJECT_ID")
+    public Long projectId;
+
+    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
+    public LocalDateTime updateTime;
+
+    @Column(columnDefinition = "BIGINT", name = "USER_ID")
+    public Long userId;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

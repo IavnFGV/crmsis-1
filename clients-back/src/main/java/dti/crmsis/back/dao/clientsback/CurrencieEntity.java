@@ -18,24 +18,6 @@ public class CurrencieEntity extends PanacheEntityBase implements HasSourceReque
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "CODE")
-    public String code;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "SYMBOL")
-    public String symbol;
-
-    @Column(columnDefinition = "BIGINT", name = "DECIMAL_POINTS")
-    public Long decimalPoints;
-
-    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
-    public Boolean activeFlag;
-
-    @Column(columnDefinition = "BOOLEAN", name = "IS_CUSTOM_FLAG")
-    public Boolean isCustomFlag;
-
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;

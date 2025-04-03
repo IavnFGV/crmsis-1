@@ -1,9 +1,10 @@
-package dti.crmsis.back.dao.crmsis;
+package dti.crmsis.back.dao;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -13,12 +14,19 @@ public class RawRequestEntity extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
-    @Column(name = "REQUEST_DATA")
-    private String requestData; // Содержимое запроса
+    @Column(name = "REQUEST_DATA", columnDefinition = "json")
+    private String requestData;
     @Column(name = "CUSTOMER_NAME")
     private String customerName;
-    @Column(insertable = false, updatable = false, name = "CREATED_AT") // created_at не должен обновляться
-    private java.time.LocalDateTime createdAt; // Время вставки
+    /**
+     * Timestamp of when the row was inserted.
+     * This value is generated automatically by the database.
+     *
+     * ⚠ Stored in MySQL as DATETIME or TIMESTAMP.
+     * ⚠ Use OffsetDateTime to correctly handle time zone issues.
+     */
+    @Column(name = "CREATED_AT", insertable = false, updatable = false)
+    private OffsetDateTime createdAt;
 
     public static List<RawRequestEntity> findByCustomerName(String customerName) {
         return list("customerName", customerName);
@@ -41,7 +49,7 @@ public class RawRequestEntity extends PanacheEntityBase {
         return customerName;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
 
@@ -53,12 +61,8 @@ public class RawRequestEntity extends PanacheEntityBase {
         this.customerName = customerId;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public static List<RawRequestEntity> findByIdGreaterThan(Long idSelector) {
-        return list("id>?1 ",idSelector);
     }
 
 

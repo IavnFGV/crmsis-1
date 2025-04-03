@@ -20,62 +20,44 @@ public class UserEntity extends PanacheEntityBase implements HasSourceRequestId 
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "EMAIL")
-    public String email;
-
-    @Column(columnDefinition = "TEXT", name = "LANG")
-    public String lang;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "LOCALE")
-    public String locale;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "TIMEZONE_NAME")
-    public String timezoneName;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "TIMEZONE_OFFSET")
-    public String timezoneOffset;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "DEFAULT_CURRENCY")
-    public String defaultCurrency;
-
-    @Column(columnDefinition = "TEXT", name = "ICON_URL")
-    public String iconUrl;
+    @Column(columnDefinition = "TEXT", name = "ACCESS")
+    public String access;
 
     @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
     public Boolean activeFlag;
 
-    @Column(columnDefinition = "BOOLEAN", name = "IS_DELETED")
-    public Boolean isDeleted;
-
-    @Column(columnDefinition = "BIGINT", name = "IS_ADMIN")
-    public Long isAdmin;
-
-    @Column(columnDefinition = "BIGINT", name = "ROLE_ID")
-    public Long roleId;
-
     @Column(columnDefinition = "DATETIME", name = "CREATED")
     public LocalDateTime created;
 
-    @Column(columnDefinition = "BOOLEAN", name = "HAS_CREATED_COMPANY")
-    public Boolean hasCreatedCompany;
+    @Column(columnDefinition = "TEXT", name = "DEFAULT_CURRENCY")
+    public String defaultCurrency;
 
-    @Column(columnDefinition = "BOOLEAN", name = "IS_YOU")
-    public Boolean isYou;
+    @Column(columnDefinition = "VARCHAR(255)", name = "EMAIL")
+    public String email;
 
-    @Column(columnDefinition = "JSON", name = "ACCESS")
-    public String access;
+    @Column(columnDefinition = "TEXT", name = "ICON_URL")
+    public String iconUrl;
 
-    @Column(columnDefinition = "DATETIME", name = "MODIFIED")
-    public LocalDateTime modified;
+    @Column(columnDefinition = "VARCHAR(255)", name = "LANG")
+    public String lang;
 
     @Column(columnDefinition = "DATETIME", name = "LAST_LOGIN")
     public LocalDateTime lastLogin;
 
+    @Column(columnDefinition = "VARCHAR(255)", name = "LOCALE")
+    public String locale;
+
+    @Column(columnDefinition = "DATETIME", name = "MODIFIED")
+    public LocalDateTime modified;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
+    public String name;
+
     @Column(columnDefinition = "VARCHAR(255)", name = "PHONE")
     public String phone;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "TIMEZONE_NAME")
+    public String timezoneName;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

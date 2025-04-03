@@ -39,7 +39,7 @@ public class InitialEventsProcessorGenerated {
     @Inject
     JsonToEntityServiceGenerated jsonService;
 
-    public void processInitialEvents(CustomerEntity customerEntity) {
+    public void processInitialEvents() {
         try {
             $INIT_ENTITY_CALLS
         } catch (IOException e) {

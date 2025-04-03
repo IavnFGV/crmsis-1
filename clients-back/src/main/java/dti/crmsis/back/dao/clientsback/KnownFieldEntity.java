@@ -22,7 +22,7 @@ public class KnownFieldEntity extends PanacheEntityBase {
     @Column(columnDefinition = "BOOLEAN", name = "IN_BASE_TABLE")
     public Boolean inBaseTable = false;
 
-    @Column(name = "CORRELATION_ID")
-    public UUID correlationId;
+    @Column(name = "SOURCE_REQUEST_ID")
+    public Long sourceRequestId;
 
 }

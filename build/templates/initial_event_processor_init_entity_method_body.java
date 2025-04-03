@@ -1,5 +1,4 @@
-    @Transactional
-    public void init$ENTITY_NAME_TITLED() throws IOException {
+   public void init$ENTITY_NAME_TITLED() throws IOException {
         int pageIndex = 0;
         int pageSize = 40;
         int eventsCount = 0;

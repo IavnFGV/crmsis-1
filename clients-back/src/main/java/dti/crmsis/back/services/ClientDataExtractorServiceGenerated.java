@@ -6,7 +6,6 @@ import dti.crmsis.back.clients.dto.WebhookRegistrationResponse;
 import dti.crmsis.back.clients.dto.WebhookResponse;
 import dti.crmsis.back.clients.generated.PipedriveRestClientGeneratedV1;
 import dti.crmsis.back.dao.clientsback.EventEntity;
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,6 +32,8 @@ public class ClientDataExtractorServiceGenerated {
 
     @Inject PagingServiceV2 pagingServiceV2;
 
+    @Inject CustomerDetailsService customerDetailsService;
+
     @Transactional
     protected Long persistEvent(String json, Long rootEventId, String entityType) {
         EventEntity eventEntity = new EventEntity();
@@ -43,20 +44,21 @@ public class ClientDataExtractorServiceGenerated {
         return eventEntity.id;
     }
 
-    public void initClient(CustomerEntity client) {
+    public void initClient(CustomerDetailsService.CustomerInfo customerInfo) {
         String updatedUntil = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
-        if (!registerWebhook(client)) {
+        if (!registerWebhook(customerInfo)) {
             return;
         }
-        long rootEventId = startSyncingData(client, updatedUntil);
-        generateInitialEvents(client, updatedUntil, rootEventId);
-        stopSyncData(client, updatedUntil, rootEventId);
+        long rootEventId = startSyncingData(customerInfo, updatedUntil);
+        generateInitialEvents(updatedUntil, rootEventId);
+        stopSyncData(customerInfo, updatedUntil, rootEventId);
     }
 
     @Transactional
-    protected void stopSyncData(CustomerEntity client, String updatedUntil, long rootEventId) {
+    protected void stopSyncData(
+            CustomerDetailsService.CustomerInfo client, String updatedUntil, long rootEventId) {
         EventEntity eventEntity = new EventEntity();
-        eventEntity.customerName = client.urlPath;
+        eventEntity.customerName = client.getName();
         eventEntity.comments =
                 "{ \"type\": \"STOP_SYNC\", \"client\": \"$CUSTOMER_NAME\", \"updatedUntil\": \"$UPDATED_UNTIL\" }"
                         .replace("$CUSTOMER_NAME", eventEntity.customerName)
@@ -67,11 +69,12 @@ public class ClientDataExtractorServiceGenerated {
     }
 
     @Transactional
-    protected long startSyncingData(CustomerEntity client, String updatedUntil) {
-        logger.info("Start syncing data for client " + client.urlPath);
+    protected long startSyncingData(
+            CustomerDetailsService.CustomerInfo client, String updatedUntil) {
+        logger.info("Start syncing data for client " + client.getName());
 
         EventEntity eventEntity = new EventEntity();
-        eventEntity.customerName = client.urlPath;
+        eventEntity.customerName = client.getName();
         eventEntity.comments =
                 "{ \"type\": \"START_SYNC\", \"client\": \"$CUSTOMER_NAME\", \"updatedUntil\": \"$UPDATED_UNTIL\" }"
                         .replace("$CUSTOMER_NAME", eventEntity.customerName)
@@ -81,10 +84,10 @@ public class ClientDataExtractorServiceGenerated {
         return eventEntity.id;
     }
 
-    private boolean registerWebhook(CustomerEntity client) {
+    private boolean registerWebhook(CustomerDetailsService.CustomerInfo customerInfo) {
 
-        String expectedUrl = Constants.URL_FOR_WEBHOOKS + client.urlPath;
-        WebhookResponse response = webhooksRestClientV1.getAll(client.apiToken);
+        String expectedUrl = Constants.URL_FOR_WEBHOOKS + customerInfo.getName();
+        WebhookResponse response = webhooksRestClientV1.getAll(customerInfo.getApiToken());
         boolean alreadyRegistered =
                 response.getData().stream()
                         .anyMatch(
@@ -97,7 +100,7 @@ public class ClientDataExtractorServiceGenerated {
 
         NewWebhookRequest request = new NewWebhookRequest(expectedUrl);
         WebhookRegistrationResponse registrationResponse =
-                webhooksRestClientV1.registerNewWebhook(client.apiToken, request);
+                webhooksRestClientV1.registerNewWebhook(customerInfo.getApiToken(), request);
 
         if (registrationResponse != null && response.isSuccess()) {
             logger.info("Webhook registered successfully!");
@@ -117,8 +120,7 @@ public class ClientDataExtractorServiceGenerated {
         }
     }
 
-    protected void generateInitialEvents(
-            CustomerEntity client, String updatedUntil, long rootEventId) {
+    protected void generateInitialEvents(String updatedUntil, long rootEventId) {
         pagingServiceV1.fetchAllDataNew(
                 rootEventId,
                 start ->

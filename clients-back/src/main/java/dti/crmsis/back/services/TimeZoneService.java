@@ -1,6 +1,5 @@
 package dti.crmsis.back.services;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.ZoneId;
@@ -20,7 +19,7 @@ public class TimeZoneService {
         return kievZoneId;
     }
 
-    public void initStatic(TimeZoneService timeZoneService) {
+    public void init(TimeZoneService timeZoneService) {
         instance = timeZoneService;
     }
 

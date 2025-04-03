@@ -16,6 +16,7 @@ def generate_entities(entity_names, api_methods):
     field_declarations = {}
 
     for entity_name in entity_names:
+
         words = [word[0].upper() + word[1:] for word in entity_name[0:-1].replace("_", " ").lower().split()]
         class_name = "".join(words) + "Entity"
         if class_name == "ActivitieEntity":
@@ -47,8 +48,9 @@ def generate_entities(entity_names, api_methods):
             specific_fields.append(custom_fields_template)
 
         class_elements.append(custom_fields_template)
-
+        print(f"BEFORE {entity_name}")
         fields = process_events(entity_name.replace("REF_", ""))
+        print(f"AFTER {entity_name}")
 
         field_declarations_str = []
         for key, value in fields.items():

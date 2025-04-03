@@ -12,6 +12,7 @@ def process_events(entity_name):
         # Получение всех событий
         # events = session.query(Event).all()
         #
+        print(entity_name)
         events = session.query(Event).filter(text(f"COMMENTS->>'$.type' = '{entity_name}'") ).all()
 
 
@@ -47,7 +48,7 @@ def process_events(entity_name):
     finally:
         session.close()
 
-    return field_types
+    return dict(sorted(field_types.items(), key=lambda item: item[0][1]))
 
 
 

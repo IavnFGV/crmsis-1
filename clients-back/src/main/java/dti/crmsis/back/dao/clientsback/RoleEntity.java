@@ -18,26 +18,26 @@ public class RoleEntity extends PanacheEntityBase implements HasSourceRequestId 
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
 
-    @Column(columnDefinition = "BIGINT", name = "PARENT_ROLE_ID")
-    public Long parentRoleId;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
-
     @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
     public Boolean activeFlag;
 
     @Column(columnDefinition = "VARCHAR(255)", name = "ASSIGNMENT_COUNT")
     public String assignmentCount;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "SUB_ROLE_COUNT")
-    public String subRoleCount;
+    @Column(columnDefinition = "VARCHAR(255)", name = "DESCRIPTION")
+    public String description;
 
     @Column(columnDefinition = "BIGINT", name = "LEVEL")
     public Long level;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "DESCRIPTION")
-    public String description;
+    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
+    public String name;
+
+    @Column(columnDefinition = "BIGINT", name = "PARENT_ROLE_ID")
+    public Long parentRoleId;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "SUB_ROLE_COUNT")
+    public String subRoleCount;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

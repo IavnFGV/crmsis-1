@@ -23,53 +23,53 @@ public class PersonEntity extends PanacheEntityBase implements HasSourceRequestI
     @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
     public Boolean activeFlag;
 
-    @Column(columnDefinition = "BIGINT", name = "OWNER_ID")
-    public Long ownerId;
-
-    @Column(columnDefinition = "BIGINT", name = "ORG_ID")
-    public Long orgId;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
-
-    @Column(columnDefinition = "JSON", name = "PHONE")
-    public String phone;
-
-    @Column(columnDefinition = "JSON", name = "EMAIL")
-    public String email;
-
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
-
-    @Column(columnDefinition = "DATETIME", name = "DELETE_TIME")
-    public LocalDateTime deleteTime;
-
     @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
     public LocalDateTime addTime;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "VISIBLE_TO")
-    public String visibleTo;
-
-    @Column(columnDefinition = "BIGINT", name = "PICTURE_ID")
-    public Long pictureId;
-
-    @Column(columnDefinition = "TEXT", name = "LABEL")
-    public String label;
 
     @Column(columnDefinition = "VARCHAR(255)", name = "CC_EMAIL")
     public String ccEmail;
 
+    @Column(columnDefinition = "DATETIME", name = "DELETE_TIME")
+    public LocalDateTime deleteTime;
+
+    @Column(columnDefinition = "JSON", name = "EMAIL")
+    public String email;
+
     @Column(columnDefinition = "JSON", name = "EMAILS")
     public String emails;
 
-    @Column(columnDefinition = "JSON", name = "PHONES")
-    public String phones;
+    @Column(columnDefinition = "VARCHAR(255)", name = "FIRST_NAME")
+    public String firstName;
+
+    @Column(columnDefinition = "TEXT", name = "LABEL")
+    public String label;
 
     @Column(columnDefinition = "VARCHAR(255)", name = "LAST_NAME")
     public String lastName;
 
-    @Column(columnDefinition = "VARCHAR(255)", name = "FIRST_NAME")
-    public String firstName;
+    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
+    public String name;
+
+    @Column(columnDefinition = "BIGINT", name = "ORG_ID")
+    public Long orgId;
+
+    @Column(columnDefinition = "BIGINT", name = "OWNER_ID")
+    public Long ownerId;
+
+    @Column(columnDefinition = "JSON", name = "PHONE")
+    public String phone;
+
+    @Column(columnDefinition = "JSON", name = "PHONES")
+    public String phones;
+
+    @Column(columnDefinition = "BIGINT", name = "PICTURE_ID")
+    public Long pictureId;
+
+    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
+    public LocalDateTime updateTime;
+
+    @Column(columnDefinition = "VARCHAR(255)", name = "VISIBLE_TO")
+    public String visibleTo;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")

@@ -1,11 +1,9 @@
 package dti.crmsis.back.services;
 
 import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 
@@ -14,27 +12,25 @@ public class InitDataService {
 
     private static final Logger logger = Logger.getLogger(InitDataService.class);
 
-
     @Inject
     ClientDataExtractorServiceGenerated clientDataExtractorServiceGenerated;
     @Inject
     InitialEventsProcessorGenerated initialEventsProcessor;
-    @ConfigProperty(name = "APP_TOKEN")
-    public String apiToken;
-
+    @Inject
+    CustomerDetailsService detailsService;
 
     public void start() {
-        CustomerEntity customerEntity = getCustomerEntity();
+        CustomerDetailsService.CustomerInfo customerInfo = detailsService.getCustomerInfo();
         if (!initialLoadDone()) {
-            initClient(customerEntity);
+            initClient(customerInfo);
         }
         if (!initialEventsProcessed()) {
-            processInitialEvents(customerEntity);
+            processInitialEvents();
         }
     }
 
-    private void processInitialEvents(CustomerEntity customerEntity) {
-        initialEventsProcessor.processInitialEvents(customerEntity);
+    private void processInitialEvents() {
+        initialEventsProcessor.processInitialEvents();
         markInitialEventsProcessed();
     }
 
@@ -52,15 +48,10 @@ public class InitDataService {
         return false;
     }
 
-    protected void initClient(CustomerEntity customerEntity) {
+    protected void initClient(CustomerDetailsService.CustomerInfo customerInfo) {
         try {
-            if (customerEntity == null) {
-                logger.fatalf("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. %s PLEASE REGISTER A CUSTOMER FIRST", apiToken);
-                throw new IllegalStateException("THERE IS NO CUSTOMER ENTITY WITH THIS TOKEN. PLEASE REGISTER A CUSTOMER FIRST");
-            }
-            clientDataExtractorServiceGenerated.initClient(customerEntity);
+            clientDataExtractorServiceGenerated.initClient(customerInfo);
             logger.infof("Client successfully registered");
-
             markInitialLoadDone();
         } catch (Exception e) {
             System.out.println("Failed to start the application");
@@ -81,16 +72,4 @@ public class InitDataService {
         }
         return false;
     }
-
-    @Transactional
-    protected CustomerEntity getCustomerEntity() {
-        CustomerEntity customerEntity = CustomerEntity.find("apiToken", apiToken).firstResult();
-        CustomerEntity result = new CustomerEntity();
-        result.fullName = customerEntity.fullName;
-        result.apiToken = customerEntity.apiToken;
-        result.urlPath = customerEntity.urlPath;
-        result.url = customerEntity.url;
-        return result;
-    }
-
 }

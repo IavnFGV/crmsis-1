@@ -38,7 +38,7 @@ public class WebhookRequestsHandler {
 
     public void processNew() {
         int pageIndex = 0;
-        int pageSize = Constants.PAGE_LIMIT;
+        int pageSize = 1;
         while (true) {
             List<RawRequestEntity> entities = getRequestEntities(pageIndex, pageSize, lastProcessedId);
             if (entities.isEmpty()) {
