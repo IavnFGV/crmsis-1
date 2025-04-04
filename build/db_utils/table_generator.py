@@ -48,16 +48,15 @@ with engine.connect() as conn:
             except json.JSONDecodeError:
                 print(f"Не удалось распарсить OPTIONS для {key}")
 
+
 extracted_fields = []
 for col in deal_columns:
     alias_entry = ref_map.get(col) or ref_map.get(col.lower())
-    if alias_entry:
-        alias, _ = alias_entry
-        ref_map.pop(col, None)
-        ref_map.pop(col.lower(), None)
-        extracted_fields.append((col, alias, f"    d.`{col}` AS `{alias}`,"))
-    else:
-        extracted_fields.append((col, col, f"    d.`{col}` AS `{col}`,"))
+    alias = alias_entry[0] if alias_entry else col
+    ref_map.pop(col, None)
+    ref_map.pop(col.lower(), None)
+    # 💡 MAX даже для полей из DEALS
+    extracted_fields.append((col, alias, f"    MAX(d.`{col}`) AS `{alias}`,"))
 
 for key, (alias, field_type) in ref_map.items():
     if key in options_map:
@@ -84,9 +83,11 @@ for key, (alias, field_type) in ref_map.items():
 extracted_fields = sorted(extracted_fields, key=lambda x: x[1])
 lines += [tpl for _, _, tpl in extracted_fields]
 
+# Удаляем запятую в конце последнего поля
 if lines[-1].strip().endswith(','):
     lines[-1] = lines[-1].rstrip(',')
 
+# 🧾 FROM + JOIN + GROUP BY по d.SOURCE_REQUEST_ID
 lines.append("""
 FROM SB_PD_OKACADEMY.DEALS d
 LEFT JOIN SB_PD_OKACADEMY.DEAL_CUSTOM_FIELDS dc
@@ -95,7 +96,7 @@ LEFT JOIN SB_PD_OKACADEMY.DEAL_CUSTOM_FIELDS dc
       dc.SOURCE_REQUEST_ID = d.SOURCE_REQUEST_ID
    OR (dc.SOURCE_REQUEST_ID IS NULL AND d.SOURCE_REQUEST_ID IS NULL)
 )
-GROUP BY d.ID;
+GROUP BY d.SOURCE_REQUEST_ID;
 """)
 
 sql = "\n".join(lines)
