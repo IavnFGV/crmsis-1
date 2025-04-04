@@ -1,95 +1,88 @@
-from sqlalchemy import create_engine, text
 import re
-
+import json
+from sqlalchemy import create_engine, text
 from db_utils.table_generator_connection import db_config
 
-
-# 🔤 Функция транслитерации
 def transliterate(name: str) -> str:
     table = {
-        # Русский
         'А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ё':'E','Ж':'Zh','З':'Z','И':'I','Й':'Y','К':'K',
         'Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T','У':'U','Ф':'F','Х':'Kh','Ц':'Ts',
         'Ч':'Ch','Ш':'Sh','Щ':'Shch','Ы':'Y','Э':'E','Ю':'Yu','Я':'Ya','Ь':'','Ъ':'',
         'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k',
         'л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts',
         'ч':'ch','ш':'sh','щ':'shch','ы':'y','э':'e','ю':'yu','я':'ya','ь':'','ъ':'',
-
-        # Украинский
-        'Є': 'Ye', 'І': 'I', 'Ї': 'Yi', 'Ґ': 'G',
-        'є': 'ye', 'і': 'i', 'ї': 'yi', 'ґ': 'g',
+        'Є': 'Ye', 'І': 'I', 'Ї': 'Yi', 'Ґ': 'G', 'є': 'ye', 'і': 'i', 'ї': 'yi', 'ґ': 'g',
     }
-
-    # 1. Убираем лишние пробелы и заменяем их на один _
     cleaned = re.sub(r'\s+', '_', name.strip())
-
-    # 2. Транслитерация
     transliterated = ''.join(table.get(c, c) for c in cleaned)
-
-    # 3. Удаляем все символы кроме латиницы, цифр и подчёркивания
     return re.sub(r'[^a-zA-Z0-9_]', '_', transliterated)
 
 
-# Создание URL для подключения
 DATABASE_URL = f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
-# Создание движка SQLAlchemy
 engine = create_engine(DATABASE_URL)
-
-
 
 lines = ["SELECT"]
 
-
 with engine.connect() as conn:
-    # Получаем все колонки из DEALS
-    deal_columns = conn.execute(text("""
-        SELECT COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
+    deal_columns = [row[0] for row in conn.execute(text("""
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_SCHEMA = 'SB_PD_OKACADEMY' AND TABLE_NAME = 'DEALS'
-    """)).fetchall()
-    deal_columns = [row[0] for row in deal_columns]
+    """)).fetchall()]
 
-    # Мапа кастомных полей
     ref_fields = conn.execute(text("""
-        SELECT KEY_PIPEDRIVE, NAME_PIPEDRIVE
+        SELECT KEY_PIPEDRIVE, NAME_PIPEDRIVE, FIELD_TYPE, OPTIONS
         FROM REF_DEAL_FIELDS
         WHERE KEY_PIPEDRIVE IS NOT NULL
     """)).fetchall()
-    ref_map = {key: transliterate(name) for key, name in ref_fields}
 
-extracted_fields =[];
+    ref_map = {}       # key → (alias, type)
+    options_map = {}   # key → {id: label}
 
-# Добавляем d.* колонки с алиасами (если есть в ref_map)
+    for key, name, field_type, options_json in ref_fields:
+        alias = transliterate(name)
+        ref_map[key] = (alias, field_type)
+        if options_json and options_json.strip() != "[]":
+            try:
+                parsed = json.loads(options_json)
+                options_map[key] = {str(o["id"]): o["label"] for o in parsed if "id" in o and "label" in o}
+            except json.JSONDecodeError:
+                print(f"Не удалось распарсить OPTIONS для {key}")
+
+extracted_fields = []
 for col in deal_columns:
-    k =col;
-    alias = ref_map.get(k)
-    if not alias:
-        k=col.lower()
-        alias = ref_map.get(k)
-    if alias and alias != col:
-        ref_map.pop(k)
-        extracted_fields.append((col, alias,"    d.`$col` AS `$alias`,"))
+    alias_entry = ref_map.get(col) or ref_map.get(col.lower())
+    if alias_entry:
+        alias, _ = alias_entry
+        ref_map.pop(col, None)
+        ref_map.pop(col.lower(), None)
+        extracted_fields.append((col, alias, f"    d.`{col}` AS `{alias}`,"))
     else:
-        extracted_fields.append((col, col,"    d.`$col` AS `$alias`,"))
+        extracted_fields.append((col, col, f"    d.`{col}` AS `{col}`,"))
 
-        # lines.append(f"    d.`{col}` AS `{alias}`,")
-        # lines.append(f"    d.`{col}`,")
-        #
-        # lines.append(
-        #  f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN dc.STRING_VALUE ELSE NULL END AS CHAR)) AS `{alias}`,")
+for key, (alias, field_type) in ref_map.items():
+    if key in options_map:
+        options = options_map[key]
+        if field_type == "set":
+            expr = "dc.STRING_VALUE"
+            for raw_id, label in options.items():
+                label_clean = label.replace("'", "''")
+                expr = f"REPLACE({expr}, '{raw_id}', '{label_clean}')"
+            sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN {expr} ELSE NULL END AS CHAR)) AS `{alias}`,"
+        elif field_type == "enum":
+            case_parts = []
+            for val, label in options.items():
+                label_clean = label.replace("'", "''")
+                case_parts.append(f"WHEN dc.STRING_VALUE = '{val}' THEN '{label_clean}'")
+            case_block = "CASE " + " ".join(case_parts) + " ELSE dc.STRING_VALUE END"
+            sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN {case_block} ELSE NULL END AS CHAR)) AS `{alias}`,"
+        else:
+            sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN dc.STRING_VALUE ELSE NULL END AS CHAR)) AS `{alias}`,"
+    else:
+        sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN dc.STRING_VALUE ELSE NULL END AS CHAR)) AS `{alias}`,"
+    extracted_fields.append((key, alias, sql_expr))
 
-
-
-
-# Добавляем кастомные поля
-for key, alias in ref_map.items():
-    extracted_fields.append((key,alias,"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '$col' THEN dc.STRING_VALUE ELSE NULL END AS CHAR)) AS `$alias`,"))
-
-extracted_fields = sorted(extracted_fields,key=lambda x:x[1])
-
-for col,alias,template in extracted_fields:
-    lines.append(template.replace("$alias", alias).replace("$col", col))
-
+extracted_fields = sorted(extracted_fields, key=lambda x: x[1])
+lines += [tpl for _, _, tpl in extracted_fields]
 
 if lines[-1].strip().endswith(','):
     lines[-1] = lines[-1].rstrip(',')
@@ -101,15 +94,10 @@ LEFT JOIN SB_PD_OKACADEMY.DEAL_CUSTOM_FIELDS dc
  AND (
       dc.SOURCE_REQUEST_ID = d.SOURCE_REQUEST_ID
    OR (dc.SOURCE_REQUEST_ID IS NULL AND d.SOURCE_REQUEST_ID IS NULL)
- )
+)
 GROUP BY d.ID;
 """)
 
-
 sql = "\n".join(lines)
-print("\n✅ Сгенерированный SQL-запрос:\n")
-print(sql)
-
 with open("deals_view_materialized.sql", "w", encoding="utf-8") as f:
     f.write(sql)
-print("\n💾 SQL записан в файл: deals_view_materialized.sql")
