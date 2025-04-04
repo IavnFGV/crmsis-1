@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Result
 import re
+
+from db_utils.table_generator_connection import db_config
+
 
 # 🔤 Функция транслитерации
 def transliterate(name: str) -> str:
@@ -26,6 +28,12 @@ def transliterate(name: str) -> str:
 
     # 3. Удаляем все символы кроме латиницы, цифр и подчёркивания
     return re.sub(r'[^a-zA-Z0-9_]', '_', transliterated)
+
+
+# Создание URL для подключения
+DATABASE_URL = f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
+# Создание движка SQLAlchemy
+engine = create_engine(DATABASE_URL)
 
 
 
