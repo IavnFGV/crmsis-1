@@ -325,8 +325,8 @@ public interface PipedriveRestClientGeneratedV1 {
 
 def save_code_to_file(file_name, code, is_java=True):
     if is_java:
-        # formatted_code = code
-        formatted_code = format_javacode(code)
+        formatted_code = code
+        # formatted_code = format_javacode(code)
     else:
         formatted_code = code
     with open(file_name, "w", encoding="utf-8") as f:
@@ -353,17 +353,20 @@ import dti.crmsis.back.clients.dto.NewWebhookRequest;
 import dti.crmsis.back.clients.dto.WebhookRegistrationResponse;
 import dti.crmsis.back.clients.dto.WebhookResponse;
 import dti.crmsis.back.dao.clientsback.EventEntity;
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
+import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
 
+import java.time.ZoneOffset;
+import java.time.LocalDateTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
+import static dti.crmsis.back.services.Constants.WEBHOOK_REGISTERED_DATETIME;
 
 @ApplicationScoped
 public class ClientDataExtractorServiceGenerated {
@@ -437,17 +440,31 @@ public class ClientDataExtractorServiceGenerated {
     private boolean registerWebhook(CustomerDetailsService.CustomerInfo customerInfo) {
 
         String expectedUrl = Constants.URL_FOR_WEBHOOKS + customerInfo.getName();
+        LocalDateTime dateTime = ExtraInfoEntity.getDateTime(WEBHOOK_REGISTERED_DATETIME);
+
+        if (dateTime!=null) {
+            logger.info("Webhook has been already registered!");
+            return true;
+        }
+
         WebhookResponse response = webhooksRestClientV1.getAll(customerInfo.getApiToken());
-        boolean alreadyRegistered = response.getData().stream().anyMatch(webhookData -> webhookData.getSubscriptionUrl().equals(expectedUrl));
+        boolean alreadyRegistered =
+                response.getData().stream()
+                        .anyMatch(
+                                webhookData ->
+                                        webhookData.getSubscriptionUrl().equals(expectedUrl));
+
         if (alreadyRegistered) {
             logger.info("Webhook has been already registered!");
             return true;
         }
 
         NewWebhookRequest request = new NewWebhookRequest(expectedUrl);
-        WebhookRegistrationResponse registrationResponse = webhooksRestClientV1.registerNewWebhook(customerInfo.getApiToken(), request);
+        WebhookRegistrationResponse registrationResponse =
+                webhooksRestClientV1.registerNewWebhook(customerInfo.getApiToken(), request);
 
         if (registrationResponse != null && response.isSuccess()) {
+            saveWebhookRegisteringTime();
             logger.info("Webhook registered successfully!");
             return true;
         } else {
@@ -455,15 +472,30 @@ public class ClientDataExtractorServiceGenerated {
         }
         return false;
     }
+
+    private static void saveWebhookRegisteringTime() {
+        ExtraInfoEntity.saveDateTime(WEBHOOK_REGISTERED_DATETIME, LocalDateTime.now(ZoneOffset.UTC));
+    }
     
-     private String wrapToRetry(Supplier<String> apiCall) {
-        try {
-            return apiCall.get();
-        } catch (Exception e) {
-            logger.error("Failed to fetch activity fields", e);
-            return "{" +
-                   "\\"error\\": \\"" + e.getMessage() + "\\"" +
-                   "}";
+ private String wrapToRetry(Supplier<String> apiCall) {
+        int retry = 0;
+        String exceptionDecr = "[";
+        while (true) {
+            try {
+                return apiCall.get();
+            } catch (Exception e) {
+                retry++;
+                logger.error("Failed to fetch activity fields", e);
+
+                exceptionDecr += ("{\\"error\\":" + e.getMessage() + "\\"},");
+                if (retry > 5) {
+                    if (exceptionDecr.endsWith(",")) {
+                        exceptionDecr = exceptionDecr.substring(0, exceptionDecr.length() - 1);
+                    }
+                    exceptionDecr += "]";
+                    return exceptionDecr;
+                }
+            }
         }
     }
 

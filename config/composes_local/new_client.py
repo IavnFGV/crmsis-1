@@ -138,8 +138,8 @@ with open(output_file_name, 'w') as file:
 # nginx_conf_file_name = f'../config/nginx/nginx.conf'
 # backup_nginx_conf_file_name = f'../config/nginx/nginx.conf.bak'
 
-nginx_conf_file_name = f'D:\\projects\\crmsis-1\\config\\nginx\\nginx.conf'
-backup_nginx_conf_file_name = f'D:\\projects\\crmsis-1\\config\\nginx\\nginx.conf.bak'
+nginx_conf_file_name = f'/config/config/nginx\\nginx.conf'
+backup_nginx_conf_file_name = f'/config/config/nginx\\nginx.conf.bak'
 
 shutil.copyfile(nginx_conf_file_name, backup_nginx_conf_file_name)
 print(f'Backup of nginx config saved as {backup_nginx_conf_file_name}')

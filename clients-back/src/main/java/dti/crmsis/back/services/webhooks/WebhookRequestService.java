@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.clients.dto.KeyValueStore;
 import dti.crmsis.back.services.TimeZoneService;
+import dti.crmsis.back.utils.DateUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
 
@@ -20,14 +21,8 @@ public class WebhookRequestService {
 
     public static Logger logger = Logger.getLogger(WebhookRequestService.class);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
-
     public JsonProxy getProxy(Long requestId, String json) {
-        return new JsonProxy(requestId,json);
-    }
-
-    private static void addComment(JsonProcessingException e, JsonProxy jsonProxy) {
-        jsonProxy.addComment("exception", e.getMessage());
+        return new JsonProxy(requestId, json);
     }
 
     public static class JsonProxy {
@@ -44,6 +39,7 @@ public class WebhookRequestService {
         public Long entityIdPipedrive;
         public LocalDateTime timeStamp;
         public boolean exceptionInHandler;
+        public LocalDateTime actionTime;
 
         public JsonProxy(Long requestId, String json) {
             this.json = json;
@@ -62,15 +58,35 @@ public class WebhookRequestService {
                 JsonNode action = meta.path("action");
                 JsonNode correlationUuidID = meta.path("correlation_id");
 
-                checkNode(correlationUuidID, "meta.correlation_id",()-> parseCorrelationID(correlationUuidID));
+                checkNode(correlationUuidID, "meta.correlation_id", () -> parseCorrelationID(correlationUuidID));
                 checkNode(type, "meta.entity", () -> this.type = type.textValue());
                 checkNode(action, "meta.action", () -> this.action = action.textValue());
                 checkNode(pipedriveId, "meta.entity_id", () -> this.entityIdPipedrive = pipedriveId.asLong());
                 checkNode(timeStamp, "meta.timestamp", () -> this.timeStamp = toLocalDateTime(timeStamp));
+                calculateActionTime();
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 logger.error(json);
                 throw new JsonProblemException(e.getMessage(), e);
+            }
+        }
+
+        private void calculateActionTime() {
+            if ("change".equals(this.action)) {
+                JsonNode data = this.jsonNode.path("data");
+                String updateTime = data.path("update_time").asText();
+                this.actionTime = DateUtils.parseDateTime(updateTime);
+                return;
+            }
+            if ("create".equals(this.action)) {
+                JsonNode data = this.jsonNode.path("data");
+                String createTime = data.path("add_time").asText();
+                this.actionTime = DateUtils.parseDateTime(createTime);
+                return;
+            }
+            if ("delete".equals(this.action)) {
+                this.actionTime = this.timeStamp;
+                return;
             }
         }
 
@@ -81,14 +97,11 @@ public class WebhookRequestService {
         }
 
         private LocalDateTime toLocalDateTime(JsonNode timeStamp) {
-            LocalDateTime result = null;
-            try {
-                result = LocalDateTime.parse(timeStamp.asText(), FORMATTER);
-            } catch (Exception e) {
-                result = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeStamp.asLong()),
-                        TimeZoneService.getInstance().getZoneId());
+            LocalDateTime localDateTime = DateUtils.parseDateTime(timeStamp.asText());
+            if (localDateTime == null) {
+                throw new RuntimeException("cant parse timestamp " + timeStamp.asText());
             }
-            return result;
+            return localDateTime;
         }
 
         private void checkNode(JsonNode type, String fieldName, Runnable okAction) {
@@ -146,7 +159,6 @@ public class WebhookRequestService {
                 throw new IllegalArgumentException("Invalid correlation ID format: " + correlationId);
             }
         }
-
 
 
         @Override

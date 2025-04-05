@@ -17,11 +17,8 @@ def transliterate(name: str) -> str:
     transliterated = ''.join(table.get(c, c) for c in cleaned)
     return re.sub(r'[^a-zA-Z0-9_]', '_', transliterated)
 
-
 DATABASE_URL = f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
 engine = create_engine(DATABASE_URL)
-
-lines = ["SELECT"]
 
 with engine.connect() as conn:
     deal_columns = [row[0] for row in conn.execute(text("""
@@ -35,9 +32,8 @@ with engine.connect() as conn:
         WHERE KEY_PIPEDRIVE IS NOT NULL
     """)).fetchall()
 
-    ref_map = {}       # key → (alias, type)
-    options_map = {}   # key → {id: label}
-
+    ref_map = {}
+    options_map = {}
     for key, name, field_type, options_json in ref_fields:
         alias = transliterate(name)
         ref_map[key] = (alias, field_type)
@@ -48,57 +44,68 @@ with engine.connect() as conn:
             except json.JSONDecodeError:
                 print(f"Не удалось распарсить OPTIONS для {key}")
 
+# Генерация CTE
+used_keys = list(ref_map.keys())
+key_filter = ", ".join(f"'{k}'" for k in used_keys)
+cte_lines = ["WITH custom_fields_agg AS ("]
+cte_lines.append("  SELECT")
+cte_lines.append("    MAIN_ENTITY_PIPEDRIVE_ID,")
+cte_lines.append("    SOURCE_REQUEST_ID,")
 
-extracted_fields = []
-for col in deal_columns:
-    alias_entry = ref_map.get(col) or ref_map.get(col.lower())
-    alias = alias_entry[0] if alias_entry else col
-    ref_map.pop(col, None)
-    ref_map.pop(col.lower(), None)
-    # 💡 MAX даже для полей из DEALS
-    extracted_fields.append((col, alias, f"    MAX(d.`{col}`) AS `{alias}`,"))
-
+agg_fields = []
 for key, (alias, field_type) in ref_map.items():
     if key in options_map:
         options = options_map[key]
         if field_type == "set":
-            expr = "dc.STRING_VALUE"
+            expr = "STRING_VALUE"
             for raw_id, label in options.items():
                 label_clean = label.replace("'", "''")
                 expr = f"REPLACE({expr}, '{raw_id}', '{label_clean}')"
-            sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN {expr} ELSE NULL END AS CHAR)) AS `{alias}`,"
+            agg_fields.append(f"    MAX(CASE WHEN PIPEDRIVE_KEY = '{key}' THEN {expr} ELSE NULL END) AS `{alias}`")
         elif field_type == "enum":
             case_parts = []
             for val, label in options.items():
                 label_clean = label.replace("'", "''")
-                case_parts.append(f"WHEN dc.STRING_VALUE = '{val}' THEN '{label_clean}'")
-            case_block = "CASE " + " ".join(case_parts) + " ELSE dc.STRING_VALUE END"
-            sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN {case_block} ELSE NULL END AS CHAR)) AS `{alias}`,"
+                case_parts.append(f"WHEN STRING_VALUE = '{val}' THEN '{label_clean}'")
+            case_block = "CASE " + " ".join(case_parts) + " ELSE STRING_VALUE END"
+            agg_fields.append(f"    MAX(CASE WHEN PIPEDRIVE_KEY = '{key}' THEN {case_block} ELSE NULL END) AS `{alias}`")
         else:
-            sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN dc.STRING_VALUE ELSE NULL END AS CHAR)) AS `{alias}`,"
+            agg_fields.append(f"    MAX(CASE WHEN PIPEDRIVE_KEY = '{key}' THEN STRING_VALUE ELSE NULL END) AS `{alias}`")
     else:
-        sql_expr = f"    MAX(CAST(CASE WHEN dc.PIPEDRIVE_KEY = '{key}' THEN dc.STRING_VALUE ELSE NULL END AS CHAR)) AS `{alias}`,"
-    extracted_fields.append((key, alias, sql_expr))
+        agg_fields.append(f"    MAX(CASE WHEN PIPEDRIVE_KEY = '{key}' THEN STRING_VALUE ELSE NULL END) AS `{alias}`")
 
-extracted_fields = sorted(extracted_fields, key=lambda x: x[1])
-lines += [tpl for _, _, tpl in extracted_fields]
+# Добавляем запятые
+for i in range(len(agg_fields)):
+    if i < len(agg_fields) - 1:
+        agg_fields[i] += ","
 
-# Удаляем запятую в конце последнего поля
-if lines[-1].strip().endswith(','):
-    lines[-1] = lines[-1].rstrip(',')
+cte_lines += agg_fields
+cte_lines.append("  FROM SB_PD_OKACADEMY.DEAL_CUSTOM_FIELDS")
+cte_lines.append(f"  WHERE PIPEDRIVE_KEY IN ({key_filter})")
+cte_lines.append("  GROUP BY MAIN_ENTITY_PIPEDRIVE_ID, SOURCE_REQUEST_ID")
+cte_lines.append(")")
 
-# 🧾 FROM + JOIN + GROUP BY по d.SOURCE_REQUEST_ID
-lines.append("""
-FROM SB_PD_OKACADEMY.DEALS d
-LEFT JOIN SB_PD_OKACADEMY.DEAL_CUSTOM_FIELDS dc
-  ON dc.MAIN_ENTITY_PIPEDRIVE_ID = d.ID_PIPEDRIVE
- AND (
-      dc.SOURCE_REQUEST_ID = d.SOURCE_REQUEST_ID
-   OR (dc.SOURCE_REQUEST_ID IS NULL AND d.SOURCE_REQUEST_ID IS NULL)
-)
-GROUP BY d.SOURCE_REQUEST_ID;
-""")
+# SELECT
+select_lines = ["SELECT"]
+deal_select_fields = [f"    MAX(d.`{col}`) AS `{col}`" for col in deal_columns]
+custom_aliases = [f"    MAX(dc.`{alias}`) AS `{alias}`" for alias, _ in ref_map.values()]
+all_fields = deal_select_fields + custom_aliases
 
-sql = "\n".join(lines)
+# Добавляем запятые между SELECT полями
+for i in range(len(all_fields)):
+    if i < len(all_fields) - 1:
+        select_lines.append(all_fields[i] + ",")
+    else:
+        select_lines.append(all_fields[i])
+
+select_lines.append("FROM SB_PD_OKACADEMY.DEALS d FORCE INDEX (idx_deals_source_request)")
+select_lines.append("LEFT JOIN custom_fields_agg dc")
+select_lines.append("  ON dc.MAIN_ENTITY_PIPEDRIVE_ID = d.ID_PIPEDRIVE")
+select_lines.append(" AND dc.SOURCE_REQUEST_ID <=> d.SOURCE_REQUEST_ID")
+select_lines.append("GROUP BY d.SOURCE_REQUEST_ID;")
+
+sql = "\n".join(cte_lines + select_lines)
 with open("deals_view_materialized.sql", "w", encoding="utf-8") as f:
     f.write(sql)
+
+sql[:1000]

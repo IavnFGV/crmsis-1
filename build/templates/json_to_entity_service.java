@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.dao.clientsback.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,6 +24,8 @@ import java.time.ZoneOffset;
 import java.io.*;
 import java.util.*;
 
+import dti.crmsis.back.utils.StringUtils;
+import dti.crmsis.back.utils.DateUtils;
 import static dti.crmsis.back.services.JsonToEntityServiceAnswer.of;
 
 
@@ -39,6 +40,10 @@ public class JsonToEntityServiceGenerated{
     @Inject
     KnownFieldService knownFieldService;
 
+    public static String translit(String input) {
+        return StringUtils.translit(input);
+    }
+
     public String writeNodeAsString(JsonNode node) {
         try {
             String s = objectMapper.writeValueAsString(node);
@@ -52,22 +57,8 @@ public class JsonToEntityServiceGenerated{
         }
     }
 
-
     public LocalDateTime parseDateTime(String dateStr) {
-        if (dateStr == null || dateStr.isEmpty()) {
-            return null;
-        }
-        LocalDateTime dateTime;
-        try {
-            dateTime = LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        } catch (DateTimeParseException e1) {
-            try {
-                dateTime = LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            } catch (DateTimeParseException e2) {
-                dateTime = LocalDateTime.ofInstant(Instant.parse(dateStr), ZoneOffset.UTC);
-            }
-        }
-        return dateTime;
+        return DateUtils.parseDateTime(dateStr);
     }
 
     public LocalDate parseDate(String dateStr) {
@@ -77,6 +68,7 @@ public class JsonToEntityServiceGenerated{
         LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return localDate;
     }
+
 
     $JSON_TO_ENTITY_METHODS
 

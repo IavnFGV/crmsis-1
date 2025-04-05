@@ -16,6 +16,9 @@
         return this.sourceRequestId;
     }
 
+    @Column(name = "IS_DELETED")
+    public Boolean isDeleted = false;
+
     #BEFORE_CLASS_CLOSE
 
 

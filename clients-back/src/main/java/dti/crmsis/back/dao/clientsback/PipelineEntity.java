@@ -2,16 +2,20 @@ package dti.crmsis.back.dao.clientsback;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-
 import jakarta.persistence.*;
-
 import org.hibernate.annotations.Type;
-
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+
+import java.util.UUID;
+
+
+
+
 
 @Entity
 @Table(name = "PIPELINES")
-public class PipelineEntity extends PanacheEntityBase implements HasSourceRequestId {
+public class PipelineEntity extends PanacheEntityBase  implements HasSourceRequestId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -20,26 +24,25 @@ public class PipelineEntity extends PanacheEntityBase implements HasSourceReques
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
 
-    @Column(columnDefinition = "BOOLEAN", name = "ACTIVE_FLAG")
-    public Boolean activeFlag;
 
-    @Column(columnDefinition = "DATETIME", name = "ADD_TIME")
-    public LocalDateTime addTime;
-
-    @Column(columnDefinition = "BOOLEAN", name = "DEAL_PROBABILITY")
-    public Boolean dealProbability;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "NAME")
-    public String name;
-
-    @Column(columnDefinition = "BIGINT", name = "ORDER_NR")
-    public Long orderNr;
-
-    @Column(columnDefinition = "DATETIME", name = "UPDATE_TIME")
-    public LocalDateTime updateTime;
-
-    @Column(columnDefinition = "VARCHAR(255)", name = "URL_TITLE")
-    public String urlTitle;
+@Column(columnDefinition="BOOLEAN", name="ACTIVE")
+public Boolean active;
+@Column(columnDefinition="BOOLEAN", name="ACTIVE_FLAG")
+public Boolean activeFlag;
+@Column(columnDefinition="DATETIME", name="ADD_TIME")
+public LocalDateTime addTime;
+@Column(columnDefinition="BOOLEAN", name="DEAL_PROBABILITY")
+public Boolean dealProbability;
+@Column(columnDefinition="VARCHAR(255)", name="NAME")
+public String name;
+@Column(columnDefinition="BIGINT", name="ORDER_NR")
+public Long orderNr;
+@Column(columnDefinition="BOOLEAN", name="SELECTED")
+public Boolean selected;
+@Column(columnDefinition="DATETIME", name="UPDATE_TIME")
+public LocalDateTime updateTime;
+@Column(columnDefinition="VARCHAR(255)", name="URL_TITLE")
+public String urlTitle;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
@@ -49,12 +52,19 @@ public class PipelineEntity extends PanacheEntityBase implements HasSourceReques
     public Long sourceRequestId;
 
     @Override
-    public void setSourceRequestId(Long sourceRequestId) {
+    public void setSourceRequestId(Long sourceRequestId){
         this.sourceRequestId = sourceRequestId;
     }
 
     @Override
-    public Long getSourceRequestId() {
+    public Long getSourceRequestId(){
         return this.sourceRequestId;
     }
-} // close class
+
+    @Column(name = "IS_DELETED")
+    public Boolean isDeleted = false;
+
+    
+
+
+} //close class

@@ -23,8 +23,8 @@ public class RawRequestEntity extends PanacheEntityBase {
      * Timestamp of when the row was inserted.
      * This value is generated automatically by the database.
      *
-     * ⚠ Stored in MySQL as DATETIME or TIMESTAMP.
-     * ⚠ Use OffsetDateTime to correctly handle time zone issues.
+     * Stored in MySQL as DATETIME or TIMESTAMP.
+     * Use OffsetDateTime to correctly handle time zone issues.
      */
     @Column(name = "CREATED_AT", insertable = false, updatable = false)
     private OffsetDateTime createdAt;

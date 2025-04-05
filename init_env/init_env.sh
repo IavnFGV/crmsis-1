@@ -52,6 +52,7 @@ create_network() {
 create_work_dir() {
     mkdir -p /opt/sb
     mkdir -p /opt/sb/sb_project
+    mkdir -p /opt/sb/sb_project/composes
     mkdir -p /opt/sb/sb_project/config
     mkdir -p /opt/sb/sb_project/config/nginx
     mkdir -p /opt/sb/sb_project/config/scripts
@@ -59,7 +60,7 @@ create_work_dir() {
 }
 
 copy_files() {
-    cp -r ../config/composes/* /opt/sb/sb_project
+    cp -r ../config/composes/* /opt/sb/sb_project/composes
     cp -r ../config/nginx/* /opt/sb/sb_project/config/nginx
     cp -r ../config/scripts/* /opt/sb/sb_project/config/scripts
     cp -r ../config/mysql/* /opt/sb/sb_project/config/mysql

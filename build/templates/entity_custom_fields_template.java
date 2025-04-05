@@ -9,5 +9,8 @@
     @Column(columnDefinition = "VARCHAR(255)", name = "NAME_PIPEDRIVE")
     public String name;
 
+    @Column(columnDefinition = "VARCHAR(255)", name = "NAME_PIPEDRIVE_TRANSLIT")
+    public String nameTranslit;
+
     @Column(columnDefinition = "VARCHAR(50)", name = "FIELD_TYPE")
     public String fieldType;

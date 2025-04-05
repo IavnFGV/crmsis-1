@@ -1,6 +1,6 @@
    public void init$ENTITY_NAME_TITLED() throws IOException {
         int pageIndex = 0;
-        int pageSize = 40;
+        int pageSize = 50;
         int eventsCount = 0;
         int entitiesCount = 0;
         while (true) {

@@ -1,7 +1,7 @@
 from events_processor import process_events
 from templates import read_template
 
-skip_entities_fields = ["ID"]
+skip_entities_fields = ["ID",'IS_DELETED']
 skip_entities_custom_fields_fields = ["KEY", "NAME", "FIELD_TYPE"]
 
 

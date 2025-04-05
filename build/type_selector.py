@@ -15,6 +15,9 @@ def detect_mysql_type_extended(key,values):
     mysql_type = "TEXT"
     java_type = "String"
 
+    if key == ("ACTIVITIES",'duration'):
+        return mysql_type, java_type
+
     # guess from name
     if(key[1].endswith("_id")):
         mysql_type, java_type=  "BIGINT", "Long"

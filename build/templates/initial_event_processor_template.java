@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.dao.clientsback.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import dti.crmsis.back.dao.crmsis.CustomerEntity;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

@@ -65,6 +65,7 @@ def generate_init_entity_method(method_tuple, fields: List[EntityFieldDeclaratio
         other_fields_extractors.append('entity.key = node.get("key").asText();')
         other_fields_extractors.append('entity.name = node.get("name").asText();')
         other_fields_extractors.append('entity.fieldType = node.get("field_type").asText();')
+        other_fields_extractors.append('entity.nameTranslit = translit(node.get("name").asText());')
 
 
     for field in fields:
@@ -101,8 +102,8 @@ def generate_init_entity_method(method_tuple, fields: List[EntityFieldDeclaratio
         base_entity_name = entity_name.removeprefix("REF_").removesuffix("_FIELDS").lower()
 
     entity_name_in_template = entity_name
-    if entity_name != "REF_ACTIVITY_FIELDS":
-        entity_name_in_template = entity_name_in_template.replace("REF_","")
+    # if entity_name != "REF_ACTIVITY_FIELDS":
+    #     entity_name_in_template = entity_name_in_template.replace("REF_","")
 
     method_code = method_code.replace("$PERSISTING_CODE", persisting_code_common)\
                              .replace("$ENTITY_CLASS_NAME", entity_class_name)\

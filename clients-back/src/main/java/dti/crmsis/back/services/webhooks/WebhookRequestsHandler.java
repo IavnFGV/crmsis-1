@@ -14,6 +14,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @ApplicationScoped
@@ -34,6 +36,7 @@ public class WebhookRequestsHandler {
     HandlersCollector handlersCollector;
     @Inject
     RawRequestNativeRepository rawRequestNativeRepository;
+    private LocalDateTime webhookRegistered;
 
 
     public void processNew() {
@@ -69,6 +72,13 @@ public class WebhookRequestsHandler {
             report.correlationIdSuffix = proxy.metaCorrelationIdSuffix;
             report.entityPipedriveType = proxy.type;
             report.pipedriveAction = proxy.action;
+
+            LocalDateTime webhookRegistered = getWebhookRegistered();
+
+            if (webhookRegistered.isAfter(proxy.actionTime)) {
+                throw new TimeOfActionIsBeforeWebhookWasRegistered(proxy.actionTime, webhookRegistered);
+            }
+
             if (report.correlationId == null) {
                 logger.errorf("Invalid request data for request ID %d: $s", requestEntity.id, requestEntity.getRequestData());
                 throw new NotEnoughFieldsException("Invalid request data " + requestEntity.getRequestData());
@@ -87,6 +97,16 @@ public class WebhookRequestsHandler {
             report.status = "NO_ID_FIELDS";
             report.correlationId = UUID.randomUUID();
             logger.errorf(e, "No Id Fields for request ID %d: %s", requestEntity.id, requestEntity.getRequestData());
+        } catch (TimeOfActionIsBeforeWebhookWasRegistered e) {
+            wasException = true;
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            report.status = "TIME_BEFORE_ALLOWED";
+            logger.errorf(e, "Time of action is before allowed for ID %d: %s. Action time %s, webhook registered %s",
+                    requestEntity.id,
+                    requestEntity.getRequestData(),
+                    e.actionTime.format(fmt),
+                    e.webhookRegistered.format(fmt)
+            );
         } catch (Throwable e) {
             wasException = true;
             report.status = "GENERIC_FAIL";
@@ -126,6 +146,13 @@ public class WebhookRequestsHandler {
         }
     }
 
+    private synchronized LocalDateTime getWebhookRegistered() {
+        if (webhookRegistered == null) {
+            webhookRegistered = ExtraInfoEntity.getDateTime(Constants.WEBHOOK_REGISTERED_DATETIME);
+        }
+        return webhookRegistered;
+    }
+
     private void process(WebhookRequestService.JsonProxy proxy) {
         boolean processedAtLeastOnce = false;
 //        this.processed.add(new Pair<>(proxy.type, proxy.action));// dlete this
@@ -151,8 +178,8 @@ public class WebhookRequestsHandler {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    protected void saveReportInSeparateTransaction(ProcessReportEntity report,boolean saveId) {
-        if(saveId){
+    protected void saveReportInSeparateTransaction(ProcessReportEntity report, boolean saveId) {
+        if (saveId) {
             ExtraInfoEntity.saveLong(Constants.LAST_PROCESSED_ID, lastProcessedId);
         }
         ProcessReportEntity.getEntityManager().merge(report);
