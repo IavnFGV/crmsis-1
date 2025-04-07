@@ -817,7 +817,7 @@ public class InitialEventsProcessorGenerated {
                     JsonNode jsonArray = jsonNode.path("data");
                     for (JsonNode node : jsonArray) {
                         LocalDateTime updateTime =
-                                DateUtils.parseDa`teTime(node.path("update_time").asText());
+                                DateUtils.parseDateTime(node.path("update_time").asText());
                         LocalDateTime addTime =
                                 DateUtils.parseDateTime(node.path("add_time").asText());
                         LocalDateTime actionTime = updateTime;

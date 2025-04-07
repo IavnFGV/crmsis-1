@@ -62,6 +62,7 @@ create_work_dir() {
 
 copy_files() {
     cp -r ../config/composes/* /opt/sb/sb_project/composes
+    cp -r ../config/composes/new_client_app /opt/sb/sb_project/composes/new_client_app
     cp -r ../config/composes_override/* /opt/sb/sb_project/composes
     cp -r ../config/config/nginx/* /opt/sb/sb_project/config/nginx
     cp -r ../config/config/scripts/* /opt/sb/sb_project/config/scripts

@@ -1,7 +1,7 @@
 package dti.crmsis.back;
 
 
-import dti.crmsis.back.dao.crmsis.RawRequestEntity;
+import dti.crmsis.back.dao.crmsis.RawRequestEntityWebhook;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import jakarta.inject.Inject;
@@ -37,7 +37,7 @@ public class Version1 {
 
     @Transactional
     void save(String urlPath, String jsonBody) {
-        RawRequestEntity rawRequest = new RawRequestEntity();
+        RawRequestEntityWebhook rawRequest = new RawRequestEntityWebhook();
         rawRequest.setRequestData(jsonBody);
         rawRequest.setCustomerName(urlPath);
         rawRequest.persist();
