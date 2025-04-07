@@ -54,6 +54,7 @@ public class InitDataService {
             logger.infof("Client successfully registered");
             markInitialLoadDone();
         } catch (Exception e) {
+            logger.error(e.getMessage(),e);
             System.out.println("Failed to start the application");
         }
     }

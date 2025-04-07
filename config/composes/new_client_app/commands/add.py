@@ -106,18 +106,19 @@ class AddClientApp(App):
                 "$@{SB_APP_TOKEN}": token,
                 "$@{CUSTOMER_FULL_NAME}": full_name,
                 "$@{CUSTOMER_NAME}": customer_name,
-                "$@{SERVICE_SUFFIX}": customer_name
+                "$@{SERVICE_SUFFIX}": customer_name,
+                "$@{CUSTOMER_PIPEDRIVE_URL}": url
             }
 
             generate_compose_file(
-                "../../composes/docker-compose-sb-b-app-template.yml",
-                f"../../composes/docker-compose-sb-b-app-{customer_name}.yml",
+                "../docker-compose-sb-b-app-template.yml",
+                f"../docker-compose-sb-b-app-{customer_name}.yml",
                 replacements
             )
 
             generate_compose_file(
-                "../../composes/docker-compose-sb-b-app-wh-template.yml",
-                f"../../composes/docker-compose-sb-b-app-wh-{customer_name}.yml",
+                "../docker-compose-sb-b-app-wh-template.yml",
+                f"../docker-compose-sb-b-app-wh-{customer_name}.yml",
                 replacements
             )
 

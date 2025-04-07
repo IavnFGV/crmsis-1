@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DiffGenerationConfig">
-    <option name="sourceDbValue" value="61bb894d-9943-48ff-b19b-0c21a854752b" />
-    <option name="sourceDiffType" value="DB" />
-    <option name="targetDbValue" value="61bb894d-9943-48ff-b19b-0c21a854752b" />
-  </component>
-</project>

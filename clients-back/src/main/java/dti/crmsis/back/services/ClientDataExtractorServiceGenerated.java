@@ -125,7 +125,8 @@ public class ClientDataExtractorServiceGenerated {
         return false;
     }
 
-    private static void saveWebhookRegisteringTime() {
+    @Transactional
+    protected void saveWebhookRegisteringTime() {
         ExtraInfoEntity.saveDateTime(
                 WEBHOOK_REGISTERED_DATETIME, LocalDateTime.now(ZoneOffset.UTC));
     }
@@ -138,9 +139,12 @@ public class ClientDataExtractorServiceGenerated {
                 return apiCall.get();
             } catch (Exception e) {
                 retry++;
-                logger.error("Failed to fetch activity fields", e);
+                logger.error("Failed to fetch fields", e);
 
-                exceptionDecr += ("{\"error\":" + e.getMessage() + "\"},");
+                exceptionDecr += ("{\"error\":\"" + e.getMessage() + "\"},");
+                if (exceptionDecr.contains("Payment Required, status code 402")){
+                    return exceptionDecr;
+                }
                 if (retry > 5) {
                     if (exceptionDecr.endsWith(",")) {
                         exceptionDecr = exceptionDecr.substring(0, exceptionDecr.length() - 1);

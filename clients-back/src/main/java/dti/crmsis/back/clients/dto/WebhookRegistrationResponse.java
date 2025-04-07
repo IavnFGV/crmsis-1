@@ -2,6 +2,7 @@ package dti.crmsis.back.clients.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
 
 public class WebhookRegistrationResponse {
@@ -44,10 +45,10 @@ public class WebhookRegistrationResponse {
         private Integer isActive;
 
         @JsonProperty("add_time")
-        private LocalDateTime addTime;
+        private OffsetDateTime addTime;
 
         @JsonProperty("remove_time")
-        private LocalDateTime removeTime;
+        private OffsetDateTime removeTime;
 
         @JsonProperty("type")
         private String type;
