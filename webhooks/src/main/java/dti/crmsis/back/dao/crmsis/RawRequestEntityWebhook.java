@@ -26,7 +26,7 @@ public class RawRequestEntityWebhook extends PanacheEntityBase {
      * Stored in MySQL as DATETIME or TIMESTAMP.
      * Use OffsetDateTime to correctly handle time zone issues.
      */
-    @Column(name = "CREATED_AT", insertable = false, updatable = false)
+    @Column(name = "CREATED_AT", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     public Long getId() {
