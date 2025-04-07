@@ -325,8 +325,8 @@ public interface PipedriveRestClientGeneratedV1 {
 
 def save_code_to_file(file_name, code, is_java=True):
     if is_java:
-        formatted_code = code
-        # formatted_code = format_javacode(code)
+        # formatted_code = code
+        formatted_code = format_javacode(code)
     else:
         formatted_code = code
     with open(file_name, "w", encoding="utf-8") as f:

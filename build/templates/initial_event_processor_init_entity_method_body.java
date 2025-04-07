@@ -3,6 +3,7 @@
         int pageSize = 50;
         int eventsCount = 0;
         int entitiesCount = 0;
+        int skippedEntitiesCount = 0;
         while (true) {
             List<EventEntity> events = getEventEntities(pageIndex, pageSize, "$ENTITY_NAME");
             if (events.isEmpty()) {
@@ -28,5 +29,5 @@
             logger.info(pageIndex + " $ENTITY_NAME_TITLED DONE");
             pageIndex++; // Переход к следующей странице
         }
-        logger.info("$ENTITY_NAME_TITLED processed. Events = " + eventsCount + ", entities = " + entitiesCount);
+        logger.info("$ENTITY_NAME_TITLED processed. Events = " + eventsCount + ", entities = " + entitiesCount+ ", skipped = "+ skippedEntitiesCount);
     }

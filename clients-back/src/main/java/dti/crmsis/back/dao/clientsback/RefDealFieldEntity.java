@@ -2,20 +2,14 @@ package dti.crmsis.back.dao.clientsback;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+
 import jakarta.persistence.*;
+
 import org.hibernate.annotations.Type;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-
-import java.util.UUID;
-
-
-
-
 
 @Entity
 @Table(name = "REF_DEAL_FIELDS")
-public class RefDealFieldEntity extends PanacheEntityBase  implements RefField, HasSourceRequestId {
+public class RefDealFieldEntity extends PanacheEntityBase implements RefField, HasSourceRequestId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -41,8 +35,6 @@ public class RefDealFieldEntity extends PanacheEntityBase  implements RefField, 
     @Column(columnDefinition = "VARCHAR(50)", name = "FIELD_TYPE")
     public String fieldType;
 
-
-
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
     public String json;
@@ -51,19 +43,15 @@ public class RefDealFieldEntity extends PanacheEntityBase  implements RefField, 
     public Long sourceRequestId;
 
     @Override
-    public void setSourceRequestId(Long sourceRequestId){
+    public void setSourceRequestId(Long sourceRequestId) {
         this.sourceRequestId = sourceRequestId;
     }
 
     @Override
-    public Long getSourceRequestId(){
+    public Long getSourceRequestId() {
         return this.sourceRequestId;
     }
 
     @Column(name = "IS_DELETED")
     public Boolean isDeleted = false;
-
-    
-
-
-} //close class
+} // close class

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.dao.clientsback.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import dti.crmsis.back.utils.DateUtils;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -37,6 +38,8 @@ public class InitialEventsProcessorGenerated {
 
     @Inject
     JsonToEntityServiceGenerated jsonService;
+    private LocalDateTime webhookRegistered;
+
 
     public void processInitialEvents() {
         try {
@@ -63,6 +66,14 @@ public class InitialEventsProcessorGenerated {
         logger.infof("active %d queue %d max %d",executorService.getActiveCount(),executorService.getQueue().size(), executorService.getLargestPoolSize());
         executorService.submit(() -> persistEntities(entities, entityName));
     }
+
+    private synchronized LocalDateTime getWebhookRegisteredTime() {
+        if (webhookRegistered == null) {
+            webhookRegistered = ExtraInfoEntity.getDateTime(Constants.WEBHOOK_REGISTERED_DATETIME);
+        }
+        return webhookRegistered;
+    }
+
 
 
     $INIT_ENTITY_METHODS

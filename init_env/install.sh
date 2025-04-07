@@ -43,6 +43,7 @@ install_python3() {
     python3 -m pip install --upgrade pip
     pip install mysql-connector-python
     pip install python-dotenv
+    pip install "textual==0.53.1"
 }
 
 create_network() {
@@ -61,13 +62,23 @@ create_work_dir() {
 
 copy_files() {
     cp -r ../config/composes/* /opt/sb/sb_project/composes
-    cp -r ../config/nginx/* /opt/sb/sb_project/config/nginx
-    cp -r ../config/scripts/* /opt/sb/sb_project/config/scripts
-    cp -r ../config/mysql/* /opt/sb/sb_project/config/mysql
+    cp -r ../config/composes_override/* /opt/sb/sb_project/composes
+    cp -r ../config/config/nginx/* /opt/sb/sb_project/config/nginx
+    cp -r ../config/config/scripts/* /opt/sb/sb_project/config/scripts
+    cp -r ../config/config/mysql/* /opt/sb/sb_project/config/mysql
 }
+
+install_yq(){
+  sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+  sudo chmod +x /usr/local/bin/yq
+}
+
 
 load_lazyapps
 install_python3
+install_yq
 create_network
 create_work_dir
 copy_files
+
+cd /opt/sb/sb_project

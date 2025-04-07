@@ -73,9 +73,10 @@ public class WebhookRequestsHandler {
             report.entityPipedriveType = proxy.type;
             report.pipedriveAction = proxy.action;
 
-            LocalDateTime webhookRegistered = getWebhookRegistered();
+            LocalDateTime webhookRegistered = getWebhookRegisteredTime();
 
-            if (webhookRegistered.isAfter(proxy.actionTime)) {
+            if (webhookRegistered!= null && proxy.actionTime!= null && proxy.actionTime.isBefore(webhookRegistered)) {
+                // entity shows data for the operation before webhook registration - it should be in initial load
                 throw new TimeOfActionIsBeforeWebhookWasRegistered(proxy.actionTime, webhookRegistered);
             }
 
@@ -146,7 +147,7 @@ public class WebhookRequestsHandler {
         }
     }
 
-    private synchronized LocalDateTime getWebhookRegistered() {
+    private synchronized LocalDateTime getWebhookRegisteredTime() {
         if (webhookRegistered == null) {
             webhookRegistered = ExtraInfoEntity.getDateTime(Constants.WEBHOOK_REGISTERED_DATETIME);
         }

@@ -2,20 +2,14 @@ package dti.crmsis.back.dao.clientsback;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+
 import jakarta.persistence.*;
+
 import org.hibernate.annotations.Type;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-
-import java.util.UUID;
-
-
-
-
 
 @Entity
 @Table(name = "ORGANIZATIONS")
-public class OrganizationEntity extends PanacheEntityBase  implements HasSourceRequestId {
+public class OrganizationEntity extends PanacheEntityBase implements HasSourceRequestId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -23,9 +17,6 @@ public class OrganizationEntity extends PanacheEntityBase  implements HasSourceR
 
     @Column(name = "ID_PIPEDRIVE")
     public Long idPipedrive;
-
-
-
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json", name = "JSON")
@@ -35,19 +26,15 @@ public class OrganizationEntity extends PanacheEntityBase  implements HasSourceR
     public Long sourceRequestId;
 
     @Override
-    public void setSourceRequestId(Long sourceRequestId){
+    public void setSourceRequestId(Long sourceRequestId) {
         this.sourceRequestId = sourceRequestId;
     }
 
     @Override
-    public Long getSourceRequestId(){
+    public Long getSourceRequestId() {
         return this.sourceRequestId;
     }
 
     @Column(name = "IS_DELETED")
     public Boolean isDeleted = false;
-
-    
-
-
-} //close class
+} // close class

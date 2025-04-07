@@ -1,8 +1,5 @@
 package dti.crmsis.back.utils;
 
-import dti.crmsis.back.ApplicationLifecycleManager;
-import org.jboss.logging.Logger;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -11,7 +8,6 @@ import java.time.format.DateTimeParseException;
 
 public class DateUtils {
 
-    private static final Logger LOG = Logger.getLogger(DateUtils.class);
 
     static DateTimeFormatter exportFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -36,7 +32,6 @@ public class DateUtils {
             }
 
         }
-        LOG.error("CANT PARSE DATE: " + input);
         return null;
     }
 }

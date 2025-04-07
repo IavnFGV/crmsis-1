@@ -1,0 +1,4 @@
+services:
+  sb-b-sql-all_in_one:
+    volumes:
+      - /mnt/volume_5gb/mysql:/var/lib/mysql
