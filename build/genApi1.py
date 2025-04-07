@@ -389,6 +389,9 @@ public class ClientDataExtractorServiceGenerated {
     
     @Inject 
     CustomerDetailsService customerDetailsService;
+    
+    @Inject
+    RetryWrapper  retryWrapper;
 
     
     @Transactional
@@ -478,32 +481,9 @@ public class ClientDataExtractorServiceGenerated {
         ExtraInfoEntity.saveDateTime(WEBHOOK_REGISTERED_DATETIME, LocalDateTime.now(ZoneOffset.UTC));
     }
     
- private String wrapToRetry(Supplier<String> apiCall) {
-        int retry = 0;
-        String exceptionDecr = "[";
-        while (true) {
-            try {
-                return apiCall.get();
-            } catch (Exception e) {
-                retry++;
-                logger.error("Failed to fetch fields", e);
-
-                exceptionDecr += ("{\\"error\\":\\"" + e.getMessage() + "\\"},");
-                
-                if (exceptionDecr.contains("Payment Required, status code 402")){
-                    return exceptionDecr;
-                }    
-                if (retry > 5) {
-                    if (exceptionDecr.endsWith(",")) {
-                        exceptionDecr = exceptionDecr.substring(0, exceptionDecr.length() - 1);
-                    }
-                    exceptionDecr += "]";
-                    return exceptionDecr;
-                }
-            }
-        }
+     private String wrapToRetry(Supplier<String> apiCall) {
+       return retryWrapper.wrapToRetry(apiCall);
     }
-
 
     protected void generateInitialEvents(String updatedUntil, long rootEventId) {
 """

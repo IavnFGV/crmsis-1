@@ -1,7 +1,5 @@
 package dti.crmsis.back;
 
-import dti.crmsis.back.services.Constants;
-import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
@@ -9,39 +7,36 @@ import jakarta.ws.rs.client.ClientResponseContext;
 import jakarta.ws.rs.client.ClientResponseFilter;
 import org.jboss.logging.Logger;
 
-
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+
+import static dti.crmsis.back.services.Constants.MAX_REQUESTS_PER_SECOND;
 
 @Priority(5000)
 public class RateLimitFilter implements ClientResponseFilter , ClientRequestFilter {
 
-    private static Semaphore semaphore;
     private static final Logger log = Logger.getLogger(RateLimitFilter.class);
-    {
-        log.info("Rate limit filter created.");
-    }
+    private static TokenBucket tokenBucket;
+
 
     public void init() {
         log.info("Rate limit filter initialized.");
-        semaphore = new Semaphore(Constants.MAX_REQUESTS_PER_SECOND);
+        tokenBucket = new TokenBucket(MAX_REQUESTS_PER_SECOND);
     }
 
     @Override
-    public void filter(ClientRequestContext clientRequestContext) throws IOException {
+    public void filter(ClientRequestContext requestContext) throws IOException {
         try {
-            while (!semaphore.tryAcquire(1, TimeUnit.SECONDS)) {
-                log.warn("Rate limit exceeded. Waiting for semaphore.");
-            }
+            tokenBucket.consume(); // блокирует, если нет токенов
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IOException("Request interrupted while waiting for semaphore.", e);
+            throw new IOException("Interrupted while waiting for token", e);
         }
     }
 
     @Override
-    public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
-        semaphore.release();
+    public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
+        // nothing to do
     }
+
+
 }

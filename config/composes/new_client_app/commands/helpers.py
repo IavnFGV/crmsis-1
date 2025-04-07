@@ -37,7 +37,7 @@ def update_nginx_config(customer_name: str, nginx_conf_path: str):
         content = f.read()
     new_location = f"""
       location /v1/webhook/{customer_name} {{
-            proxy_pass http://sb_b_app_wh_{customer_name};
+            proxy_pass http://sb_b_app_wh_{customer_name}:8080;
       }}
       location /api/{customer_name}{{
           proxy_pass http://sb_b_app_{customer_name}:8080;

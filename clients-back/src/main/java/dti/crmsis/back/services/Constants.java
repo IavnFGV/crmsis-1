@@ -31,7 +31,7 @@ public class Constants {
     public String urlForWebhooks;
     @ConfigProperty(name = "PAGE_LIMIT", defaultValue = "200")
     public Integer pageLimit;
-    @ConfigProperty(name = "MAX_REQUESTS_PER_SECOND",defaultValue = "18")
+    @ConfigProperty(name = "MAX_REQUESTS_PER_SECOND",defaultValue = "9")
     public Integer maxRequestPerSecond;
 
 
