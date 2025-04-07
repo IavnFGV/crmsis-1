@@ -1,12 +1,12 @@
 package dti.crmsis.back;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dti.crmsis.back.dao.crmsis.RawRequestEntityWebhook;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -19,11 +19,20 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.concurrent.*;
 
 @Path("/v1")
 public class Version1 {
 
     private static final Logger log = Logger.getLogger(Version1.class);
+
+    private static final String FALLBACK_PATH = "/tmp/webhook-fallback.dump";
+
+    private static final int QUEUE_CAPACITY = 500;
+    private static final int WORKER_THREADS = 4;
+
+    private static final BlockingQueue<WebhookTask> taskQueue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+    private static final ExecutorService taskExecutor = Executors.newFixedThreadPool(WORKER_THREADS);
 
     @Inject
     MeterRegistry meterRegistry;
@@ -31,8 +40,25 @@ public class Version1 {
     @Inject
     ObjectMapper mapper;
 
-    private static final String FALLBACK_PATH = "/tmp/webhook-fallback.dump";
-
+    @PostConstruct
+    void initWorkerThreads() {
+        for (int i = 0; i < WORKER_THREADS; i++) {
+            taskExecutor.execute(() -> {
+                while (true) {
+                    try {
+                        WebhookTask task = taskQueue.take();
+                        try {
+                            saveToDatabase(task.customerName, task.jsonBody);
+                        } catch (Exception ex) {
+                            fallbackToFile(task.customerName, task.jsonBody, ex);
+                        }
+                    } catch (Exception e) {
+                        log.error("Worker thread crashed", e);
+                    }
+                }
+            });
+        }
+    }
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -49,14 +75,14 @@ public class Version1 {
         Timer.Sample timer = Timer.start(meterRegistry);
         meterRegistry.counter(Version1.class.getSimpleName() + "." + methodName).increment();
 
-        try {
-            saveToDatabase(customerName, jsonBody);
-        } catch (Exception dbEx) {
-            fallbackToFile(customerName, jsonBody, dbEx);
+        boolean accepted = taskQueue.offer(new WebhookTask(customerName, jsonBody));
+        if (!accepted) {
+            log.error("Queue is full — saving directly to file.");
+            fallbackToFile(customerName, jsonBody, new RuntimeException("Queue overflow"));
         }
 
         timer.stop(meterRegistry.timer("timer-" + Version1.class.getSimpleName() + "." + methodName));
-        return Response.ok("{\"status\":\"saved\"}", MediaType.APPLICATION_JSON).build();
+        return Response.ok("{\"status\":\"queued\"}", MediaType.APPLICATION_JSON).build();
     }
 
     @Transactional
@@ -78,11 +104,13 @@ public class Version1 {
             writer.println(mapper.writeValueAsString(entry));
             writer.flush();
         } catch (JsonProcessingException e) {
-            log.error("Unable to write fallback webhook to file", e);
+            log.error("Failed to serialize fallback JSON", e);
             log.error(jsonBody);
         } catch (IOException ioEx) {
-            log.fatal("Unable to write fallback webhook to file", ioEx);
+            log.fatal("Failed to write to fallback file", ioEx);
             log.fatal(jsonBody);
         }
     }
+
+    public record WebhookTask(String customerName, String jsonBody) {}
 }
