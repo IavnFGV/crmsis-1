@@ -16,6 +16,8 @@ services:
       - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_ENABLED=true
       - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_PATH=/metrics
       - MP_METRICS_ENABLED=true
+    volumes:
+      - /mnt/volume_20gb/sb_b_app_wh_$@{SB_APP_URL_PATH}:/opt/external_data
     networks:
       - sb_network
 

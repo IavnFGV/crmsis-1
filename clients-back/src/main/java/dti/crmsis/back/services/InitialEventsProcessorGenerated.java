@@ -82,7 +82,17 @@ public class InitialEventsProcessorGenerated {
                 executorService.getActiveCount(),
                 executorService.getQueue().size(),
                 executorService.getLargestPoolSize());
-        executorService.submit(() -> persistEntities(entities, entityName));
+
+        for (int i = 0; i < entities.size(); i += 100) {
+            List<PanacheEntityBase> chunk = entities.subList(
+                    i,
+                    Math.min(i + 100, entities.size())
+            );
+            executorService.submit(() -> persistEntities(chunk, entityName));
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ignored) {}
+        }
     }
 
     private synchronized LocalDateTime getWebhookRegisteredTime() {
@@ -151,7 +161,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Activities DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Activities processed. Events = "
@@ -223,7 +234,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Ref_Activity_Fields DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Ref_Activity_Fields processed. Events = "
@@ -293,7 +305,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Activity_Types DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Activity_Types processed. Events = "
@@ -363,7 +376,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Currencies DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Currencies processed. Events = "
@@ -433,7 +447,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Ref_Deal_Fields DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Ref_Deal_Fields processed. Events = "
@@ -502,7 +517,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Deals DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Deals processed. Events = "
@@ -572,7 +588,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Lead_Labels DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Lead_Labels processed. Events = "
@@ -641,7 +658,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Leads DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Leads processed. Events = "
@@ -710,7 +728,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Notes DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Notes processed. Events = "
@@ -784,7 +803,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Ref_Organization_Fields DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Ref_Organization_Fields processed. Events = "
@@ -854,7 +874,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Organizations DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Organizations processed. Events = "
@@ -924,7 +945,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Ref_Person_Fields DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Ref_Person_Fields processed. Events = "
@@ -994,7 +1016,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Persons DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Persons processed. Events = "
@@ -1064,7 +1087,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Pipelines DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Pipelines processed. Events = "
@@ -1134,7 +1158,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Ref_Product_Fields DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Ref_Product_Fields processed. Events = "
@@ -1204,7 +1229,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Products DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Products processed. Events = "
@@ -1274,7 +1300,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Projects DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Projects processed. Events = "
@@ -1343,7 +1370,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Roles DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Roles processed. Events = "
@@ -1412,7 +1440,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Stages DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Stages processed. Events = "
@@ -1481,7 +1510,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Tasks DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Tasks processed. Events = "
@@ -1550,7 +1580,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Users DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Users processed. Events = "
@@ -1620,7 +1651,8 @@ public class InitialEventsProcessorGenerated {
                 }
             }
             logger.info(pageIndex + " Webhooks DONE");
-            pageIndex++; // Переход к следующей странице
+            pageIndex++;
+System.gc(); // Переход к следующей странице
         }
         logger.info(
                 "Webhooks processed. Events = "

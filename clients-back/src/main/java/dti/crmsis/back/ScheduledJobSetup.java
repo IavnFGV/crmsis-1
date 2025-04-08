@@ -78,15 +78,16 @@ public class ScheduledJobSetup {
         });
     }
 
-    boolean initialInitCall = false;
+    private final AtomicBoolean initialInitCall = new AtomicBoolean(false);
 
     @Scheduled(delayed = "10s", every = "PT10000H")// 416 days
-    void initialInit() {
-        if (!initialInitCall) {
-            initialInitCall = true;
+    void  initialInit() {
+        if (initialInitCall.compareAndSet(false, true)) {
             executor.execute(() -> {
                 initDataService.start();
             });
+        } else {
+            LOG.warn("Initial sync already triggered. Skipping.");
         }
     }
 

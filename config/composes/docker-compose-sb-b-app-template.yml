@@ -31,6 +31,13 @@ services:
       - CUSTOMER_PIPEDRIVE_URL=$@{CUSTOMER_PIPEDRIVE_URL}
     networks:
       - sb_network
+    volumes:
+      - /mnt/volume_20gb/sb_b_app_$@{SB_APP_URL_PATH}:/opt/external_data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.70'
+          memory: 1G
 
 networks:
   sb_network:
