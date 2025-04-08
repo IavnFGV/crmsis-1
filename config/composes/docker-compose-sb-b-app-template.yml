@@ -23,7 +23,7 @@ services:
       - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_ENABLED=true
       - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_PATH=/metrics
       - MP_METRICS_ENABLED=true
-      - QUARKUS_TRANSACTION_MANAGER_DEFAULT_TRANSACTION_TIMEOUT=240
+      - QUARKUS_TRANSACTION_MANAGER_DEFAULT_TRANSACTION_TIMEOUT=600
       - URL_FOR_WEBHOOKS=${URL_FOR_WEBHOOKS}
       - APP_TOKEN=$@{SB_APP_TOKEN}
       - CUSTOMER_FULL_NAME=$@{CUSTOMER_FULL_NAME}
@@ -32,7 +32,7 @@ services:
     networks:
       - sb_network
     volumes:
-      - /mnt/volume_20gb/sb_b_app_$@{SB_APP_URL_PATH}:/opt/external_data
+      - /mnt/docker_data/sb_b_app_$@{SB_APP_URL_PATH}/external_data:/opt/external_data
     deploy:
       resources:
         limits:

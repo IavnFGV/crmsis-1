@@ -14,7 +14,8 @@ services:
     volumes:
       - ../config/scripts/all_in_one.sql:/docker-entrypoint-initdb.d/init.sql
       - ../config/mysql/my.cnf:/etc/mysql/my.cnf
-      - /mnt/volume_20gb/sb_b_sql_all_in_one:/opt/external_data
+      - /mnt/docker_data/sb_b_sql_all_in_one/external_data:/opt/external_data
+      - /mnt/docker_data/sb_b_sql_all_in_one/mysql:/var/lib/mysql
 #      sql:
     ports:
       - "${SB_APP_MYSQL_PORT}:3306"

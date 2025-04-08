@@ -76,6 +76,9 @@ public class InitialEventsProcessorGenerated {
         PanacheEntityBase.persist(entities);
     }
 
+    @Inject
+    InitialEventsProcessorGenerated self;
+
     public void persistEntitiesAsync(List<PanacheEntityBase> entities, String entityName) {
         logger.infof(
                 "active %d queue %d max %d",
@@ -88,7 +91,7 @@ public class InitialEventsProcessorGenerated {
                     i,
                     Math.min(i + 100, entities.size())
             );
-            executorService.submit(() -> persistEntities(chunk, entityName));
+            executorService.submit(() -> self.persistEntities(chunk, entityName));
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ignored) {}
