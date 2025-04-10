@@ -5,3 +5,4 @@
 /config/composes/environment.env
 /.idea/**
 /config/composes/.env
+/config/bigquery/credentials.json
