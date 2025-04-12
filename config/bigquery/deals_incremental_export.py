@@ -32,8 +32,10 @@ if state_path.exists():
         state = json.load(f)
 else:
     state = {"last_exported_id": 0}
+    initial_load = True
 
 last_exported_id = state.get("last_exported_id", 0)
+initial_load = state.get("initial_load", False)
 logger.info(f"Last exported SOURCE_REQUEST_ID: {last_exported_id}")
 
 from sqlalchemy import create_engine, text
@@ -75,6 +77,8 @@ with engine.connect() as conn:
     logger.info(f"Prepared {len(ref_map)} custom field aliases")
 
 import pandas as pd
+from bq_type_resolver import resolve_bq_types
+
 
 # === Генерация SQL-запроса с агрегацией кастомных полей ===
 used_keys = list(ref_map.keys())
@@ -134,50 +138,26 @@ for i in range(len(all_fields)):
 select_lines.append("FROM SB_PD_OKACADEMY.DEALS d FORCE INDEX (idx_deals_source_request)")
 select_lines.append("LEFT JOIN custom_fields_agg dc")
 select_lines.append("  ON dc.MAIN_ENTITY_PIPEDRIVE_ID = d.ID_PIPEDRIVE")
-select_lines.append(" AND dc.SOURCE_REQUEST_ID <=> d.SOURCE_REQUEST_ID")
-# select_lines.append(f"WHERE d.SOURCE_REQUEST_ID > {last_exported_id}")
+if not initial_load:
+    select_lines.append(" AND dc.SOURCE_REQUEST_ID <=> d.SOURCE_REQUEST_ID")
+    select_lines.append(f"WHERE d.SOURCE_REQUEST_ID > {last_exported_id}")
+else:
+    select_lines.append(" AND dc.SOURCE_REQUEST_ID = d.SOURCE_REQUEST_ID")
+
 select_lines.append("GROUP BY d.SOURCE_REQUEST_ID, d.ID_PIPEDRIVE")
-select_lines.append("LIMIT 100")
+
 
 final_sql = "\n".join(cte_lines + select_lines)
 
 logger.info("Executing dynamic SQL to load new data...")
 df = pd.read_sql(final_sql, con=engine)
 logger.info(f"Loaded {len(df)} new rows from MySQL")
+# === Определение и сохранение типов колонок (централизованно) ===
+schema_path = Path(__file__).resolve().parent / "schema_map.json"
+schema_map = resolve_bq_types(df, schema_path, logger)
+
 
 from google.cloud import bigquery
-
-# === Синхронизация schema_map.json ===
-schema_path = Path(__file__).resolve().parent / "schema_map.json"
-if schema_path.exists():
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema_map = json.load(f)
-else:
-    schema_map = {}
-
-# === Определяем типы данных BigQuery для новых столбцов ===
-def infer_bq_type(value) -> str:
-    if isinstance(value, int):
-        return "INT64"
-    if isinstance(value, float):
-        return "FLOAT64"
-    return "STRING"
-
-new_columns = {}
-sample_row = df.iloc[0] if not df.empty else {}
-
-for col in df.columns:
-    if col not in schema_map:
-        sample_value = sample_row[col] if col in sample_row else ""
-        new_columns[col] = infer_bq_type(sample_value)
-
-if new_columns:
-    logger.info(f"Detected {len(new_columns)} new columns: {list(new_columns.keys())}")
-    schema_map.update(new_columns)
-    with open(schema_path, "w", encoding="utf-8") as f:
-        json.dump(schema_map, f, indent=2)
-else:
-    logger.info("No new columns found for BigQuery schema")
 
 # === Инициализация клиента BigQuery ===
 bq_client = bigquery.Client(project=GCP_PROJECT_ID)
@@ -218,7 +198,7 @@ if missing_fields:
 else:
     logger.info("Table schema is up to date")
 
-from datetime import datetime
+# from datetime import datetime
 from google.cloud.bigquery import LoadJobConfig, WriteDisposition
 
 if df.empty:
@@ -230,27 +210,6 @@ from datetime import datetime, timezone
 timestamp_suffix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 temp_table_ref = f"{table_ref}_staging_{timestamp_suffix}"
 
-# Обновление schema_map на основе реальных типов df
-def infer_bq_type(series: pd.Series) -> str:
-    if pd.api.types.is_integer_dtype(series):
-        return "INT64"
-    if pd.api.types.is_float_dtype(series):
-        return "FLOAT64"
-    if pd.api.types.is_datetime64_any_dtype(series):
-        return "TIMESTAMP"
-    return "STRING"
-
-new_columns = {}
-for col in df.columns:
-    if col not in schema_map:
-        new_columns[col] = infer_bq_type(df[col])
-
-if new_columns:
-    logger.info(f"New inferred fields: {new_columns}")
-    schema_map.update(new_columns)
-    with open(schema_path, "w", encoding="utf-8") as f:
-        json.dump(schema_map, f, indent=2)
-
 # Загружаем во временную таблицу
 job_config = LoadJobConfig(schema=bq_schema, write_disposition=WriteDisposition.WRITE_TRUNCATE)
 load_job = bq_client.load_table_from_dataframe(df, temp_table_ref, job_config=job_config)
@@ -258,7 +217,7 @@ load_job.result()
 logger.info(f"Uploaded data to temporary table: {temp_table_ref}")
 
 # === MERGE UPSERT ===
-merge_condition = "T.SOURCE_REQUEST_ID = S.SOURCE_REQUEST_ID"
+merge_condition = "T.SOURCE_REQUEST_ID IS NOT DISTINCT FROM S.SOURCE_REQUEST_ID AND T.ID_PIPEDRIVE = S.ID_PIPEDRIVE"
 update_assignments = ", ".join([f"T.{col} = S.{col}" for col in df.columns])
 insert_columns = ", ".join(df.columns)
 insert_values = ", ".join([f"S.{col}" for col in df.columns])
@@ -276,8 +235,14 @@ bq_client.query(merge_sql).result()
 logger.info("UPSERT completed successfully")
 
 # === Обновляем last_exported_id ===
-new_max_id = df["SOURCE_REQUEST_ID"].max()
-state["last_exported_id"] = int(new_max_id)
+if initial_load:
+    logger.info(f"Initial load of {len(df)} new rows from BigQuery table")
+    state["initial_load"] = False
+else:
+    new_max_id = df["SOURCE_REQUEST_ID"].max()
+    logger.info(f"Updated last_exported_id to {new_max_id}")
+    state["last_exported_id"] = int(new_max_id)
+
 with open(state_path, "w", encoding="utf-8") as f:
     json.dump(state, f, indent=2)
-logger.info(f"Updated last_exported_id to {new_max_id}")
+logger.info(f"State is saved:{state}")

@@ -4,3 +4,4 @@ python-dotenv
 google-cloud-bigquery
 mysql-connector-python
 pyarrow
+pandas-gbq>=0.26.1
