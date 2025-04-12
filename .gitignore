@@ -6,3 +6,11 @@
 /.idea/**
 /config/composes/.env
 /config/bigquery/credentials.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# venv
+venv/
+.config/composes/new_client_app/venv/
