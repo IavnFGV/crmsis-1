@@ -23,14 +23,21 @@ public class DateUtils {
             } catch (DateTimeParseException ignored) {
                 // fallback to other formats
             }
-        } else {//Pipedrive export format (e.g. 2024-09-12 05:37:00) — assume UTC
-            try {
-                LocalDateTime dateTime = LocalDateTime.parse(input, exportFormat);
-                return dateTime; // interpreted as UTC
-            } catch (DateTimeParseException ignored) {
-                // fallback to error
-            }
+        }
+        //Pipedrive export format (e.g. 2024-09-12 05:37:00) — assume UTC
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(input, exportFormat);
+            return dateTime; // interpreted as UTC
+        } catch (DateTimeParseException ignored) {
+            // fallback to error
+        }
 
+        try {
+            long epochSeconds = Long.parseLong(input);
+            Instant instant = Instant.ofEpochSecond(epochSeconds);
+            return LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+        } catch (NumberFormatException ignored) {
+            // not a valid long
         }
         return null;
     }

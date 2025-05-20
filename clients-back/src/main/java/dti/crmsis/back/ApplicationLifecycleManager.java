@@ -41,10 +41,10 @@ public class ApplicationLifecycleManager {
     private void doSomethingOnStartup() {
         constants.init();
         rateLimitFilter.init();
-        webhookRequestsHandler.init();
-        knownFieldService.init();
-        timeZoneService.init(timeZoneService);
-        scheduledJobSetup.activate();
+//        webhookRequestsHandler.init();
+//        knownFieldService.init();
+//        timeZoneService.init(timeZoneService);
+//        scheduledJobSetup.activate();
     }
 
     private void cleanupOnShutdown() {

@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 @Priority(1000)
 public class ApiTokenRequestFilter implements ClientRequestFilter {
 
-    @ConfigProperty(name = "APP_TOKEN")
+    @ConfigProperty(name = "app.token")
     public String apiToken;
 
     public void setApiToken(String apiToken) {

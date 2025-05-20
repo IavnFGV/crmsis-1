@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/build/build.iml" filepath="$PROJECT_DIR$/build/build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients-back.main.iml" filepath="$PROJECT_DIR$/.idea/modules/clients-back.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients-back.test.iml" filepath="$PROJECT_DIR$/.idea/modules/clients-back.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/clients-ui.iml" filepath="$PROJECT_DIR$/clients-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/crmsis-1.iml" filepath="$PROJECT_DIR$/.idea/crmsis-1.iml" />
     </modules>
