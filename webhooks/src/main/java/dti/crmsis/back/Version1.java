@@ -3,7 +3,7 @@ package dti.crmsis.back;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dti.crmsis.back.dao.crmsis.RawRequestEntityWebhook;
+import dti.crmsis.back.dao.wh.RawRequestEntityWebhook;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import jakarta.annotation.PostConstruct;

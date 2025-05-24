@@ -2,9 +2,9 @@ package dti.crmsis.back.services.webhooks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dti.crmsis.back.clients.dto.Pair;
-import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
-import dti.crmsis.back.dao.clientsback.ProcessReportEntity;
-import dti.crmsis.back.dao.crmsis.RawRequestEntity;
+import dti.crmsis.back.dao.pd.ExtraInfoEntity;
+import dti.crmsis.back.dao.pd.ProcessReportEntity;
+import dti.crmsis.back.dao.wh.RawRequestEntity;
 import dti.crmsis.back.dao.sql.RawRequestNativeRepository;
 import dti.crmsis.back.services.Constants;
 import io.quarkus.panache.common.Page;

@@ -16,15 +16,15 @@ class StatusApp(App):
 
     def connect_db(self):
         return mysql.connector.connect(
-            user=os.getenv("SB_ADMIN_MYSQL_USER"),
-            password=os.getenv("SB_ADMIN_MYSQL_PASSWORD"),
-            host="localhost",
-            port=os.getenv("SB_ADMIN_MYSQL_PORT"),
+            user=os.getenv("SB_ADMIN_SQL_USER"),
+            password=os.getenv("SB_ADMIN_SQL_PASSWORD"),
+            host=os.getenv("SB_ADMIN_SQL_HOST"),
+            port=os.getenv("SB_ADMIN_SQL_PORT"),
             database="SB_ADMIN"
         )
 
     def on_mount(self):
-        load_dotenv()
+        load_dotenv("../revised.env")
         try:
             conn = self.connect_db()
             cursor = conn.cursor()

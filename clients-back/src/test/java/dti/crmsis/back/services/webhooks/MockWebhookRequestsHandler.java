@@ -1,9 +1,6 @@
 package dti.crmsis.back.services.webhooks;
 
-import dti.crmsis.back.dao.crmsis.RawRequestEntity;
-import dti.crmsis.back.services.webhooks.WebhookRequestsHandler;
-import io.quarkus.test.Mock;
-import jakarta.enterprise.context.ApplicationScoped;
+import dti.crmsis.back.dao.wh.RawRequestEntity;
 
 import java.util.Collections;
 import java.util.List;

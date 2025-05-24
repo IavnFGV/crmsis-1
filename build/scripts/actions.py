@@ -29,4 +29,8 @@ def rebuild_clients_back_app():
 
 
 def start_database():
+    script_path = f"./linux/start_all_in_one_database.sh"
+    execute_shell_command(script_path)
 
+
+start_database()

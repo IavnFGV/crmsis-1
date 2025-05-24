@@ -1,7 +1,5 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.dao.clientsback.RefField;
-
 import java.util.List;
 
 public class JsonToEntityServiceAnswer<E, CF, CFR> {

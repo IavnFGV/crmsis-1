@@ -1,4 +1,4 @@
-package dti.crmsis.back.dao.clientsback;
+package dti.crmsis.back.dao.pd;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;

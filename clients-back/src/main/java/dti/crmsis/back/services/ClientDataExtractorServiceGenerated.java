@@ -7,8 +7,8 @@ import dti.crmsis.back.clients.dto.NewWebhookRequest;
 import dti.crmsis.back.clients.dto.WebhookRegistrationResponse;
 import dti.crmsis.back.clients.dto.WebhookResponse;
 import dti.crmsis.back.clients.generated.PipedriveRestClientGeneratedV1;
-import dti.crmsis.back.dao.clientsback.EventEntity;
-import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
+import dti.crmsis.back.dao.pd.EventEntity;
+import dti.crmsis.back.dao.pd.ExtraInfoEntity;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
