@@ -102,6 +102,7 @@ class AddClientApp(App):
             # Генерация docker-compose
             replacements = {
                 "$@{SB_CUSTOMER_NAME}": customer_name,
+                "$@{SB_UPPER_CUSTOMER_NAME}": customer_name.upper(),
                 "$@{SB_PD_DATABASE_NAME}": pd_db,
                 "$@{SB_WH_DATABASE_NAME}": wh_db,
                 "$@{SB_APP_DATABASE_NAME}":sb_app_db,

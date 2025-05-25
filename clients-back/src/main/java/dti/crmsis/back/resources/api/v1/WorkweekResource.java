@@ -1,12 +1,16 @@
 package dti.crmsis.back.resources.api.v1;
 
 import dti.crmsis.back.dao.app.Workweek;
+import dti.crmsis.back.dao.pd.UserEntity;
 import dti.crmsis.back.dto.v1.WorkweekDto;
 import dti.crmsis.back.services.WorkweekService;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.List;
 
 @Path("/api/v1/workweek")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -15,6 +19,7 @@ public class WorkweekResource {
 
     @Inject
     WorkweekService service;
+
 
     @GET
     @Path("/{managerId}")
@@ -33,6 +38,17 @@ public class WorkweekResource {
     @GET
     public Response getAll() {
         return Response.ok(service.getAll()).build();
+    }
+
+    @GET
+    @Path("/users")
+    public Response getAllUsers() {
+        return Response.ok(getAllManagers()).build();
+    }
+
+    @Transactional
+    List<UserEntity> getAllManagers() {
+        return UserEntity.listAll();
     }
 
 }

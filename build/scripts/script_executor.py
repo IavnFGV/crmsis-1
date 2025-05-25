@@ -1,10 +1,8 @@
 from subprocess import Popen, PIPE
 import sys
 import os
-from typing import Tuple, Optional
 from threading import Thread
 import logger
-from io import StringIO
 
 # Configure logger
 logger = logger.get_logger("script_executor")
@@ -53,7 +51,7 @@ def get_script_extension():
 
 def run_dual_script(script_name: str, check_return: bool = True) -> int:
     script_ext = get_script_extension()
-    script_path = f".{script_ext[0]}/{script_name}{script_ext[1]}"
+    script_path = f"./{script_ext[0]}/{script_name}{script_ext[1]}"
 
     # Make script executable on Linux
     if sys.platform != "win32":

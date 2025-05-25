@@ -98,6 +98,10 @@ public class ClientDataExtractorServiceGenerated {
             logger.info("Webhook has been already registered!");
             return true;
         }
+        if(Constants.URL_FOR_WEBHOOKS.equals("VAR_IS_ABSENT")){
+            logger.info("Webhook url is not set! But we can do data synchronisation");
+            return true;
+        }
 
         WebhookResponse response = webhooksRestClientV1.getAll(customerInfo.getApiToken());
         boolean alreadyRegistered =

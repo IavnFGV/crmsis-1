@@ -1,5 +1,5 @@
 import os
-from script_executor import *
+import script_executor
 
 from file_utils import load_file
 
@@ -20,17 +20,14 @@ def get_openApi_v2(config_map=cf, force_load=False):
 
 
 def rebuild_webhooks_app():
-    build_webhooks_app()
-    build_webhooks_docker_image()
+    script_executor.build_webhooks_app()
+    script_executor.build_webhooks_docker_image()
 
 def rebuild_clients_back_app():
-    build_webhooks_app()
-    build_webhooks_docker_image()
+    script_executor.build_clients_back_app()
+    script_executor.build_clients_back_docker_image()
 
 
 def start_database():
     script_path = f"./linux/start_all_in_one_database.sh"
-    execute_shell_command(script_path)
-
-
-start_database()
+    script_executor.execute_shell_command(script_path)
