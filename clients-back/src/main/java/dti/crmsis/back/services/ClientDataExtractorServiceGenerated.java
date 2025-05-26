@@ -7,8 +7,8 @@ import dti.crmsis.back.clients.dto.NewWebhookRequest;
 import dti.crmsis.back.clients.dto.WebhookRegistrationResponse;
 import dti.crmsis.back.clients.dto.WebhookResponse;
 import dti.crmsis.back.clients.generated.PipedriveRestClientGeneratedV1;
-import dti.crmsis.back.dao.clientsback.EventEntity;
-import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
+import dti.crmsis.back.dao.pd.EventEntity;
+import dti.crmsis.back.dao.pd.ExtraInfoEntity;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -96,6 +96,10 @@ public class ClientDataExtractorServiceGenerated {
 
         if (dateTime != null) {
             logger.info("Webhook has been already registered!");
+            return true;
+        }
+        if(Constants.URL_FOR_WEBHOOKS.equals("VAR_IS_ABSENT")){
+            logger.info("Webhook url is not set! But we can do data synchronisation");
             return true;
         }
 

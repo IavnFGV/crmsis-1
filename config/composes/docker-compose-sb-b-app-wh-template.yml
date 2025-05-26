@@ -1,14 +1,14 @@
 services:
   sb-b-app-wh-$@{SERVICE_SUFFIX}:
     image: ivandrozda/sb-b-app-webhooks:latest
-    container_name: sb_b_app_wh_$@{SB_APP_URL_PATH}
+    container_name: sb_b_app_wh_$@{SB_CUSTOMER_NAME}
     restart: unless-stopped
     environment:
       - QUARKUS_DATASOURCE_DB_KIND=mysql
-      - QUARKUS_DATASOURCE_USERNAME=${SB_APP_MYSQL_USER}
-      - QUARKUS_DATASOURCE_PASSWORD=${SB_APP_MYSQL_PASSWORD}
+      - QUARKUS_DATASOURCE_USERNAME=${SB_WH_SQL_USER}
+      - QUARKUS_DATASOURCE_PASSWORD=${SB_WH_SQL_PASSWORD}
       - QUARKUS_DATASOURCE_JDBC_MAX_SIZE=5
-      - QUARKUS_DATASOURCE_JDBC_URL=JDBC:MYSQL://${SB_APP_MYSQL_HOST}:3306/$@{SB_NEW_WH_DATABASE_NAME}
+      - QUARKUS_DATASOURCE_JDBC_URL=JDBC:MYSQL://${SB_WH_SQL_HOST}:3306/$@{SB_WH_DATABASE_NAME}
       - QUARKUS_HIBERNATE-ORM_DATABASE_GENERATION=create
       - QUARKUS_HTTP_PORT=8080
       - QUARKUS_LOG_CONSOLE_DARKEN=10
@@ -17,7 +17,7 @@ services:
       - QUARKUS_MICROMETER_EXPORT_PROMETHEUS_PATH=/metrics
       - MP_METRICS_ENABLED=true
     volumes:
-      - /mnt/docker_data/sb_b_app_wh_$@{SB_APP_URL_PATH}/external_data:/opt/external_data
+      - /mnt/docker_data/sb_b_app_wh_$@{SB_CUSTOMER_NAME}/external_data:/opt/external_data
     networks:
       - sb_network
 

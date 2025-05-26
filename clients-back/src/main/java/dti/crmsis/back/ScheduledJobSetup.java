@@ -1,6 +1,6 @@
 package dti.crmsis.back;
 
-import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
+import dti.crmsis.back.dao.pd.ExtraInfoEntity;
 import dti.crmsis.back.services.Constants;
 import dti.crmsis.back.services.InitDataService;
 import dti.crmsis.back.services.webhooks.WebhookRequestsHandler;

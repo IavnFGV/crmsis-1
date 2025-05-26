@@ -27,7 +27,7 @@ public class Constants {
     public static int PAGE_LIMIT;
     public static int MAX_REQUESTS_PER_SECOND;
 
-    @ConfigProperty(name = "URL_FOR_WEBHOOKS")
+    @ConfigProperty(name = "url.for.webhooks", defaultValue = "VAR_IS_ABSENT")
     public String urlForWebhooks;
     @ConfigProperty(name = "PAGE_LIMIT", defaultValue = "200")
     public Integer pageLimit;

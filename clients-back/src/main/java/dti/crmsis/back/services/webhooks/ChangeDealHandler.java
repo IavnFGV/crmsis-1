@@ -1,6 +1,5 @@
 package dti.crmsis.back.services.webhooks;
 
-import dti.crmsis.back.dao.clientsback.DealEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped

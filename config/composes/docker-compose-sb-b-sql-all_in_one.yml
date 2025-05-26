@@ -4,10 +4,10 @@ services:
     container_name: sb_b_sql_all_in_one
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${SB_APP_MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: SB_APP
-      MYSQL_USER: ${SB_APP_MYSQL_USER}
-      MYSQL_PASSWORD: ${SB_APP_MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SB_DEFAULT_SQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: SB_DEFAULT
+      MYSQL_USER: ${SB_DEFAULT_SQL_USER}
+      MYSQL_PASSWORD: ${SB_DEFAULT_SQL_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - sb_network
@@ -18,7 +18,7 @@ services:
       - /mnt/docker_data/sb_b_sql_all_in_one/mysql:/var/lib/mysql
 #      sql:
     ports:
-      - "${SB_APP_MYSQL_PORT}:3306"
+      - "${SB_DEFAULT_SQL_PORT}:3306"
     deploy:
       resources:
         limits:

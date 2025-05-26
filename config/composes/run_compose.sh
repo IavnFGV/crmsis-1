@@ -40,10 +40,26 @@ run_compose() {
   fi
 
   # === Load environment variables ===
-  if [ -f "$ENV_FILE" ]; then
-    echo "📄 Loading environment variables from: $ENV_FILE"
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
+# === Load environment variables from all .env files ===
+ENV_DIR="$(pwd)"
+for env_file in "$ENV_DIR"/*.env; do
+  if [ -f "$env_file" ]; then
+    echo "📄 Loading environment variables from: $env_file"
+    while IFS= read -r line || [ -n "$line" ]; do
+      # Skip comments and empty lines
+      if [[ $line && ! $line =~ ^[[:space:]]*# ]]; then
+        # Remove any inline comments
+        line=${line%%#*}
+        # Trim whitespace
+        line=$(echo "$line" | xargs)
+        if [ -n "$line" ]; then
+          export "$line"
+          echo $line
+        fi
+      fi
+    done < "$env_file"
   fi
+done
 
   # === Handle external networks ===
   echo "🔍 Checking for external networks..."

@@ -63,7 +63,7 @@ class AddClientApp(App):
     async def on_button_pressed(self, event: Button.Pressed):
         full_name = self.query_one("#full_name", Input).value.strip()
         url = self.query_one("#url", Input).value.strip()
-        customer_name = self.query_one("#customer_name", Input).value.strip()
+        customer_name = self.query_one("#customer_name", Input).value.strip().lower()
         token = self.query_one("#token", Input).value.strip()
         msg = self.query_one("#message", Static)
 
@@ -73,10 +73,10 @@ class AddClientApp(App):
             msg.update("❌ All fields must be filled.")
             return
 
-        load_dotenv()
+        load_dotenv("../revised.env")
 
         try:
-            admin_conn = self.connect_db("SB_ADMIN_MYSQL_USER", "SB_ADMIN_MYSQL_PASSWORD", "SB_ADMIN_MYSQL_PORT", "SB_ADMIN")
+            admin_conn = self.connect_db("SB_ADMIN_SQL_USER", "SB_ADMIN_SQL_PASSWORD", "SB_ADMIN_SQL_PORT", "SB_ADMIN")
             admin_cursor = admin_conn.cursor()
 
             if self.customer_exists(admin_cursor, customer_name):
@@ -89,21 +89,23 @@ class AddClientApp(App):
             admin_conn.close()
 
             # Создание баз
-            root_conn = self.connect_db("root", "SB_CLIENTS_BACK_MYSQL_ROOT_PASSWORD", "SB_CLIENTS_BACK_MYSQL_PORT")
+            root_conn = self.connect_db("root", "SB_DEFAULT_SQL_ROOT_PASSWORD", "SB_DEFAULT_SQL_PORT")
             root_cursor = root_conn.cursor()
 
             pd_db = create_db(root_cursor, "SB_PD", customer_name, "sb_usr")
             wh_db = create_db(root_cursor, "SB_WH", customer_name, "sb_usr")
+            sb_app_db = create_db(root_cursor, "SB_APP", customer_name, "sb_usr")
             root_conn.commit()
             root_cursor.close()
             root_conn.close()
 
             # Генерация docker-compose
             replacements = {
-                "$@{SB_APP_URL_PATH}": customer_name,
-                "$@{SB_NEW_DATABASE_NAME}": pd_db,
-                "$@{SB_NEW_WH_DATABASE_NAME}": wh_db,
-                "$@{SB_APP_TOKEN}": token,
+                "$@{SB_CUSTOMER_NAME}": customer_name,
+                "$@{SB_UPPER_CUSTOMER_NAME}": customer_name.upper(),
+                "$@{SB_PD_DATABASE_NAME}": pd_db,
+                "$@{SB_WH_DATABASE_NAME}": wh_db,
+                "$@{SB_APP_DATABASE_NAME}":sb_app_db,
                 "$@{CUSTOMER_FULL_NAME}": full_name,
                 "$@{CUSTOMER_NAME}": customer_name,
                 "$@{SERVICE_SUFFIX}": customer_name,
@@ -124,9 +126,10 @@ class AddClientApp(App):
 
             # Обновление nginx
             update_nginx_config(customer_name, "../../config/nginx/nginx.conf")
-
             msg.update(f"✅ Client '{full_name}' fully registered! Compose + DB + Nginx done.")
-
+            with open("../revised.env", "a") as f:
+                f.write(f"\nSB_APP_{customer_name.upper()}_TOKEN={token}\n")
+            logging.info(f"SB_APP_{customer_name.upper()}_TOKEN = {token}")
         except Exception as e:
             logging.exception("Exception occurred:")
             msg.update(f"❌ Error: {e}")

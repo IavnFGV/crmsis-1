@@ -1,0 +1,108 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    implementation 'io.quarkiverse.openapi.generator:quarkus-openapi-generator:2.8.0-lts'
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkus:quarkus-hibernate-orm'
+    implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
+    implementation 'io.quarkus:quarkus-rest-client-jackson'
+    implementation 'io.quarkus:quarkus-info'
+    implementation 'io.quarkus:quarkus-rest-client'
+    implementation 'io.quarkus:quarkus-quartz'
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkus:quarkus-jdbc-mysql'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0'
+//    implementation 'io.quarkus:quarkus-oidc-client'
+//    implementation 'io.quarkus:quarkus-oidc-client-filter'
+
+    implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.9.2'
+    testImplementation 'io.quarkus:quarkus-test-common'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.testcontainers:testcontainers:1.19.1'
+    testImplementation 'org.testcontainers:mysql:1.19.1'
+
+}
+
+group 'dti.crmsis.back.clients'
+version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.withType(Test).configureEach {
+    systemProperty 'quarkus.profile', 'test'
+}
+
+def versionFile = file("src/main/resources/version.properties")
+
+task generateVersion {
+    doLast {
+        def baseVersion = "1.0.0"
+        def date = new Date().format("yyyyMMdd")
+        def gitCommit = "unknown"
+
+        try {
+            def stdout = new ByteArrayOutputStream()
+            exec {
+                commandLine 'git', 'rev-parse', '--short', 'HEAD'
+                standardOutput = stdout
+            }
+            gitCommit = stdout.toString().trim()
+        } catch (Exception e) {
+            println "⚠️ Git commit hash not available"
+        }
+
+        def finalVersion = "${baseVersion}-${date}-g${gitCommit}"
+        versionFile.text = "version=${finalVersion}\n"
+        println "✅ Generated version: $finalVersion"
+    }
+}
+
+compileJava.dependsOn(generateVersion)
+
+
+//tasks.withType(Test).configureEach {
+////    def configFile = file("src/test/resources/application-test.properties").toURI().toString()
+////    systemProperty "quarkus.config.locations", configFile
+////    systemProperty "quarkus.profile", "test"
+//
+//    testLogging {
+//        events "passed", "failed", "skipped", "standardOut", "standardError"
+//        showStandardStreams = true
+//    }
+//}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        showStandardStreams = true
+    }
+//    systemProperty 'quarkus.config.locations', new File("src/test/resources/application-test.properties").absolutePath
+
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    systemProperty 'quarkus.profile', 'test'
+}
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}

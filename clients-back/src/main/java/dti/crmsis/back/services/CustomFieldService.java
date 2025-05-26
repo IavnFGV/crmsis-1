@@ -1,6 +1,6 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.dao.clientsback.*;
+import dti.crmsis.back.dao.pd.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;

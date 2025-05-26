@@ -1,21 +1,22 @@
 package dti.crmsis.back.services;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class CustomerDetailsService {
 
-    @ConfigProperty(name = "APP_TOKEN")
+    @ConfigProperty(name = "app.token")
     private String apiToken;
 
-    @ConfigProperty(name = "CUSTOMER_FULL_NAME")
+    @ConfigProperty(name = "customer.full.name")
     private String fullName;
 
-    @ConfigProperty(name = "CUSTOMER_NAME")
+    @ConfigProperty(name = "customer.name")
     private String name;
 
-    @ConfigProperty(name = "CUSTOMER_PIPEDRIVE_URL")
+    @ConfigProperty(name = "customer.pipedrive.url")
     private String pipedriveUrl;
 
     public String getApiToken() {
@@ -64,5 +65,9 @@ public class CustomerDetailsService {
         public String getPipedriveUrl() {
             return detailsService.getPipedriveUrl();
         }
+    }
+    @PostConstruct
+    void printConfig() {
+        System.out.println(">>> [TEST] APP_TOKEN = " + apiToken);
     }
 }

@@ -1,7 +1,7 @@
 package dti.crmsis.back.services.webhooks;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dti.crmsis.back.dao.clientsback.HasSourceRequestId;
+import dti.crmsis.back.dao.pd.HasSourceRequestId;
 import dti.crmsis.back.services.JsonToEntityServiceAnswer;
 import dti.crmsis.back.services.JsonToEntityServiceGenerated;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;

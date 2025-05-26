@@ -1,6 +1,6 @@
 package dti.crmsis.back.services;
 
-import dti.crmsis.back.dao.clientsback.ExtraInfoEntity;
+import dti.crmsis.back.dao.pd.ExtraInfoEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
