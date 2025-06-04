@@ -98,5 +98,9 @@ public class ExtraInfoEntity extends PanacheEntityBase {
         extraInfoEntity.persist();
     }
 
+    public static String getValueByName(String name) {
+        ExtraInfoEntity entity = find("name", name).firstResult();
+        return entity != null ? entity.value : null;
+    }
 
 }

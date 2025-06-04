@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dti.crmsis.back.dao.pd.DealEntity;
 import dti.crmsis.back.services.JsonToEntityServiceAnswer;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class CreateDealHandler extends AbstractHandler<DealEntity> {

@@ -1,33 +1,48 @@
 package dti.crmsis.back.taskassignment;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import dti.crmsis.back.taskassignment.dsl.DslBlock;
+import dti.crmsis.back.taskassignment.dsl.DslConfig;
+import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
+import dti.crmsis.back.taskassignment.dsl.DslRefBlock;
+import io.quarkus.arc.Unremovable;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+
 import java.util.HashMap;
 import java.util.Map;
 
-@ApplicationScoped
+@Unremovable
+@Dependent
 public class DslEngine {
-    Map<String, DslBlockExecutor> blockInstances = new HashMap<>();
 
-    public void load(DslConfig config) {
-        for (var entry : config.blocks().entrySet()) {
+    @Inject
+    DslBlockExecutorFactory factory;
+
+    Map<String, DslBlockExecutor<?>> blockInstances = new HashMap<>();
+
+    public void init(DslFlowBlock dslFlowBlock, String flowId) {
+        for (var entry : dslFlowBlock.getBlocks().entrySet()) {
             blockInstances.put(entry.getKey(), createBlock(entry.getValue()));
         }
-        for (var entry : config.blocks().entrySet()) {
-            blockInstances.get(entry.getKey()).init(entry.getValue(), blockInstances);
+        for (var entry : dslFlowBlock.getBlocks().entrySet()) {
+            @SuppressWarnings("unchecked")
+            var executor = (DslBlockExecutor<DslBlock>) blockInstances.get(entry.getKey());
+            if(!(entry.getValue() instanceof DslRefBlock)){
+                executor.init(entry.getValue(), blockInstances, flowId);
+            }
         }
     }
 
     private DslBlockExecutor createBlock(DslBlock block) {
-        return switch (block.type()) {
-            case "source" -> new SourceBlock();
-            case "receiver" -> new ReceiverBlock();
-            case "fairReceiver" -> new FairRoundRobinReceiverBlock();
-            default -> throw new IllegalArgumentException("Unknown block: " + block.type());
-        };
+        return factory.getBlockExecutorFor(block);
     }
 
-    public void receive(String sourceBlockName, LeadPayload payload) {
+    public void execute(String sourceBlockName, TaskAssignmentContext payload) {
         var block = blockInstances.get(sourceBlockName);
         if (block != null) block.receive(payload);
+    }
+
+    public void stop() {
+        blockInstances.values().forEach(DslBlockExecutor::stop);
     }
 }

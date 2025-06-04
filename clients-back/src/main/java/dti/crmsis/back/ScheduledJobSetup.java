@@ -30,6 +30,10 @@ public class ScheduledJobSetup {
         isActive.set(true);
     }
 
+    public void deactivate() {
+        isActive.set(false);
+    }
+
     @Inject
     @SchedulerPool
     ExecutorService executor;

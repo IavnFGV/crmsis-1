@@ -12,7 +12,7 @@ run_compose() {
   COMPOSE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   local BASE_FILE="$COMPOSE_DIR/docker-compose-$NAME.yml"
   local OVERRIDE_FILE="$COMPOSE_DIR/docker-compose-$NAME.override.yml"
-  local ENV_FILE="$COMPOSE_DIR/../../.env"
+  local ENV_FILE="$COMPOSE_DIR/revised.env"
 
   if [ ! -f "$BASE_FILE" ]; then
     echo "❌ File not found: $BASE_FILE"

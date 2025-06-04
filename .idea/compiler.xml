@@ -7,10 +7,11 @@
         <processorPath useClasspath="false">
           <entry name="$PROJECT_DIR$/../../gradle/gradle_user_home/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.6.3/52e345c907fbf173b376586c7f8b131d53fa5867/mapstruct-processor-1.6.3.jar" />
         </processorPath>
-        <module name="clients-back.main" />
+        <module name="dti.crmsis.back.clients.clients-back.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="clients-back.main" target="21" />
       <module name="clients.integrationTest" target="21" />
       <module name="clients.main" target="21" />
       <module name="clients.native-test" target="21" />
@@ -23,6 +24,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="clients-back.main" options="-parameters" />
+      <module name="dti.crmsis.back.clients.clients-back.main" options="-parameters" />
       <module name="webhooks.main" options="-parameters" />
     </option>
   </component>

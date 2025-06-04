@@ -6,6 +6,7 @@ import dti.crmsis.back.dao.pd.ExtraInfoEntity;
 import dti.crmsis.back.dao.pd.ProcessReportEntity;
 import dti.crmsis.back.dao.wh.RawRequestEntity;
 import dti.crmsis.back.dao.sql.RawRequestNativeRepository;
+import dti.crmsis.back.messaging.MessagingManager;
 import dti.crmsis.back.services.Constants;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -36,6 +37,8 @@ public class WebhookRequestsHandler {
     HandlersCollector handlersCollector;
     @Inject
     RawRequestNativeRepository rawRequestNativeRepository;
+    @Inject
+    MessagingManager messagingManager;
     private LocalDateTime webhookRegistered;
 
 
@@ -84,6 +87,7 @@ public class WebhookRequestsHandler {
                 logger.errorf("Invalid request data for request ID %d: $s", requestEntity.id, requestEntity.getRequestData());
                 throw new NotEnoughFieldsException("Invalid request data " + requestEntity.getRequestData());
             }
+            messagingManager.handleJsonProxyStart(proxy);
             process(proxy);
         } catch (JsonProblemException e) {
             wasException = true;
@@ -144,6 +148,8 @@ public class WebhookRequestsHandler {
             if (saveLastId) {
                 ExtraInfoEntity.saveLong(Constants.LAST_PROCESSED_ID, lastProcessedId);
             }
+            messagingManager.handleJsonProxyFinish(proxy);
+
         }
     }
 
@@ -162,6 +168,7 @@ public class WebhookRequestsHandler {
                 proxy.addComment(handler.getClass().getSimpleName(), "Can process");
                 try {
                     handler.handle(proxy);
+
                 } catch (Exception e) {
                     logger.warn(e.getMessage(), e);
                     proxy.exceptionInHandler = true;

@@ -93,4 +93,12 @@ public class UserEntity extends PanacheEntityBase implements HasSourceRequestId 
 
     @Column(name = "IS_DELETED")
     public Boolean isDeleted = false;
+
+    public static Long findActiveByEmail(String email) {
+        UserEntity userEntity = find("email = ?1 and isDeleted = false", email).firstResult();
+        if (userEntity == null) {
+            return null;
+        }
+        return userEntity.idPipedrive;
+    }
 } // close class

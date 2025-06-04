@@ -1,5 +1,6 @@
 package dti.crmsis.back.dao.sql;
 
+import io.quarkus.agroal.DataSource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -11,15 +12,15 @@ import java.util.List;
 @ApplicationScoped
 public class RawRequestNativeRepository {
 
-    @Inject
+//    @Inject
     @PersistenceContext(unitName = "webhooks")
     EntityManager em;
 
     public List<Long> getSkippedRequests(Long afterId, int limit) {
         String sql = """
                     SELECT r.ID
-                    FROM SB_WH_OKACADEMY.RAW_REQUESTS r
-                    JOIN SB_PD_OKACADEMY.PROCESS_REPORTS p ON r.ID = p.RAW_REQUEST_ID
+                    FROM SB_WH_MUFIKSOFT.RAW_REQUESTS r
+                    JOIN SB_PD_MUFIKSOFT.PROCESS_REPORTS p ON r.ID = p.RAW_REQUEST_ID
                     WHERE p.STATUS != 'OK' AND r.ID > ?
                     ORDER BY 
                              CASE

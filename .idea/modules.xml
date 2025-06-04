@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients-back.test.iml" filepath="$PROJECT_DIR$/.idea/modules/clients-back.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/clients-ui.iml" filepath="$PROJECT_DIR$/clients-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/crmsis-1.iml" filepath="$PROJECT_DIR$/.idea/crmsis-1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dti.crmsis.back.clients.clients-back.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dti.crmsis.back.clients.clients-back.main.iml" />
     </modules>
   </component>
 </project>

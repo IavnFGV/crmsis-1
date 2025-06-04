@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import dti.crmsis.back.clients.generated.PipedriveRestClientGeneratedV1;
 import dti.crmsis.back.dao.pd.*;
+import io.quarkus.agroal.DataSource;
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -36,7 +38,7 @@ public class KnownFieldService {
     @Inject
     PagingServiceV1 pagingServiceV1;
     Map<String, List<KnownFieldEntity>> allKnown = new HashMap<>();
-    @Inject
+//    @Inject
     EntityManager entityManager;
 
 
