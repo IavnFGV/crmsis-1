@@ -1,6 +1,7 @@
 package dti.crmsis.back.taskassignment;
 
 import dti.crmsis.back.taskassignment.dsl.DslNotifyTelegramActionBlock;
+import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
 
@@ -17,13 +18,14 @@ public class DslNotifyTelegramActionBlockExecutor  implements DslBlockExecutor<D
         this.block = block;
     }
 
+    @WithContextLock
     @Override
     public void receive(TaskAssignmentContext context) {
 
     }
 
     @Override
-    public void stop() {
+    public void stop(TaskAssignmentContext context) {
 
     }
 }

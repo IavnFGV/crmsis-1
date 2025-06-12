@@ -36,7 +36,7 @@ public class RetryInterceptor {
                 }
                 LOG.warnf("Retry %d/%d due to %s", attempt, maxRetries, ex.getClass().getSimpleName());
                 try {
-                    Thread.sleep(delayMs * attempt); // экспоненциально можно при желании
+                    Thread.sleep(delayMs * attempt);
                 } catch (InterruptedException ignored) {}
             }
         }

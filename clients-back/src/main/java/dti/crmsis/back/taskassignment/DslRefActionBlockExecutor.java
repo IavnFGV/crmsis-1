@@ -21,7 +21,7 @@ public class DslRefActionBlockExecutor implements DslBlockExecutor<DslRefActionB
     }
 
     @Override
-    public void stop() {
-
+    public void stop(TaskAssignmentContext context) {
+        throw new UnsupportedOperationException("Should be called on not ref block" );
     }
 }

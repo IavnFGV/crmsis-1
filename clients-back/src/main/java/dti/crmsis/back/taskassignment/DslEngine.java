@@ -1,7 +1,6 @@
 package dti.crmsis.back.taskassignment;
 
 import dti.crmsis.back.taskassignment.dsl.DslBlock;
-import dti.crmsis.back.taskassignment.dsl.DslConfig;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import dti.crmsis.back.taskassignment.dsl.DslRefBlock;
 import io.quarkus.arc.Unremovable;
@@ -27,7 +26,7 @@ public class DslEngine {
         for (var entry : dslFlowBlock.getBlocks().entrySet()) {
             @SuppressWarnings("unchecked")
             var executor = (DslBlockExecutor<DslBlock>) blockInstances.get(entry.getKey());
-            if(!(entry.getValue() instanceof DslRefBlock)){
+            if (!(entry.getValue() instanceof DslRefBlock)) {
                 executor.init(entry.getValue(), blockInstances, flowId);
             }
         }
@@ -42,7 +41,7 @@ public class DslEngine {
         if (block != null) block.receive(payload);
     }
 
-    public void stop() {
-        blockInstances.values().forEach(DslBlockExecutor::stop);
+    public void stop(TaskAssignmentContext context) {
+        blockInstances.values().forEach(dslBlockExecutor -> dslBlockExecutor.stop(context));
     }
 }

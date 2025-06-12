@@ -2,9 +2,16 @@ package dti.crmsis.back.taskassignment;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TaskAssignmentContext {
     Map<String, Object> data = new ConcurrentHashMap<>();
+
+    ReentrantLock lock = new ReentrantLock();
+
+    public ReentrantLock getLock() {
+        return lock;
+    }
 
     public void put(String key, Object value) {
         data.put(key, value);
@@ -18,8 +25,5 @@ public class TaskAssignmentContext {
         return (String) data.get("flowId");
     }
 
-    public synchronized void subscribeToSuccess(String flowId, Runnable onSuccess) {
-
-    }
 
 }

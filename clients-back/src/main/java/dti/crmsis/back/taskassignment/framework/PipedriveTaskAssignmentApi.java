@@ -11,7 +11,6 @@ import org.jboss.logging.Logger;
 public class PipedriveTaskAssignmentApi implements TaskAssignmentApi {
     private static final Logger LOG = Logger.getLogger(TaskAssignmentsManager.class);
 
-
     @Inject
     PipedriveService pipedriveService;
 

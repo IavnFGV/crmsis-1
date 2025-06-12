@@ -1,13 +1,12 @@
 package dti.crmsis.back.taskassignment;
 
-import dti.crmsis.back.dao.pd.UserEntity;
+import dti.crmsis.back.messaging.BusMessageProcessor;
 import dti.crmsis.back.messaging.TopicUtils;
-import dti.crmsis.back.services.PipedriveService;
 import dti.crmsis.back.taskassignment.dsl.DslOneByOneAssignmentPolicyBlock;
 import dti.crmsis.back.taskassignment.framework.TaskAssignmentApi;
+import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -24,10 +23,9 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
     private static final Logger LOG = Logger.getLogger(DslOneByOneAssignmentPolicyBlockExecutor.class);
 
     @Inject
-    EventBus eventBus;
-
-    @Inject
     TaskAssignmentApi taskAssignmentApi;
+    @Inject
+    BusMessageProcessor busMessageProcessor;
 
     @Inject
     Vertx vertx;
@@ -35,6 +33,7 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
     private DslOneByOneAssignmentPolicyBlock block;
     private final AtomicInteger currentIndex = new AtomicInteger(0);
     private final List<String> memberEmails = new ArrayList<>();
+    private Long retryTimerId;
 
     @Override
     public void init(DslOneByOneAssignmentPolicyBlock block, Map<String, DslBlockExecutor<?>> allBlocks, String flowId) {
@@ -43,19 +42,20 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
         this.memberEmails.addAll(block.getMembers().keySet());
     }
 
+    @WithContextLock
     public void scheduleRetry(TaskAssignmentContext context, long waitMinutes) {
-        long delayMillis = waitMinutes * 60_000;
-        vertx.setTimer(delayMillis, id -> {
-            eventBus.publish(TopicUtils.retryTopic(context.getFlowId()), context);
+//        long delayMillis = waitMinutes * 60_000;
+        long delayMillis = 10000;
+        Long retryTimerId = vertx.setTimer(delayMillis, id -> {
+            busMessageProcessor.publish(TopicUtils.retryTopic(context.getFlowId()), context);
         });
+        context.put("retryTimerId", retryTimerId);
     }
 
-
+    @WithContextLock
     @Override
     public void receive(TaskAssignmentContext context) {
         String flowId = context.getFlowId();
-        Integer retry = Integer.parseInt((String) context.get("retry"));
-
         String selected;
         synchronized (this) {
             int index = currentIndex.getAndUpdate(i -> (i + 1) % memberEmails.size());
@@ -63,7 +63,7 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
         }
         try {
             taskAssignmentApi.assign(Long.valueOf(flowId), selected);
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.error(e);
             LOG.info("Assignment failed. Waiting for next Iteration");
         }
@@ -71,7 +71,12 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
     }
 
     @Override
-    public void stop() {
-
+    public void stop(TaskAssignmentContext context) {
+        Long retryTimerId = (Long) context.get("retryTimerId");
+        if (retryTimerId != null) {
+            vertx.cancelTimer(retryTimerId);
+            return;
+        }
+        LOG.info("No retry to stop");
     }
 }

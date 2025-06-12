@@ -17,6 +17,6 @@ public class PipedriveService {
 
     @Retry(maxRetries = 3, delayMs = 1000)
     public void assignManager(long dealId, long userId) {
-        pipedriveClient.updateDeal(dealId, Map.of("user_id", userId));
+        pipedriveClient.updateDeal(dealId, Map.of("owner_id", userId));
     }
 }

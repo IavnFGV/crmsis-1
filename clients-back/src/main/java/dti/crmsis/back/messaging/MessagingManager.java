@@ -9,9 +9,13 @@ public class MessagingManager {
     @Inject
     DealReceivedMessageProducer dealReceivedMessageProducer;
 
+    @Inject
+    DealClaimedMessageProducer dealClaimedMessageProducer;
+
 
     public void handleJsonProxyStart(WebhookRequestService.JsonProxy proxy){
         dealReceivedMessageProducer.handle(proxy);
+        dealClaimedMessageProducer.handle(proxy);
     }
 
     public void handleJsonProxyFinish(WebhookRequestService.JsonProxy proxy){

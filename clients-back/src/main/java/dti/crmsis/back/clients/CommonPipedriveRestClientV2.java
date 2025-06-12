@@ -18,7 +18,7 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface CommonPipedriveRestClientV2 {
     @PATCH
-    @Path("/{dealId}")
+    @Path("/deals/{dealId}")
     Map<String, Object> updateDeal(@PathParam("dealId") long dealId, Map<String, Object> body);
 
 }

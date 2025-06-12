@@ -7,5 +7,5 @@ import java.util.Map;
 public interface DslBlockExecutor<T extends DslBlock> extends DslBlockMarker {
     void init(T block, Map<String, DslBlockExecutor<?>> allBlockExecutors,String flowId);
     void receive(TaskAssignmentContext context);
-    void stop();
+    void stop(TaskAssignmentContext context);
 }

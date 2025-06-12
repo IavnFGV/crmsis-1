@@ -2,7 +2,6 @@ package dti.crmsis.back.messaging;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dti.crmsis.back.services.webhooks.WebhookRequestService;
-import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -10,7 +9,7 @@ import jakarta.inject.Inject;
 public class DealReceivedMessageProducer {
 
     @Inject
-    EventBus eventBus;
+    BusMessageProcessor busMessageProcessor;
 
     void handle(WebhookRequestService.JsonProxy proxy) {
         JsonNode data = proxy.jsonNode.path("data");
@@ -21,7 +20,7 @@ public class DealReceivedMessageProducer {
         if ("deal".equals(proxy.type) &&
             "create".equals(proxy.action)
         ) {
-            eventBus.publish(TopicUtils.DEAL_RECEIVED_API, proxy);
+            busMessageProcessor.publish(TopicUtils.DEAL_RECEIVED_API, proxy);
         }
     }
 }

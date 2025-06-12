@@ -43,6 +43,7 @@ public class WebhookRequestsHandler {
 
 
     public void processNew() {
+        init();
         int pageIndex = 0;
         int pageSize = 1;
         while (true) {
@@ -196,7 +197,7 @@ public class WebhookRequestsHandler {
 
     @Transactional
     protected List<RawRequestEntity> getRequestEntities(int pageIndex, int pageSize, Long idSelector) {
-        return RawRequestEntity.find("id > ?1", idSelector)
+        return RawRequestEntity.find("id > ?1 order by id asc", idSelector)
                 .page(Page.of(pageIndex, pageSize))
                 .list();
     }

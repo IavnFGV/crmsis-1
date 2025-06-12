@@ -12,9 +12,21 @@ public class ExecutorProducer {
         return ManagedExecutor.builder()
                 .maxAsync(2)
                 .maxQueued(10)
-                .propagated() // передаёт CDI контексты
-                .cleared()    // очищает всё остальное
+                .propagated()
+                .cleared()
                 .build();
     }
+
+    @Produces
+    @BusMessagesPool
+    public ManagedExecutor produceBusEventsPoolExecutor() {
+        return ManagedExecutor.builder()
+                .maxAsync(2)
+                .maxQueued(10)
+                .propagated()
+                .cleared()
+                .build();
+    }
+
 
 }

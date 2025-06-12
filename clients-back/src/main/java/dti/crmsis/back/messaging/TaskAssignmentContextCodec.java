@@ -1,6 +1,5 @@
 package dti.crmsis.back.messaging;
 
-import dti.crmsis.back.services.webhooks.WebhookRequestService;
 import dti.crmsis.back.taskassignment.TaskAssignmentContext;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;

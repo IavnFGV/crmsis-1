@@ -8,6 +8,7 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
 import java.util.concurrent.ExecutorService;
@@ -36,9 +37,10 @@ public class ScheduledJobSetup {
 
     @Inject
     @SchedulerPool
-    ExecutorService executor;
+    ManagedExecutor executor;
 
-    @Scheduled(every = "1m")
+//    @Scheduled(every = "1m")
+    @Scheduled(every = "5s")
     void processWebhookRequests() {
         if (!isActive.get()) {
             LOG.info("App is not ready yet, skipping processWebhookRequests");
