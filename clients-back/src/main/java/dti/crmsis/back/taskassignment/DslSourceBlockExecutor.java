@@ -5,9 +5,11 @@ import dti.crmsis.back.messaging.TopicUtils;
 import dti.crmsis.back.taskassignment.dsl.DslSourceBlock;
 import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import java.util.Map;
 @Dependent
 @BlockType("source")
 public class DslSourceBlockExecutor implements DslBlockExecutor<DslSourceBlock> {
+    private static final Logger LOG = Logger.getLogger(DslSourceBlockExecutor.class);
     private DslSourceBlock block;
     private DslBlockExecutor next;
     private MessageConsumer<TaskAssignmentContext> retryEventConsumer;
@@ -22,20 +25,16 @@ public class DslSourceBlockExecutor implements DslBlockExecutor<DslSourceBlock> 
     private String flowId;
     @Inject
     BusMessageProcessor busMessageProcessor;
+    @Inject
+    Vertx vertx;
 
     @Override
     public void init(DslSourceBlock block, Map<String, DslBlockExecutor<?>> allBlocks, String flowId) {
         this.block = block;
-        this.next = allBlocks.get(block.getPass_to());
+        this.next = allBlocks.get(block.getPassTo());
         this.flowId = flowId;
-        retryEventConsumer = busMessageProcessor.consumer( TopicUtils.retryTopic(flowId), context -> {
-
-            Object retryCount = context.get("retry");
-            if (retryCount instanceof Integer) {
-                context.put("retry", (Integer) retryCount + 1);
-            } else {
-                context.put("retry", 1);
-            }
+        retryEventConsumer = busMessageProcessor.consumer(TopicUtils.retryTopic(flowId), context -> {
+            context.incrementRetry();
             this.receive(context);
         });
     }
@@ -44,7 +43,16 @@ public class DslSourceBlockExecutor implements DslBlockExecutor<DslSourceBlock> 
     @Override
     public void receive(TaskAssignmentContext context) {
         if (next != null) {
-            next.receive(context);
+            if (context.getRetry() == 0 && block.getDelaySecs() > 0) {
+                LOG.info("Scheduling for delay of " + block.getDelaySecs() + " seconds for first flow execution");
+                vertx.setTimer(block.getDelaySecs() * 1000L, id -> {
+                    busMessageProcessor.submit(busMessageProcessor.constructTaskName(TopicUtils.DEAL_RECEIVED_API, context), () -> {
+                        next.receive(context);
+                    });
+                });
+            } else {
+                next.receive(context);
+            }
         }
     }
 

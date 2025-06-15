@@ -37,9 +37,9 @@ public class ScheduledJobSetup {
 
     @Inject
     @SchedulerPool
-    ManagedExecutor executor;
+    MdcExecutorWrapper executor;
 
-//    @Scheduled(every = "1m")
+    //    @Scheduled(every = "1m")
     @Scheduled(every = "5s")
     void processWebhookRequests() {
         if (!isActive.get()) {
@@ -55,28 +55,15 @@ public class ScheduledJobSetup {
             return;
         }
         isRunning.set(true);
-        executor.execute(() -> {
-            boolean wasException = false;
-            long start = System.currentTimeMillis();
+        executor.runAsync("processWebhookRequests", () -> {
             try {
-                if(needDoRetryForNoHandlers()){
-                    LOG.info("Executing processWebhookRequests.retry job at " + start);
+                if (needDoRetryForNoHandlers()) {
                     webhookRequestsHandler.processRetry();
-                }else{
-                    LOG.info("Executing processWebhookRequests.new job at " + start);
+                } else {
                     webhookRequestsHandler.processNew();
                 }
-            } catch (Throwable ex) {
-                wasException = true;
-                LOG.error(ex.getMessage(), ex);
             } finally {
-                long end = System.currentTimeMillis();
-                if (wasException) {
-                    LOG.info("Executing processWebhookRequests job finished WITH_EXCEPTION in  " + (end - start) + "ms");
-                } else {
-                    LOG.info("Executing processWebhookRequests job finished SUCCESS in  " + (end - start) + "ms");
-                }
-                if(needDoRetryForNoHandlers()){
+                if (needDoRetryForNoHandlers()) {
                     retryDoneForNoHandlers();
                 }
                 isRunning.set(false);
@@ -86,10 +73,11 @@ public class ScheduledJobSetup {
 
     private final AtomicBoolean initialInitCall = new AtomicBoolean(false);
 
-    @Scheduled(delayed = "10s", every = "PT10000H")// 416 days
-    void  initialInit() {
+    @Scheduled(delayed = "10s", every = "PT10000H")
+// 416 days
+    void initialInit() {
         if (initialInitCall.compareAndSet(false, true)) {
-            executor.execute(() -> {
+            executor.runAsync("initialInit", () -> {
                 initDataService.start();
             });
         } else {
@@ -110,9 +98,8 @@ public class ScheduledJobSetup {
 
     @Transactional
     protected void retryDoneForNoHandlers() {
-        ExtraInfoEntity.saveBoolean(Constants.RETRY_NO_HANDLER,false);
+        ExtraInfoEntity.saveBoolean(Constants.RETRY_NO_HANDLER, false);
     }
-
 
 
 }

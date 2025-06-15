@@ -33,7 +33,7 @@ public class ContextLockInterceptor {
 
         for (Object param : ctx.getParameters()) {
             if (param instanceof TaskAssignmentContext taskContext) {
-                if (skipIfCompleted && Boolean.TRUE.equals(taskContext.get("completed"))) {
+                if (skipIfCompleted && taskContext.isCompleted()) {
                     LOG.info("Skipping execution due to completed context");
                     return null;
                 }

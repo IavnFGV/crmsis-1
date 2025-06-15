@@ -9,7 +9,7 @@ import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class PipedriveTaskAssignmentApi implements TaskAssignmentApi {
-    private static final Logger LOG = Logger.getLogger(TaskAssignmentsManager.class);
+    private static final Logger LOG = Logger.getLogger(PipedriveTaskAssignmentApi.class);
 
     @Inject
     PipedriveService pipedriveService;
@@ -21,9 +21,10 @@ public class PipedriveTaskAssignmentApi implements TaskAssignmentApi {
             throw new CantFindUserByEmailException(userMail);
         }
         try {
+            LOG.infof("Assigning manager to deal [%s] [%s]", userPipedriveId, dealId);
             pipedriveService.assignManager(dealId, userPipedriveId);
         } catch (Exception e) {
-            LOG.errorf("CANT assign manager to deal [mail, idPipedrive, dealId] : [%s,%d%s]", userMail, userPipedriveId);
+            LOG.errorf("CANT assign manager to deal [mail, idPipedrive, dealId] : [%s,%d,%s]", userMail, userPipedriveId);
             LOG.error(e.getMessage(), e);
             throw new ProblemWithPipedriveException("CANT assign manager to deal");
         }

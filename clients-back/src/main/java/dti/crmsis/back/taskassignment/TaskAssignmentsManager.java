@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 @ApplicationScoped
 public class TaskAssignmentsManager {
@@ -39,7 +40,6 @@ public class TaskAssignmentsManager {
         return contexts.computeIfAbsent(flowId, id -> {
             TaskAssignmentContext taskAssignmentContext = new TaskAssignmentContext();
             taskAssignmentContext.put("flowId", flowId);
-            taskAssignmentContext.put("retry", 0);
             return taskAssignmentContext;
         });
     }
@@ -76,7 +76,7 @@ public class TaskAssignmentsManager {
         ref.set(busMessageProcessor.consumer(TopicUtils.getDealClaimedTopic(flowId), flowIdFromEvent -> {
             TaskAssignmentContext context = getContext(flowIdFromEvent);
             DslEngine engine = dslEngines.get(flowIdFromEvent);
-            context.put("completed", true);
+            context.setCompleted(true);
             engine.stop(context);
 
             dslEngines.remove(flowIdFromEvent);
@@ -92,7 +92,6 @@ public class TaskAssignmentsManager {
             });
         }));
     }
-
 
 
     private String constructFlowId(Long entityIdPipedrive, DslFlowConfigEntity flowDefinition) {
