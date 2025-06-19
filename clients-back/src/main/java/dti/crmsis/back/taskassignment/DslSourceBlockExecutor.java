@@ -3,6 +3,7 @@ package dti.crmsis.back.taskassignment;
 import dti.crmsis.back.messaging.BusMessageProcessor;
 import dti.crmsis.back.messaging.TopicUtils;
 import dti.crmsis.back.taskassignment.dsl.DslSourceBlock;
+import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
 import io.vertx.core.Vertx;
@@ -35,19 +36,27 @@ public class DslSourceBlockExecutor implements DslBlockExecutor<DslSourceBlock> 
         this.flowId = flowId;
         retryEventConsumer = busMessageProcessor.consumer(TopicUtils.retryTopic(flowId), context -> {
             context.incrementRetry();
-            this.receive(context);
+            try {
+                this.receive(context);
+            } catch (ContextIsCompletedException e) {
+                LOG.info("Context is completed, nothing to do more from init");
+            }
         });
     }
 
     @WithContextLock
     @Override
-    public void receive(TaskAssignmentContext context) {
+    public void receive(TaskAssignmentContext context) throws ContextIsCompletedException {
         if (next != null) {
             if (context.getRetry() == 0 && block.getDelaySecs() > 0) {
                 LOG.info("Scheduling for delay of " + block.getDelaySecs() + " seconds for first flow execution");
                 vertx.setTimer(block.getDelaySecs() * 1000L, id -> {
                     busMessageProcessor.submit(busMessageProcessor.constructTaskName(TopicUtils.DEAL_RECEIVED_API, context), () -> {
-                        next.receive(context);
+                        try {
+                            next.receive(context);
+                        } catch (ContextIsCompletedException e) {
+                            LOG.info("Context is completed, nothing to do more from delay");
+                        }
                     });
                 });
             } else {

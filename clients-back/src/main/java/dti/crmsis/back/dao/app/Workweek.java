@@ -15,6 +15,12 @@ public class Workweek extends PanacheEntityBase {
     @Column(name = "ID")
     public Long id;
 
+    @Column(name = "TITLE", nullable = false, length = 100, unique = true)
+    public String title_cyrillic;
+
+    @Column(name = "TITLE_FOR_FLOW", nullable = false, length = 100, unique = true)
+    public String title;
+
     @Column(nullable = false)
     public String type; // individual / shared
 

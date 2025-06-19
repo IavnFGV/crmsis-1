@@ -1,0 +1,88 @@
+{
+  "weekly": [
+    {
+      "to": "18:00",
+      "day": "MONDAY",
+      "off": false,
+      "from": "10:00",
+      "breaks": [
+        {
+          "to": "14:00",
+          "from": "13:00"
+        }
+      ]
+    },
+    {
+      "to": "18:00",
+      "day": "TUESDAY",
+      "off": false,
+      "from": "10:00",
+      "breaks": [
+        {
+          "to": "14:00",
+          "from": "13:00"
+        }
+      ]
+    },
+    {
+      "to": "18:00",
+      "day": "WEDNESDAY",
+      "off": false,
+      "from": "10:00",
+      "breaks": [
+        {
+          "to": "14:00",
+          "from": "13:00"
+        }
+      ]
+    },
+    {
+      "to": "18:00",
+      "day": "THURSDAY",
+      "off": false,
+      "from": "10:00",
+      "breaks": [
+        {
+          "to": "14:00",
+          "from": "13:00"
+        }
+      ]
+    },
+    {
+      "to": "18:00",
+      "day": "FRIDAY",
+      "off": false,
+      "from": "10:00",
+      "breaks": [
+        {
+          "to": "14:00",
+          "from": "13:00"
+        }
+      ]
+    },
+    {
+      "to": null,
+      "day": "SATURDAY",
+      "off": true,
+      "from": null,
+      "breaks": []
+    },
+    {
+      "to": null,
+      "day": "SUNDAY",
+      "off": true,
+      "from": null,
+      "breaks": []
+    }
+  ],
+  "zoneId": "Europe/Kiev",
+  "exceptions": [
+    {
+      "to": "15:00",
+      "off": false,
+      "from": "11:00",
+      "breaks": [],
+      "specificDate": "2025-07-06"
+    }
+  ]
+}

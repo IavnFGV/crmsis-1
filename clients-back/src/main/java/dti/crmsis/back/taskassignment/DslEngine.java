@@ -3,6 +3,7 @@ package dti.crmsis.back.taskassignment;
 import dti.crmsis.back.taskassignment.dsl.DslBlock;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import dti.crmsis.back.taskassignment.dsl.DslRefBlock;
+import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -36,7 +37,7 @@ public class DslEngine {
         return factory.getBlockExecutorFor(block);
     }
 
-    public void execute(String sourceBlockName, TaskAssignmentContext payload) {
+    public void execute(String sourceBlockName, TaskAssignmentContext payload) throws ContextIsCompletedException {
         var block = blockInstances.get(sourceBlockName);
         if (block != null) block.receive(payload);
     }

@@ -6,6 +6,7 @@ import dti.crmsis.back.messaging.TopicUtils;
 import dti.crmsis.back.services.webhooks.WebhookRequestService;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import dti.crmsis.back.taskassignment.dsl.DslParser;
+import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.impl.ConcurrentHashSet;
@@ -67,7 +68,11 @@ public class TaskAssignmentsManager {
         DslEngine engine = engineFactory.createEngine(dslFlow, flowId);
         dslEngines.put(flowId, engine);
         subscribeToSuccessTopic(flowId);
-        engine.execute(dslFlow.getInitialBlock(), context);
+        try {
+            engine.execute(dslFlow.getInitialBlock(), context);
+        } catch (ContextIsCompletedException e) {
+            LOG.info("Context is completed, nothing to do more dealReceivedApi");
+        }
     }
 
     private void subscribeToSuccessTopic(String flowId) {

@@ -23,7 +23,7 @@ public class FlowsManager {
                                "deal.received.api.retry"
                              ],
                              "passTo": "assignment",
-                             "delaySecs":2
+                             "delaySecs":0
                            },
                            "assignment": {
                              "type": "refAssignmentPolicy",

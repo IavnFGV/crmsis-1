@@ -9,7 +9,9 @@ import io.quarkus.jackson.ObjectMapperCustomizer;
 import jakarta.inject.Singleton;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 @Singleton
@@ -27,6 +29,24 @@ public class JacksonConfig  implements ObjectMapperCustomizer {
                                              com.fasterxml.jackson.databind.DeserializationContext context)
                     throws IOException {
                 return LocalDateTime.parse(parser.getText(), FORMATTER);
+            }
+        });
+
+        javaTimeModule.addDeserializer(LocalDate.class, new com.fasterxml.jackson.databind.JsonDeserializer<>() {
+            @Override
+            public LocalDate deserialize(JsonParser parser,
+                                         com.fasterxml.jackson.databind.DeserializationContext context)
+                    throws IOException {
+                return LocalDate.parse(parser.getText());
+            }
+        });
+
+        javaTimeModule.addDeserializer(LocalTime.class, new com.fasterxml.jackson.databind.JsonDeserializer<>() {
+            @Override
+            public LocalTime deserialize(JsonParser parser,
+                                         com.fasterxml.jackson.databind.DeserializationContext context)
+                    throws IOException {
+                return LocalTime.parse(parser.getText());
             }
         });
         objectMapper.registerModule(javaTimeModule);

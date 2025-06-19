@@ -1,19 +1,29 @@
 package dti.crmsis.back.taskassignment;
 
+import dti.crmsis.back.dao.app.WorkDayEntity;
+import dti.crmsis.back.dao.pd.UserEntity;
 import dti.crmsis.back.messaging.BusMessageProcessor;
 import dti.crmsis.back.messaging.TopicUtils;
+import dti.crmsis.back.taskassignment.availability.AvailabilityResult;
+import dti.crmsis.back.taskassignment.availability.UserAvailabilityService;
+import dti.crmsis.back.taskassignment.availability.WorkDayDto;
+import dti.crmsis.back.taskassignment.availability.WorkDayParseService;
 import dti.crmsis.back.taskassignment.dsl.DslOneByOneAssignmentPolicyBlock;
+import dti.crmsis.back.taskassignment.dsl.MemberConfig;
+import dti.crmsis.back.taskassignment.framework.CantFindUserByEmailException;
 import dti.crmsis.back.taskassignment.framework.TaskAssignmentApi;
+import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Unremovable
@@ -26,6 +36,10 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
     TaskAssignmentApi taskAssignmentApi;
     @Inject
     BusMessageProcessor busMessageProcessor;
+    @Inject
+    UserAvailabilityService userAvailabilityService;
+    @Inject
+    WorkDayParseService workDayParseService;
 
     @Inject
     Vertx vertx;
@@ -43,7 +57,7 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
     }
 
     @WithContextLock
-    public void scheduleRetry(TaskAssignmentContext context, long waitMinutes) {
+    public void scheduleRetry(TaskAssignmentContext context, long waitMinutes) throws ContextIsCompletedException {
 //        long delayMillis = waitMinutes * 60_000;
         long delayMillis = 10000;
         Long retryTimerId = vertx.setTimer(delayMillis, id -> {
@@ -54,20 +68,67 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
 
     @WithContextLock
     @Override
-    public void receive(TaskAssignmentContext context) {
+    public void receive(TaskAssignmentContext context) throws ContextIsCompletedException {
         String flowId = context.getFlowId();
         String selected;
-        synchronized (this) {
-            int index = currentIndex.getAndUpdate(i -> (i + 1) % memberEmails.size());
-            selected = memberEmails.get(index);
-        }
-        try {
-            taskAssignmentApi.assign(Long.valueOf(flowId), selected);
-        } catch (Exception e) {
-            LOG.error(e);
-            LOG.info("Assignment failed. Waiting for next Iteration");
-        }
+        do {
+            synchronized (this) {
+                int index = currentIndex.getAndUpdate(i -> (i + 1) % memberEmails.size());
+                selected = memberEmails.get(index);
+            }
+            try {
+                LOG.infof("MDC before assign: %s", MDC.getMap());
+                if (!assign(flowId, selected, context)) {
+                    continue;
+                }
+                break;
+            }catch (ContextIsCompletedException e){
+                throw e;
+            } catch (Exception e) {
+                LOG.infof("MDC on exception : %s", MDC.getMap());
+                LOG.error(e.getMessage(), e);
+                LOG.info("Assignment failed. Lets retry");
+            }
+        } while (true);
         scheduleRetry(context, block.getWaitMinutes());
+    }
+
+    @WithContextLock
+    protected boolean assign(String flowId, String selected, TaskAssignmentContext context) throws ContextIsCompletedException {
+        LOG.info("Assigning " + selected + " to " + flowId);
+        LOG.infof("MDC before findActiveByEmail: %s", MDC.getMap());
+        Long userPipedriveId = UserEntity.findActiveByEmail(selected);
+        if (userPipedriveId == null) {
+            throw new CantFindUserByEmailException(selected);
+        }
+
+        MemberConfig memberConfig = block.getMembers().get(selected);
+
+        List<String> workDays = Arrays.stream(memberConfig.getAvailability().split(",")).map(String::strip).toList();
+        List<WorkDayEntity> entities = WorkDayEntity.find("name IN ?1", workDays).list();
+
+        List<WorkDayDto> list = workDays.stream().map(
+                        workDayName -> entities.stream().filter(workDayEntity -> workDayEntity.name.equals(workDayName)).findAny().orElse(null))
+                .filter(Objects::nonNull)
+                .map(workDayParseService::parse)
+                .toList();
+
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LOG.infof("MDC before availability check: %s", MDC.getMap());
+        AvailabilityResult availabilityResult = userAvailabilityService.checkAvailability(list, now);
+
+        if (availabilityResult.available) {
+            try {
+                taskAssignmentApi.assign(Long.valueOf(flowId), userPipedriveId);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+                LOG.info("Assignment failed. Lets retry");
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 
     @Override

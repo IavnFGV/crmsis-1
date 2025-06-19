@@ -35,7 +35,7 @@ public class ContextLockInterceptor {
             if (param instanceof TaskAssignmentContext taskContext) {
                 if (skipIfCompleted && taskContext.isCompleted()) {
                     LOG.info("Skipping execution due to completed context");
-                    return null;
+                    throw new ContextIsCompletedException();
                 }
                 ReentrantLock lock = taskContext.getLock();
                 lock.lock();

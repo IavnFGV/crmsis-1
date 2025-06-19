@@ -1,6 +1,7 @@
 package dti.crmsis.back.taskassignment;
 
 import dti.crmsis.back.taskassignment.dsl.DslNotifyTelegramActionBlock;
+import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
@@ -20,7 +21,7 @@ public class DslNotifyTelegramActionBlockExecutor  implements DslBlockExecutor<D
 
     @WithContextLock
     @Override
-    public void receive(TaskAssignmentContext context) {
+    public void receive(TaskAssignmentContext context) throws ContextIsCompletedException {
 
     }
 

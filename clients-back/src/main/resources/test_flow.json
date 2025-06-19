@@ -1,0 +1,60 @@
+{
+  "flows": [
+    {
+      "flow1": {
+        "version": 1,
+        "type": "flow",
+        "initialBlock": "srcWebhook",
+        "successOnTopic": "deal.claimed",
+        "blocks": {
+          "srcWebhook": {
+            "type": "source",
+            "subscribe": [
+              "deal.received.api",
+              "deal.received.api.retry"
+            ],
+            "passTo": "assignment"
+          },
+          "assignment": {
+            "type": "refAssignmentPolicy",
+            "ref": "assignmentPolicy1"
+          }
+        }
+      }
+    }
+  ],
+  "assignmentsPolicies": [
+    {
+      "assignmentPolicy1": {
+        "type": "oneByOneAssignmentPolicy",
+        "retryCount": "4",
+        "waitMinutes": 15,
+        "failAction": {
+          "type": "refAction",
+          "ref": "notifyTelegramAction1"
+        },
+        "members": {
+          "zabolotniy.evgeniy@gmail.com": {
+            "availability": "default"
+          },
+          "mufik.petro@gmail.com": {
+            "availability": "default"
+          },
+          "ivan.drozda@gmail.com": {
+            "availability": "default,ivan.drozda"
+          }
+        }
+      }
+    }
+  ],
+  "actions": [
+    {
+      "notifyTelegramAction1": {
+        "type": "notifyTelegramAction",
+        "token": "8102241829:AAEy_ZbU0aZhHZ-YLy5Yt9i6CLHkSNDY21g"
+      }
+    }
+  ]
+}
+
+

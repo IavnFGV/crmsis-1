@@ -2,7 +2,7 @@
 /.idea/
 /build/venv/
 /build/build.iml
-/config/composes/environment.env
+/config/composes/environment._env8
 /.idea/**
 /config/composes/.env
 /config/bigquery/credentials.json

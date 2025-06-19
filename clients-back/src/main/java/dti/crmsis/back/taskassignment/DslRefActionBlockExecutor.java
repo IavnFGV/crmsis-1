@@ -1,6 +1,7 @@
 package dti.crmsis.back.taskassignment;
 
 import dti.crmsis.back.taskassignment.dsl.DslRefActionBlock;
+import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
 
@@ -16,7 +17,7 @@ public class DslRefActionBlockExecutor implements DslBlockExecutor<DslRefActionB
     }
 
     @Override
-    public void receive(TaskAssignmentContext context) {
+    public void receive(TaskAssignmentContext context)throws ContextIsCompletedException {
 
     }
 
