@@ -1,6 +1,6 @@
-package dti.crmsis.back.taskassignment;
+package dti.crmsis.back.taskassignment.dslexecutors;
 
-import dti.crmsis.back.taskassignment.dsl.DslConfig;
+import dti.crmsis.back.taskassignment.DslEngine;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;

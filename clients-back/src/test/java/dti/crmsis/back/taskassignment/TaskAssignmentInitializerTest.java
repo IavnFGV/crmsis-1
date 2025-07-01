@@ -1,13 +1,14 @@
 package dti.crmsis.back.taskassignment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import dti.crmsis.back.NoDbTestProfile;
 import dti.crmsis.back.taskassignment.dsl.DslBlock;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import dti.crmsis.back.taskassignment.dsl.DslParser;
 import dti.crmsis.back.taskassignment.dsl.DslOneByOneAssignmentPolicyBlock;
+import dti.crmsis.back.taskassignment.dslexecutors.DslBlockExecutor;
+import dti.crmsis.back.taskassignment.dslexecutors.DslBlockExecutorFactory;
+import dti.crmsis.back.taskassignment.dslexecutors.DslExecutorRegistry;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 

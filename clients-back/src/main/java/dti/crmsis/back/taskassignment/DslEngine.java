@@ -1,8 +1,11 @@
 package dti.crmsis.back.taskassignment;
 
 import dti.crmsis.back.taskassignment.dsl.DslBlock;
+import dti.crmsis.back.taskassignment.dsl.DslBlockScanner;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import dti.crmsis.back.taskassignment.dsl.DslRefBlock;
+import dti.crmsis.back.taskassignment.dslexecutors.DslBlockExecutor;
+import dti.crmsis.back.taskassignment.dslexecutors.DslBlockExecutorFactory;
 import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
@@ -10,6 +13,7 @@ import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Unremovable
 @Dependent
@@ -18,19 +22,19 @@ public class DslEngine {
     @Inject
     DslBlockExecutorFactory factory;
 
-    Map<String, DslBlockExecutor<?>> blockInstances = new HashMap<>();
+    Map<String, DslBlockExecutor<?>> pathToExecutors = new HashMap<>();
+    Map<DslBlock, DslBlockExecutor<? extends DslBlock>> blockToExecutors = new HashMap<>();
+    Map<String, String> blockNameToPath = new HashMap<>();
 
     public void init(DslFlowBlock dslFlowBlock, String flowId) {
-        for (var entry : dslFlowBlock.getBlocks().entrySet()) {
-            blockInstances.put(entry.getKey(), createBlock(entry.getValue()));
-        }
-        for (var entry : dslFlowBlock.getBlocks().entrySet()) {
-            @SuppressWarnings("unchecked")
-            var executor = (DslBlockExecutor<DslBlock>) blockInstances.get(entry.getKey());
-            if (!(entry.getValue() instanceof DslRefBlock)) {
-                executor.init(entry.getValue(), blockInstances, flowId);
+        blockNameToPath = DslBlockScanner.scanFlowWithPaths(dslFlowBlock, (block, path) -> {
+            DslBlockExecutor<DslBlock> executor = createBlock(block);
+            pathToExecutors.put(path, executor);
+            blockToExecutors.put(block, executor);
+            if (!(block instanceof DslRefBlock)) {
+                executor.init(block, pathToExecutors, flowId);
             }
-        }
+        });
     }
 
     private DslBlockExecutor createBlock(DslBlock block) {
@@ -38,11 +42,24 @@ public class DslEngine {
     }
 
     public void execute(String sourceBlockName, TaskAssignmentContext payload) throws ContextIsCompletedException {
-        var block = blockInstances.get(sourceBlockName);
-        if (block != null) block.receive(payload);
+        String path = blockNameToPath.get(sourceBlockName);
+        if (path == null) {
+            throw new IllegalStateException("Unknown block name: " + sourceBlockName);
+        }
+
+        DslBlockExecutor<?> executor = pathToExecutors.get(path);
+        if (executor != null) {
+            executor.receive(payload);
+        }
     }
 
     public void stop(TaskAssignmentContext context) {
-        blockInstances.values().forEach(dslBlockExecutor -> dslBlockExecutor.stop(context));
+        pathToExecutors.values().forEach(dslBlockExecutor -> dslBlockExecutor.stop(context));
+    }
+
+    public <T extends DslBlock> DslBlockExecutor<?> getExecutor(T dslBlock) {
+        DslBlockExecutor<?> dslBlockExecutor = blockToExecutors.get(dslBlock);
+        Objects.requireNonNull(dslBlockExecutor);
+        return dslBlockExecutor;
     }
 }

@@ -7,7 +7,7 @@ import dti.crmsis.back.services.KnownFieldService;
 import dti.crmsis.back.services.TimeZoneService;
 import dti.crmsis.back.services.webhooks.WebhookRequestService;
 import dti.crmsis.back.services.webhooks.WebhookRequestsHandler;
-import dti.crmsis.back.taskassignment.DslBlockExecutorFactory;
+import dti.crmsis.back.taskassignment.dslexecutors.DslBlockExecutorFactory;
 import dti.crmsis.back.taskassignment.TaskAssignmentContext;
 import dti.crmsis.back.taskassignment.TaskAssignmentInitializer;
 import dti.crmsis.back.taskassignment.TaskAssignmentsManager;
@@ -48,6 +48,8 @@ public class ApplicationLifecycleManager {
     EventBus eventBus;
     @Inject
     TaskAssignmentsManager taskAssignmentsManager;
+    @Inject
+    SchemaRegistry schemaRegistry;
 
     void onStart(@Observes StartupEvent event) {
         LOG.info("Application is starting...");
@@ -74,6 +76,7 @@ public class ApplicationLifecycleManager {
         if (scheduledJobsEnabled) {
             scheduledJobSetup.activate();
         }
+        schemaRegistry.init();
     }
 
     private void cleanupOnShutdown() {

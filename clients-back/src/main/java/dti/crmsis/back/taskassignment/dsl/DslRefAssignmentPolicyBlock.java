@@ -1,6 +1,7 @@
 package dti.crmsis.back.taskassignment.dsl;
 
-public final class DslRefAssignmentPolicyBlock implements DslRefBlock, DslBlock {
+public final class DslRefAssignmentPolicyBlock implements DslRefBlock,
+        DslBlock {
     private String ref;
 
     @Override

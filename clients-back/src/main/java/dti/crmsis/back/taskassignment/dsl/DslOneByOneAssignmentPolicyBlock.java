@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.LinkedHashMap;
 
-public final class DslOneByOneAssignmentPolicyBlock implements DslAssignmentPolicyBlock, DslBlock {
+public final class DslOneByOneAssignmentPolicyBlock implements DslAssignmentPolicyBlock,
+        DslBlock {
     private String type;
     private int retryCount;
     private int waitMinutes;
@@ -12,6 +13,8 @@ public final class DslOneByOneAssignmentPolicyBlock implements DslAssignmentPoli
     private DslRefActionBlock failAction;
     @JsonDeserialize(as = LinkedHashMap.class)
     private LinkedHashMap<String, MemberConfig> members;
+
+    private java.util.List<WaitRuleDto> waitRules;
 
     @Override
     public String getType() {
@@ -60,5 +63,14 @@ public final class DslOneByOneAssignmentPolicyBlock implements DslAssignmentPoli
 
     public void setWaitMinutes(int waitMinutes) {
         this.waitMinutes = waitMinutes;
+    }
+
+
+    public java.util.List<WaitRuleDto> getWaitRules() {
+        return waitRules;
+    }
+
+    public void setWaitRules(java.util.List<WaitRuleDto> waitRules) {
+        this.waitRules = waitRules;
     }
 }

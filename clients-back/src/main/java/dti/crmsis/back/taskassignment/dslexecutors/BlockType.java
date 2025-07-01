@@ -1,6 +1,4 @@
-package dti.crmsis.back.taskassignment;
-
-import jakarta.inject.Qualifier;
+package dti.crmsis.back.taskassignment.dslexecutors;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

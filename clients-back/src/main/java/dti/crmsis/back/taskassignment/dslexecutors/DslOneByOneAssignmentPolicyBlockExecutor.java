@@ -1,21 +1,20 @@
-package dti.crmsis.back.taskassignment;
+package dti.crmsis.back.taskassignment.dslexecutors;
 
 import dti.crmsis.back.dao.app.WorkDayEntity;
 import dti.crmsis.back.dao.pd.UserEntity;
-import dti.crmsis.back.messaging.BusMessageProcessor;
-import dti.crmsis.back.messaging.TopicUtils;
+import dti.crmsis.back.taskassignment.TaskAssignmentContext;
 import dti.crmsis.back.taskassignment.availability.AvailabilityResult;
 import dti.crmsis.back.taskassignment.availability.UserAvailabilityService;
 import dti.crmsis.back.taskassignment.availability.WorkDayDto;
 import dti.crmsis.back.taskassignment.availability.WorkDayParseService;
 import dti.crmsis.back.taskassignment.dsl.DslOneByOneAssignmentPolicyBlock;
 import dti.crmsis.back.taskassignment.dsl.MemberConfig;
+import dti.crmsis.back.taskassignment.dsl.WaitRuleDto;
 import dti.crmsis.back.taskassignment.framework.CantFindUserByEmailException;
 import dti.crmsis.back.taskassignment.framework.TaskAssignmentApi;
 import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
 import dti.crmsis.back.taskassignment.utils.WithContextLock;
 import io.quarkus.arc.Unremovable;
-import io.vertx.core.Vertx;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -29,41 +28,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Unremovable
 @Dependent
 @BlockType("oneByOneAssignmentPolicy")
-public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecutor<DslOneByOneAssignmentPolicyBlock> {
+public class DslOneByOneAssignmentPolicyBlockExecutor
+        extends DslAbstractAssignmentPolicyBlockExecutor<DslOneByOneAssignmentPolicyBlock> {
     private static final Logger LOG = Logger.getLogger(DslOneByOneAssignmentPolicyBlockExecutor.class);
 
     @Inject
     TaskAssignmentApi taskAssignmentApi;
-    @Inject
-    BusMessageProcessor busMessageProcessor;
+
     @Inject
     UserAvailabilityService userAvailabilityService;
     @Inject
     WorkDayParseService workDayParseService;
 
-    @Inject
-    Vertx vertx;
 
     private DslOneByOneAssignmentPolicyBlock block;
     private final AtomicInteger currentIndex = new AtomicInteger(0);
     private final List<String> memberEmails = new ArrayList<>();
-    private Long retryTimerId;
+
 
     @Override
     public void init(DslOneByOneAssignmentPolicyBlock block, Map<String, DslBlockExecutor<?>> allBlocks, String flowId) {
         this.block = block;
         this.memberEmails.clear();
         this.memberEmails.addAll(block.getMembers().keySet());
-    }
-
-    @WithContextLock
-    public void scheduleRetry(TaskAssignmentContext context, long waitMinutes) throws ContextIsCompletedException {
-//        long delayMillis = waitMinutes * 60_000;
-        long delayMillis = 10000;
-        Long retryTimerId = vertx.setTimer(delayMillis, id -> {
-            busMessageProcessor.publish(TopicUtils.retryTopic(context.getFlowId()), context);
-        });
-        context.put("retryTimerId", retryTimerId);
     }
 
     @WithContextLock
@@ -82,7 +69,7 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
                     continue;
                 }
                 break;
-            }catch (ContextIsCompletedException e){
+            } catch (ContextIsCompletedException e) {
                 throw e;
             } catch (Exception e) {
                 LOG.infof("MDC on exception : %s", MDC.getMap());
@@ -90,7 +77,22 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
                 LOG.info("Assignment failed. Lets retry");
             }
         } while (true);
-        scheduleRetry(context, block.getWaitMinutes());
+        scheduleRetry(context, determineWaitMinutes());
+    }
+
+    private long determineWaitMinutes() {
+        java.time.LocalTime now = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC).toLocalTime();
+        java.util.List<WaitRuleDto> rules = block.getWaitRules();
+        if (rules != null) {
+            for (WaitRuleDto r : rules) {
+                java.time.LocalTime from = java.time.LocalTime.parse(r.from);
+                java.time.LocalTime to = java.time.LocalTime.parse(r.to);
+                if (!now.isBefore(from) && now.isBefore(to)) {
+                    return r.minutes;
+                }
+            }
+        }
+        return block.getWaitMinutes();
     }
 
     @WithContextLock
@@ -132,12 +134,7 @@ public class DslOneByOneAssignmentPolicyBlockExecutor implements DslBlockExecuto
     }
 
     @Override
-    public void stop(TaskAssignmentContext context) {
-        Long retryTimerId = (Long) context.get("retryTimerId");
-        if (retryTimerId != null) {
-            vertx.cancelTimer(retryTimerId);
-            return;
-        }
-        LOG.info("No retry to stop");
+    public Logger getLOG() {
+        return LOG;
     }
 }

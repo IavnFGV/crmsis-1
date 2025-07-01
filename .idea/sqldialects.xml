@@ -3,6 +3,7 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/build/db_utils/deals_view_materialized.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/build/known_fields.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/clients-back/dsl_configs.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/config/config/scripts/all_in_one.sql" dialect="MySQL" />
     <file url="PROJECT" dialect="MySQL" />
   </component>

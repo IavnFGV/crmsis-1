@@ -1,4 +1,4 @@
-package dti.crmsis.back.taskassignment;
+package dti.crmsis.back.taskassignment.dslexecutors;
 
 import dti.crmsis.back.taskassignment.dsl.DslBlock;
 import jakarta.enterprise.context.ApplicationScoped;

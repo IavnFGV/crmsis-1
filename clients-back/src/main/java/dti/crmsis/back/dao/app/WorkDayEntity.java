@@ -22,6 +22,9 @@ public class WorkDayEntity extends PanacheEntityBase {
     @Column(name = "PRIORITY",nullable = false)
     public Integer priority;
 
+    @Column(name = "TIMEZONE", nullable = false)
+    public String timeZone = "Europe/Kyiv";
+
     @Column(name="CONFIG_JSON",nullable = false, columnDefinition = "json")
     public String configJson;
 }

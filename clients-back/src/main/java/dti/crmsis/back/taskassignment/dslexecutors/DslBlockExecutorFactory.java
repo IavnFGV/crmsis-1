@@ -1,4 +1,4 @@
-package dti.crmsis.back.taskassignment;
+package dti.crmsis.back.taskassignment.dslexecutors;
 
 import dti.crmsis.back.taskassignment.dsl.DslBlock;
 import dti.crmsis.back.taskassignment.dsl.DslRefBlock;
@@ -7,10 +7,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Inject;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +26,7 @@ public class DslBlockExecutorFactory {
     BeanManager beanManager;
 
     public void initializeBlockExecutors() {
-        Set<Bean<?>> beans = beanManager.getBeans(DslBlockMarker.class);
+        Set<Bean<?>> beans = beanManager.getBeans(DslBlockExecutorMarkerWithoutTypeParams.class);
         for (Bean<?> bean : beans) {
             if (DslBlockExecutor.class.isAssignableFrom(bean.getBeanClass())) {
                 Class<?> executorClass = bean.getBeanClass();
@@ -57,10 +55,10 @@ public class DslBlockExecutorFactory {
         return executor;
     }
 
-    public DslBlockExecutor getBlockExecutorFor(DslBlock dslBlock) {
+    public  <T extends DslBlock> DslBlockExecutor<T> getBlockExecutorFor(DslBlock dslBlock) {
         Objects.requireNonNull(dslBlock, "DslBlock cannot be null");
         if (dslBlock instanceof DslRefBlock) {
-            DslBlockExecutor<DslBlock> dslBlockDslBlockExecutor = dslExecutorRegistry.get(((DslRefBlock) dslBlock).getRef());
+            DslBlockExecutor<T> dslBlockDslBlockExecutor = dslExecutorRegistry.get(((DslRefBlock) dslBlock).getRef());
             return dslBlockDslBlockExecutor;
         }
         Instance<? extends DslBlockExecutor> executorInstance = blockExecutors.get(dslBlock.getType());

@@ -1,13 +1,13 @@
 package dti.crmsis.back.taskassignment;
 
-import dti.crmsis.back.dao.app.DslFlowConfigEntity;
+import dti.crmsis.back.dao.app.DslConfigEntity;
 import dti.crmsis.back.messaging.BusMessageProcessor;
 import dti.crmsis.back.messaging.TopicUtils;
 import dti.crmsis.back.services.webhooks.WebhookRequestService;
 import dti.crmsis.back.taskassignment.dsl.DslFlowBlock;
 import dti.crmsis.back.taskassignment.dsl.DslParser;
+import dti.crmsis.back.taskassignment.dslexecutors.DslEngineFactory;
 import dti.crmsis.back.taskassignment.utils.ContextIsCompletedException;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.impl.ConcurrentHashSet;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 @ApplicationScoped
 public class TaskAssignmentsManager {
@@ -49,17 +48,17 @@ public class TaskAssignmentsManager {
         return contexts.get(flowId);
     }
 
-    public  void init() {
-        busMessageProcessor.consumer(TopicUtils.DEAL_RECEIVED_API,this::dealReceivedApi);
+    public void init() {
+        busMessageProcessor.consumer(TopicUtils.DEAL_RECEIVED_API, this::dealReceivedApi);
     }
 
     private void dealReceivedApi(WebhookRequestService.JsonProxy jsonProxy) {
         Long entityIdPipedrive = jsonProxy.entityIdPipedrive;
-        assert jsonProxy.type.equals("deal") : "type must be deal: " +jsonProxy.type;
+        assert jsonProxy.type.equals("deal") : "type must be deal: " + jsonProxy.type;
         if (!dealIdsForWhichDealReceivedMessageGot.add(entityIdPipedrive)) {
             throw new AssertionError("deal.received.api can be called only once for any deal: " + entityIdPipedrive);
         }
-        DslFlowConfigEntity flowDefinition = flowsManager.determineFlow(jsonProxy);
+        DslConfigEntity flowDefinition = flowsManager.determineFlow(jsonProxy);
         DslFlowBlock dslFlow = dslParser.parseFlow(flowDefinition.definition);
         String flowId = constructFlowId(entityIdPipedrive, flowDefinition);
         TaskAssignmentContext context = getOrCreateContext(flowId);
@@ -67,6 +66,7 @@ public class TaskAssignmentsManager {
         context.put("jsonProxy", jsonProxy);
         DslEngine engine = engineFactory.createEngine(dslFlow, flowId);
         dslEngines.put(flowId, engine);
+        context.setEngine(engine);
         subscribeToSuccessTopic(flowId);
         try {
             engine.execute(dslFlow.getInitialBlock(), context);
@@ -99,7 +99,7 @@ public class TaskAssignmentsManager {
     }
 
 
-    private String constructFlowId(Long entityIdPipedrive, DslFlowConfigEntity flowDefinition) {
+    private String constructFlowId(Long entityIdPipedrive, DslConfigEntity flowDefinition) {
         return entityIdPipedrive + "";
     }
 
