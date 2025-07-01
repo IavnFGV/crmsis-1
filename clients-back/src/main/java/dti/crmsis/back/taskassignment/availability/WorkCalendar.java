@@ -51,7 +51,7 @@ public class WorkCalendar {
                         if (!isRangeWithin(startTime, endTime, rule.from, rule.to)) return false;
                         if (rule.breaks != null) {
                             for (var br : rule.breaks) {
-                                if (rangesOverlap(startTime, endTime, br.fromStr, br.toStr)) return false;
+                                if (rangesOverlap(startTime, endTime, br.from, br.to)) return false;
                             }
                         }
                         return true;
@@ -74,9 +74,7 @@ public class WorkCalendar {
         return !start.isBefore(fromTime) && !end.isAfter(toTime);
     }
 
-    private boolean rangesOverlap(LocalTime start, LocalTime end, String breakFrom, String breakTo) {
-        LocalTime breakStart = LocalTime.parse(breakFrom);
-        LocalTime breakEnd = LocalTime.parse(breakTo);
-        return !start.isAfter(breakEnd) && !end.isBefore(breakStart);
+    private boolean rangesOverlap(LocalTime start, LocalTime end, LocalTime breakFrom, LocalTime breakTo) {
+        return !start.isAfter(breakTo) && !end.isBefore(breakFrom);
     }
 }

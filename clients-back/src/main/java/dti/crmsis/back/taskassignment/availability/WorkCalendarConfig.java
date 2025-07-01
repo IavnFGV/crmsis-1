@@ -26,12 +26,22 @@ public class WorkCalendarConfig {
     public static class TimeRange {
         public String fromStr;
         public String toStr;
-        public final LocalTime from;
-        public final LocalTime to;
+        public LocalTime from;
+        public LocalTime to;
 
         public TimeRange(LocalTime from, LocalTime to) {
             this.from = from;
             this.to = to;
+        }
+
+        public void setFrom(String from) {
+            this.from = LocalTime.parse(from);
+            this.fromStr = from;
+        }
+
+        public void setTo(String to) {
+            this.to = LocalTime.parse(to);
+            this.toStr = to;
         }
 
         public TimeRange(String fromStr, String toStr) {

@@ -45,8 +45,8 @@ public class WorkCalendarService {
                 rule.to = convertTime(rule.to, fromZone, toZone);
                 if (rule.breaks != null) {
                     for (var br : rule.breaks) {
-                        br.from = convertTime(br.from, fromZone, toZone);
-                        br.to = convertTime(br.to, fromZone, toZone);
+                        br.setFrom(convertTime(br.fromStr, fromZone, toZone));
+                        br.setTo(convertTime(br.toStr, fromZone, toZone));
                     }
                 }
             }

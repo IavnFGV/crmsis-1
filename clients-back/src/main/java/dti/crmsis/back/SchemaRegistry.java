@@ -15,8 +15,7 @@ import java.util.Optional;
 public class SchemaRegistry {
 
     @Inject
-    @PersistenceUnit("default")
-    EntityManager emDefault;
+    EntityManager emPd;
 
     @Inject
     @PersistenceUnit("app")
@@ -29,7 +28,7 @@ public class SchemaRegistry {
     private final Map<String, String> unitToSchema = new HashMap<>();
 
     void init() {
-        unitToSchema.put("default", extractSchema(emDefault));
+        unitToSchema.put("pd", extractSchema(emPd));
         unitToSchema.put("app", extractSchema(emApp));
         unitToSchema.put("webhooks", extractSchema(emWebhooks));
     }

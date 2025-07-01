@@ -12,7 +12,6 @@ import java.util.List;
 public class ManagerProductBindingRepository {
 
     @Inject
-    @PersistenceUnit("default")
     EntityManager entityManager;
 
     @Inject

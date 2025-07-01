@@ -17,7 +17,7 @@ public class JdbcUrlParser {
 
     private void parse() {
         Pattern pattern = Pattern.compile("jdbc:mysql://([^:/?#]+)(?::\\d+)?/([^?;]+)");
-        Matcher matcher = pattern.matcher(jdbcUrl);
+        Matcher matcher = pattern.matcher(jdbcUrl.toLowerCase());
         if (matcher.find()) {
             host = matcher.group(1);
             database = matcher.group(2);
