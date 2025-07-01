@@ -51,7 +51,7 @@ public class WorkCalendar {
                         if (!isRangeWithin(startTime, endTime, rule.from, rule.to)) return false;
                         if (rule.breaks != null) {
                             for (var br : rule.breaks) {
-                                if (rangesOverlap(startTime, endTime, br.from, br.to)) return false;
+                                if (rangesOverlap(startTime, endTime, br.fromStr, br.toStr)) return false;
                             }
                         }
                         return true;
